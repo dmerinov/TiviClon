@@ -22,6 +22,6 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
     override fun setUpUI() {
         //get attributes from xml using binding
-        binding.tvGreeting.text = "Hello ASEE students"
+        binding.tvGreeting.text = getString(R.string.welcome_string)
     }
 }

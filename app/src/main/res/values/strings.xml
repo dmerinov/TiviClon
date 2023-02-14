@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TiviClon</string>
+    <string name="welcome_string">Hello ASEE students</string>
 </resources>
