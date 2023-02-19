@@ -7,15 +7,7 @@ class LoginPresenter(private val view: LoginView) {
     }
 
     fun checkCredentials(username: String, password: String) {
-        if (username.length > 6 && username.isNotBlank()) {
-            if (password.length > 6 && password.isNotBlank()) {
-                view.navigateToHomeActivity()
-            } else {
-                view.notifyInvalidCredentials()
-            }
-        } else {
-            view.notifyInvalidCredentials()
-        }
+        //TODO fill the method so it checks the credentials and notify the user
     }
 }
 

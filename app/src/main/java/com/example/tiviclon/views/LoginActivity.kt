@@ -1,9 +1,7 @@
 package com.example.tiviclon.views
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.presenters.LoginPresenter
 import com.example.tiviclon.presenters.LoginView
@@ -29,16 +27,16 @@ class LoginActivity : AppCompatActivity(), LoginView {
     private fun setUpListeners() {
         with(binding) {
             btLogin.setOnClickListener {
-                presenter.checkCredentials(etUsername.text.toString(), etPassword.text.toString())
+                //pass the credentials to the presenter to check if they are valid
             }
         }
     }
 
     override fun navigateToHomeActivity() {
-        Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()
+        //make a toast emulating a successful login
     }
 
     override fun notifyInvalidCredentials() {
-        Toast.makeText(this, getString(R.string.invalid_user_msg), Toast.LENGTH_SHORT).show()
+        //make a toast emulating a wrong login
     }
 }
