@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">TiviClon</string>
+    <string name="user_string">Usuario</string>
+    <string name="password_string">Contraseña</string>
+    <string name="tv_login">Log In</string>
+    <string name="valid_user_msg">Usuario válido, Navegando...</string>
+    <string name="invalid_user_msg">El usuario no es válido, comprueba tus credenciales e intentalo de nuevo</string>
 </resources>
