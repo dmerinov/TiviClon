@@ -4,6 +4,7 @@ class LoginPresenter(private val view: LoginView) {
 
     fun initialize() {
         view.setUpUI()
+        view.setUpListeners()
     }
 
     fun checkCredentials(username: String, password: String) {
@@ -21,6 +22,8 @@ class LoginPresenter(private val view: LoginView) {
 
 interface LoginView {
     fun setUpUI()
+
+    fun setUpListeners()
     fun navigateToHomeActivity()
     fun notifyInvalidCredentials()
 }

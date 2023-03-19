@@ -26,7 +26,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
         setUpListeners()
     }
 
-    private fun setUpListeners() {
+    override fun setUpListeners() {
         with(binding) {
             btLogin.setOnClickListener {
                 presenter.checkCredentials(etUsername.text.toString(), etPassword.text.toString())
