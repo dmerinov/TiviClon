@@ -96,10 +96,10 @@
             app:layout_constraintTop_toBottomOf="@id/tv_repeat_password" />
 
         <Button
-            android:id="@+id/bt_login"
+            android:id="@+id/bt_register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/tv_login"
+            android:text="@string/confirm_registry"
             app:layout_constraintTop_toBottomOf="@id/et_repeat_password"
             app:layout_constraintStart_toStartOf="@id/et_password"
             app:layout_constraintEnd_toEndOf="@id/et_password"

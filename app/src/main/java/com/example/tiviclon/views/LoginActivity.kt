@@ -2,6 +2,7 @@ package com.example.tiviclon.views
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityLoginBinding
@@ -12,6 +13,14 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
     private lateinit var binding: ActivityLoginBinding
     private val presenter = LoginPresenter(this)
+
+    private val responseLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
+        if(activityResult.resultCode == RESULT_OK){
+            Toast.makeText(this, "registrado con exito", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(this, "fallo en registro", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,15 +39,20 @@ class LoginActivity : AppCompatActivity(), LoginView {
             btLogin.setOnClickListener {
                 presenter.checkCredentials(etUsername.text.toString(), etPassword.text.toString())
             }
+            btRegister.setOnClickListener {
+                presenter.onRegisterButtonClicked()
+            }
         }
     }
 
     override fun navigateToHomeActivity() {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()
-        RegisterActivity.navigateToRegisterActivity(this)
     }
 
     override fun notifyInvalidCredentials() {
         Toast.makeText(this, getString(R.string.invalid_user_msg), Toast.LENGTH_SHORT).show()
+    }
+    override fun navigateToRegister() {
+        RegisterActivity.navigateToRegisterActivity(this,responseLauncher)
     }
 }

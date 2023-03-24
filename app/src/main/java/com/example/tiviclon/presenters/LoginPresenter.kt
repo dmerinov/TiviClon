@@ -18,6 +18,10 @@ class LoginPresenter(private val view: LoginView) {
             view.notifyInvalidCredentials()
         }
     }
+
+    fun onRegisterButtonClicked() {
+        view.navigateToRegister()
+    }
 }
 
 interface LoginView {
@@ -25,4 +29,5 @@ interface LoginView {
     fun setUpListeners()
     fun navigateToHomeActivity()
     fun notifyInvalidCredentials()
+    fun navigateToRegister()
 }
