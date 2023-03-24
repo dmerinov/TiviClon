@@ -1,5 +1,7 @@
 package com.example.tiviclon.presenters
 
+import com.example.tiviclon.model.application.User
+
 class LoginPresenter(private val view: LoginView) {
 
     fun initialize() {
@@ -10,7 +12,8 @@ class LoginPresenter(private val view: LoginView) {
     fun checkCredentials(username: String, password: String) {
         if (username.length > 6 && username.isNotBlank()) {
             if (password.length > 6 && password.isNotBlank()) {
-                view.navigateToHomeActivity()
+                val loggedUser = User(username,password)
+                view.navigateToHomeActivity(loggedUser)
             } else {
                 view.notifyInvalidCredentials()
             }
@@ -27,7 +30,7 @@ class LoginPresenter(private val view: LoginView) {
 interface LoginView {
     fun setUpUI()
     fun setUpListeners()
-    fun navigateToHomeActivity()
+    fun navigateToHomeActivity(loggedUser: User)
     fun notifyInvalidCredentials()
     fun navigateToRegister()
 }

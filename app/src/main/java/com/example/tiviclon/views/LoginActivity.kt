@@ -6,6 +6,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityLoginBinding
+import com.example.tiviclon.model.application.User
+import com.example.tiviclon.presenters.HomePresenter
 import com.example.tiviclon.presenters.LoginPresenter
 import com.example.tiviclon.presenters.LoginView
 
@@ -51,8 +53,9 @@ class LoginActivity : AppCompatActivity(), LoginView {
         }
     }
 
-    override fun navigateToHomeActivity() {
+    override fun navigateToHomeActivity(loggedUser: User) {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()
+        HomeActivity.navigateToHomeActivity(this,loggedUser)
     }
 
     override fun notifyInvalidCredentials() {
