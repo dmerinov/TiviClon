@@ -3,7 +3,6 @@ package com.example.tiviclon.views
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.model.application.User
@@ -19,7 +18,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
             user: User,
         ) {
             val intent = Intent(context, HomeActivity::class.java).apply {
-                putExtra(USER_INFO,user)
+                putExtra(USER_INFO, user)
             }
             context.startActivity(intent)
         }
@@ -39,7 +38,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun setUpUI(user: User) {
-        with(binding){
+        with(binding) {
             tvGreeting.text = "Hola ${user.name}!"
         }
     }

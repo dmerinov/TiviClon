@@ -74,7 +74,7 @@
 
         <Button
             android:id="@+id/bt_login"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:text="@string/tv_login"
             app:layout_constraintTop_toBottomOf="@id/et_password"
@@ -84,12 +84,22 @@
 
         <Button
             android:id="@+id/bt_register"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:text="@string/tv_register"
             app:layout_constraintTop_toBottomOf="@id/bt_login"
             app:layout_constraintStart_toStartOf="@id/et_password"
             app:layout_constraintEnd_toEndOf="@id/et_password"
+            android:layout_marginTop="5dp"/>
+
+        <Button
+            android:id="@+id/bt_website_link"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/bt_register"
+            app:layout_constraintTop_toBottomOf="@id/bt_register"
+            app:layout_constraintEnd_toEndOf="@id/bt_register"
+            android:text="@string/visit_website"
             android:layout_marginTop="5dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

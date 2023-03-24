@@ -12,7 +12,7 @@ class LoginPresenter(private val view: LoginView) {
     fun checkCredentials(username: String, password: String) {
         if (username.length > 6 && username.isNotBlank()) {
             if (password.length > 6 && password.isNotBlank()) {
-                val loggedUser = User(username,password)
+                val loggedUser = User(username, password)
                 view.navigateToHomeActivity(loggedUser)
             } else {
                 view.notifyInvalidCredentials()
@@ -25,6 +25,10 @@ class LoginPresenter(private val view: LoginView) {
     fun onRegisterButtonClicked() {
         view.navigateToRegister()
     }
+
+    fun onVisitWebsiteButtonClicked() {
+        view.navigateToWebsite()
+    }
 }
 
 interface LoginView {
@@ -33,4 +37,5 @@ interface LoginView {
     fun navigateToHomeActivity(loggedUser: User)
     fun notifyInvalidCredentials()
     fun navigateToRegister()
+    fun navigateToWebsite()
 }
