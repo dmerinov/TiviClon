@@ -20,12 +20,7 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
             context: Context,
             responseLauncher: ActivityResultLauncher<Intent>
         ) {
-
-            val intent = Intent(context, RegisterActivity::class.java).apply {
-                //here you can use putExtra to pass parameters as in
-                //putExtra(key, value)
-            }
-            responseLauncher.launch(intent)
+            //TODO
         }
     }
 
@@ -57,13 +52,7 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
     }
 
     override fun onValidCredentials(name: String, password: String) {
-        val intent = Intent()
-        intent.apply {
-            putExtra(REGISTER_NAME,name)
-            putExtra(REGISTER_PASS,password)
-        }
-        setResult(RESULT_OK, intent)
-        finish()
+        //TODO
     }
 
     override fun onInvalidCredentials(error: RegisterError) {
