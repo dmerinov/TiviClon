@@ -32,18 +32,18 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
     }
 
     override fun setUpUI() {
-        TODO("Not yet implemented")
+       // TODO("Not yet implemented")
     }
 
     override fun setUpListeners() {
-        TODO("Not yet implemented")
+        // TODO("Not yet implemented")
     }
 
     override fun onValidCredentials() {
-        TODO("Not yet implemented")
+        // TODO("Not yet implemented")
     }
 
     override fun onInvalidCredentials() {
-        TODO("Not yet implemented")
+        // TODO("Not yet implemented")
     }
 }

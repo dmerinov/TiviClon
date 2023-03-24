@@ -35,6 +35,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
     override fun navigateToHomeActivity() {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()
+        RegisterActivity.navigateToRegisterActivity(this)
     }
 
     override fun notifyInvalidCredentials() {
