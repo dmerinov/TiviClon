@@ -16,7 +16,13 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
     private val responseLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
         if(activityResult.resultCode == RESULT_OK){
-            Toast.makeText(this, "registrado con exito", Toast.LENGTH_SHORT).show()
+            val name = activityResult.data?.getStringExtra(RegisterActivity.REGISTER_NAME).orEmpty()
+            val password = activityResult.data?.getStringExtra(RegisterActivity.REGISTER_PASS).orEmpty()
+            Toast.makeText(this, "registrado con exito: user $name, pass $password", Toast.LENGTH_SHORT).show()
+            with(binding){
+                etPassword.setText(password)
+                etUsername.setText(name)
+            }
         }else{
             Toast.makeText(this, "fallo en registro", Toast.LENGTH_SHORT).show()
         }

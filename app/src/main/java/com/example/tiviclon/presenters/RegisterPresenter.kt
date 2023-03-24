@@ -17,7 +17,7 @@ class RegisterPresenter (private val view: RegisterView) {
                 view.onInvalidCredentials(RegisterError.UserError)
             }else{
                 //OK
-                view.onValidCredentials()
+                view.onValidCredentials(username, password)
             }
         }
     }
@@ -27,7 +27,7 @@ class RegisterPresenter (private val view: RegisterView) {
 interface RegisterView{
     fun setUpUI()
     fun setUpListeners()
-    fun onValidCredentials()
+    fun onValidCredentials(name: String, password: String)
     fun onInvalidCredentials(error: RegisterError)
 }
 

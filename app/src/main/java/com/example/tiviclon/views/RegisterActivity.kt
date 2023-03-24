@@ -12,8 +12,10 @@ import com.example.tiviclon.presenters.RegisterPresenter
 import com.example.tiviclon.presenters.RegisterView
 
 class RegisterActivity : AppCompatActivity(), RegisterView {
-
     companion object {
+
+        const val REGISTER_NAME = "REGISTER_NAME"
+        const val REGISTER_PASS = "REGISTER_PASS"
         fun navigateToRegisterActivity(
             context: Context,
             responseLauncher: ActivityResultLauncher<Intent>
@@ -54,8 +56,13 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
         }
     }
 
-    override fun onValidCredentials() {
-        setResult(RESULT_OK)
+    override fun onValidCredentials(name: String, password: String) {
+        val intent = Intent()
+        intent.apply {
+            putExtra(REGISTER_NAME,name)
+            putExtra(REGISTER_PASS,password)
+        }
+        setResult(RESULT_OK, intent)
         finish()
     }
 
