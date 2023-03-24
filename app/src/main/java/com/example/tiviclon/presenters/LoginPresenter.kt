@@ -22,7 +22,6 @@ class LoginPresenter(private val view: LoginView) {
 
 interface LoginView {
     fun setUpUI()
-
     fun setUpListeners()
     fun navigateToHomeActivity()
     fun notifyInvalidCredentials()

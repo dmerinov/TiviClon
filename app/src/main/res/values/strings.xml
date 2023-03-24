@@ -5,4 +5,6 @@
     <string name="tv_login">Log In</string>
     <string name="valid_user_msg">Usuario válido, Navegando...</string>
     <string name="invalid_user_msg">El usuario no es válido, comprueba tus credenciales e intentalo de nuevo</string>
+    <string name="tv_register">Registro</string>
+    <string name="repeat_password_string">Repetir contraseña</string>
 </resources>

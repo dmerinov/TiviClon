@@ -23,7 +23,6 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
     override fun setUpUI() {
         //get attributes from xml using binding
-        setUpListeners()
     }
 
     override fun setUpListeners() {
