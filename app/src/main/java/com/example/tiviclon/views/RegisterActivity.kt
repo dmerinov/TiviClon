@@ -7,11 +7,8 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.databinding.ActivityRegisterBinding
-import com.example.tiviclon.presenters.RegisterError
-import com.example.tiviclon.presenters.RegisterPresenter
-import com.example.tiviclon.presenters.RegisterView
 
-class RegisterActivity : AppCompatActivity(), RegisterView {
+class RegisterActivity : AppCompatActivity() {
     companion object {
 
         const val REGISTER_NAME = "REGISTER_NAME"
@@ -30,24 +27,39 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
     }
 
     private lateinit var binding: ActivityRegisterBinding
-    private val presenter = RegisterPresenter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter.initialize()
+        setUpUI()
+        setUpListeners()
     }
 
-    override fun setUpUI() {
+    private fun checkRegistry(password: String, repeatedPassword: String, username: String) {
+        if (password.length < 6 || repeatedPassword != password) {
+            //errorPassword
+            onInvalidCredentials(RegisterError.PasswordError)
+        } else {
+            if (username.length < 6) {
+                //errorName
+                onInvalidCredentials(RegisterError.UserError)
+            } else {
+                //OK
+                onValidCredentials(username, password)
+            }
+        }
+    }
+
+    private fun setUpUI() {
         //Nothing to do
     }
 
-    override fun setUpListeners() {
+    private fun setUpListeners() {
         with(binding) {
             btRegister.setOnClickListener {
-                presenter.checkRegistry(
+                checkRegistry(
                     etPassword.text.toString(),
                     etRepeatPassword.text.toString(),
                     etUsername.text.toString()
@@ -56,17 +68,17 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
         }
     }
 
-    override fun onValidCredentials(name: String, password: String) {
+    private fun onValidCredentials(name: String, password: String) {
         val intent = Intent()
         intent.apply {
-            putExtra(REGISTER_NAME,name)
-            putExtra(REGISTER_PASS,password)
+            putExtra(REGISTER_NAME, name)
+            putExtra(REGISTER_PASS, password)
         }
         setResult(RESULT_OK, intent)
         finish()
     }
 
-    override fun onInvalidCredentials(error: RegisterError) {
+    private fun onInvalidCredentials(error: RegisterError) {
         when (error) {
             RegisterError.PasswordError -> Toast.makeText(
                 this,
@@ -80,4 +92,8 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
             ).show()
         }
     }
+}
+
+enum class RegisterError {
+    PasswordError, UserError
 }

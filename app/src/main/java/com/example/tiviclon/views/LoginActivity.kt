@@ -9,14 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.model.application.User
-import com.example.tiviclon.presenters.LoginPresenter
-import com.example.tiviclon.presenters.LoginView
 
 
-class LoginActivity : AppCompatActivity(), LoginView {
+class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private val presenter = LoginPresenter(this)
 
     private val responseLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
@@ -44,41 +41,63 @@ class LoginActivity : AppCompatActivity(), LoginView {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter.initialize()
+        setUpUI()
+        setUpListeners()
     }
 
-    override fun setUpUI() {
+    private fun setUpUI() {
         //get attributes from xml using binding
     }
 
-    override fun setUpListeners() {
+    private fun setUpListeners() {
         with(binding) {
             btLogin.setOnClickListener {
-                presenter.checkCredentials(etUsername.text.toString(), etPassword.text.toString())
+                checkCredentials(etUsername.text.toString(), etPassword.text.toString())
             }
             btRegister.setOnClickListener {
-                presenter.onRegisterButtonClicked()
+                onRegisterButtonClicked()
             }
             btWebsiteLink.setOnClickListener {
-                presenter.onVisitWebsiteButtonClicked()
+                onVisitWebsiteButtonClicked()
             }
         }
     }
 
-    override fun navigateToHomeActivity(loggedUser: User) {
+    private fun checkCredentials(username: String, password: String) {
+        if (username.length > 6 && username.isNotBlank()) {
+            if (password.length > 6 && password.isNotBlank()) {
+                val loggedUser = User(username, password)
+                navigateToHomeActivity(loggedUser)
+            } else {
+                notifyInvalidCredentials()
+            }
+        } else {
+            notifyInvalidCredentials()
+        }
+    }
+
+    private fun onRegisterButtonClicked() {
+        navigateToRegister()
+    }
+
+    private fun onVisitWebsiteButtonClicked() {
+        navigateToWebsite()
+    }
+
+    private fun navigateToHomeActivity(loggedUser: User) {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()
         HomeActivity.navigateToHomeActivity(this, loggedUser)
     }
 
-    override fun notifyInvalidCredentials() {
+    private fun notifyInvalidCredentials() {
         Toast.makeText(this, getString(R.string.invalid_user_msg), Toast.LENGTH_SHORT).show()
     }
 
-    override fun navigateToRegister() {
+    private fun navigateToRegister() {
         RegisterActivity.navigateToRegisterActivity(this, responseLauncher)
     }
 
-    override fun navigateToWebsite() {
+    private fun navigateToWebsite() {
         val webIntent: Intent = Uri.parse("https://trakt.tv/").let { webpage ->
             Intent(Intent.ACTION_VIEW, webpage)
         }

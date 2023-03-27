@@ -6,10 +6,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.model.application.User
-import com.example.tiviclon.presenters.HomePresenter
-import com.example.tiviclon.presenters.HomeView
 
-class HomeActivity : AppCompatActivity(), HomeView {
+class HomeActivity : AppCompatActivity() {
 
     companion object {
         const val USER_INFO = "USER_INFO"
@@ -26,7 +24,6 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     private lateinit var binding: ActivityHomeBinding
-    private val presenter = HomePresenter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,16 +31,16 @@ class HomeActivity : AppCompatActivity(), HomeView {
         setContentView(binding.root)
 
         val user = intent.getSerializableExtra(USER_INFO) as User
-        presenter.initialize(user)
+        setUpUI(user)
     }
 
-    override fun setUpUI(user: User) {
+    private fun setUpUI(user: User) {
         with(binding) {
             tvGreeting.text = "Hola ${user.name}!"
         }
     }
 
-    override fun setUpListeners() {
+    fun setUpListeners() {
         //nothing to do
     }
 }
