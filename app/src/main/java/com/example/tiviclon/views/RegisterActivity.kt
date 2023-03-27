@@ -52,7 +52,7 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
     }
 
     override fun onValidCredentials(name: String, password: String) {
-        //TODO
+        //TODO - return the result to the login activity using an Intent
     }
 
     override fun onInvalidCredentials(error: RegisterError) {

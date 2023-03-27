@@ -30,7 +30,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val user = intent.getSerializableExtra(USER_INFO) as User
+        val user = User() // TODO Change this in order to receive the data from the intent
         presenter.initialize(user)
     }
 
