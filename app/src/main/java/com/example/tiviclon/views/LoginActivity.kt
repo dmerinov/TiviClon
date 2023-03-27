@@ -1,7 +1,5 @@
 package com.example.tiviclon.views
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,10 +16,9 @@ class LoginActivity : AppCompatActivity() {
     private val responseLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
             if (activityResult.resultCode == RESULT_OK) {
-                val name =
-                    activityResult.data?.getStringExtra(RegisterActivity.REGISTER_NAME).orEmpty()
-                val password =
-                    activityResult.data?.getStringExtra(RegisterActivity.REGISTER_PASS).orEmpty()
+                //TODO - GET USER AND PASSWORD FROM THE RETURNING INTENT
+                val name = ""
+                val password = ""
                 Toast.makeText(
                     this,
                     "registrado con exito: user $name, pass $password",
@@ -98,9 +95,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun navigateToWebsite() {
-        val webIntent: Intent = Uri.parse("https://trakt.tv/").let { webpage ->
-            Intent(Intent.ACTION_VIEW, webpage)
-        }
-        startActivity(webIntent)
+        //TODO - CREATE INTENT USING ACTION_VIEW
+        //DON'T FORGET TO UPDATE ANDROIDMANIFEST.XML
     }
 }

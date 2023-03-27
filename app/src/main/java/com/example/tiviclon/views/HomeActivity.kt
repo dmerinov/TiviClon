@@ -15,10 +15,7 @@ class HomeActivity : AppCompatActivity() {
             context: Context,
             user: User,
         ) {
-            val intent = Intent(context, HomeActivity::class.java).apply {
-                putExtra(USER_INFO, user)
-            }
-            context.startActivity(intent)
+            //TODO - CREATE INTENT AND PASS THE OBJECT USER TO THE NEW ACTIVITY
         }
 
     }
@@ -30,7 +27,9 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val user = intent.getSerializableExtra(USER_INFO) as User
+        //TODO - GET THE USER FROM INTENT
+
+        val user = User()
         setUpUI(user)
     }
 

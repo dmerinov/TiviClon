@@ -17,12 +17,7 @@ class RegisterActivity : AppCompatActivity() {
             context: Context,
             responseLauncher: ActivityResultLauncher<Intent>
         ) {
-
-            val intent = Intent(context, RegisterActivity::class.java).apply {
-                //here you can use putExtra to pass parameters as in
-                //putExtra(key, value)
-            }
-            responseLauncher.launch(intent)
+            //TODO: CREATE THE INTENT AND LAUNCH IT USING AN ActivityResultLauncher
         }
     }
 
@@ -35,21 +30,6 @@ class RegisterActivity : AppCompatActivity() {
 
         setUpUI()
         setUpListeners()
-    }
-
-    private fun checkRegistry(password: String, repeatedPassword: String, username: String) {
-        if (password.length < 6 || repeatedPassword != password) {
-            //errorPassword
-            onInvalidCredentials(RegisterError.PasswordError)
-        } else {
-            if (username.length < 6) {
-                //errorName
-                onInvalidCredentials(RegisterError.UserError)
-            } else {
-                //OK
-                onValidCredentials(username, password)
-            }
-        }
     }
 
     private fun setUpUI() {
@@ -68,14 +48,25 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkRegistry(password: String, repeatedPassword: String, username: String) {
+        if (password.length < 6 || repeatedPassword != password) {
+            //errorPassword
+            onInvalidCredentials(RegisterError.PasswordError)
+        } else {
+            if (username.length < 6) {
+                //errorName
+                onInvalidCredentials(RegisterError.UserError)
+            } else {
+                //OK
+                onValidCredentials(username, password)
+            }
+        }
+    }
+
     private fun onValidCredentials(name: String, password: String) {
         val intent = Intent()
-        intent.apply {
-            putExtra(REGISTER_NAME, name)
-            putExtra(REGISTER_PASS, password)
-        }
-        setResult(RESULT_OK, intent)
-        finish()
+        //TODO - MAKE THE INTENT RETURN THE NAME AND PASSWORD TO
+
     }
 
     private fun onInvalidCredentials(error: RegisterError) {
