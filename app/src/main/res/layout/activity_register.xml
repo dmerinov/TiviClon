@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.LoginActivity">
+    tools:context=".views.RegisterActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_form_container"
@@ -17,15 +17,16 @@
         android:paddingVertical="20dp"
         android:paddingHorizontal="40dp">
 
-        <TextView
-            android:id="@+id/tv_login_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tv_login"
-            android:textSize="30sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/tv_register_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tv_register"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
         <TextView
             android:id="@+id/tv_username"
@@ -36,7 +37,7 @@
             android:layout_marginTop="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_login_title" />
+            app:layout_constraintTop_toBottomOf="@id/tv_register_title" />
 
         <EditText
             android:id="@+id/et_username"
@@ -72,35 +73,37 @@
             app:layout_constraintStart_toStartOf="@id/tv_password"
             app:layout_constraintTop_toBottomOf="@id/tv_password" />
 
-        <Button
-            android:id="@+id/bt_login"
-            android:layout_width="150dp"
+        <TextView
+            android:id="@+id/tv_repeat_password"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/tv_login"
-            app:layout_constraintTop_toBottomOf="@id/et_password"
-            app:layout_constraintStart_toStartOf="@id/et_password"
-            app:layout_constraintEnd_toEndOf="@id/et_password"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="20dp"
+            android:text="@string/repeat_password_string"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="@id/et_username"
+            app:layout_constraintStart_toStartOf="@id/et_username"
+            app:layout_constraintTop_toBottomOf="@id/et_password" />
+
+        <EditText
+            android:id="@+id/et_repeat_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autofillHints="password"
+            android:hint="@string/password_string"
+            android:inputType="textPassword"
+            android:gravity="center_horizontal"
+            app:layout_constraintStart_toStartOf="@id/tv_password"
+            app:layout_constraintTop_toBottomOf="@id/tv_repeat_password" />
 
         <Button
             android:id="@+id/bt_register"
-            android:layout_width="150dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/tv_register"
-            app:layout_constraintTop_toBottomOf="@id/bt_login"
+            android:text="@string/confirm_registry"
+            app:layout_constraintTop_toBottomOf="@id/et_repeat_password"
             app:layout_constraintStart_toStartOf="@id/et_password"
             app:layout_constraintEnd_toEndOf="@id/et_password"
-            android:layout_marginTop="5dp"/>
-
-        <Button
-            android:id="@+id/bt_website_link"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/bt_register"
-            app:layout_constraintTop_toBottomOf="@id/bt_register"
-            app:layout_constraintEnd_toEndOf="@id/bt_register"
-            android:text="@string/visit_website"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="20dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
