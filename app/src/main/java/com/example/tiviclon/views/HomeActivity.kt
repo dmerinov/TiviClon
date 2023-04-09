@@ -4,7 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
+import com.example.tiviclon.fragments.DiscoverFragment
+import com.example.tiviclon.fragments.LibraryFragment
+import com.example.tiviclon.fragments.SearchFragment
 import com.example.tiviclon.model.application.User
 import com.example.tiviclon.presenters.HomePresenter
 import com.example.tiviclon.presenters.HomeView
@@ -38,12 +43,37 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun setUpUI(user: User) {
-        with(binding) {
-            tvGreeting.text = "Hola ${user.name}!"
-        }
+        loadFragment(DiscoverFragment())
     }
 
     override fun setUpListeners() {
-        //nothing to do
+        with(binding) {
+            bottomNavBar.setOnItemSelectedListener { item ->
+                when (item.itemId) {
+                    R.id.action_favorites -> {
+                        loadFragment(DiscoverFragment())
+                        true
+                    }
+                    R.id.action_music -> {
+                        loadFragment(LibraryFragment())
+                        true
+                    }
+                    R.id.action_schedules -> {
+                        loadFragment(SearchFragment())
+                        true
+                    }
+                    else -> {
+                        true
+                    }
+                }
+            }
+        }
     }
+
+    private fun loadFragment(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragment_container_view, fragment)
+        transaction.commit()
+    }
+
 }
