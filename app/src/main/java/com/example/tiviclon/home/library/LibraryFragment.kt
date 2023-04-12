@@ -1,13 +1,13 @@
-package com.example.tiviclon.fragments
+package com.example.tiviclon.home.library
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 
-class SearchFragment : Fragment() {
+class LibraryFragment : Fragment(), LibraryView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,7 +18,7 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false)
+        return inflater.inflate(R.layout.fragment_library, container, false)
     }
 
     override fun onDestroyView() {

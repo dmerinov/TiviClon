@@ -1,4 +1,4 @@
-package com.example.tiviclon.views
+package com.example.tiviclon.login
 
 import android.content.Intent
 import android.net.Uri
@@ -9,8 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.model.application.User
-import com.example.tiviclon.presenters.LoginPresenter
-import com.example.tiviclon.presenters.LoginView
+import com.example.tiviclon.home.HomeActivity
+import com.example.tiviclon.registry.RegisterActivity
 
 
 class LoginActivity : AppCompatActivity(), LoginView {

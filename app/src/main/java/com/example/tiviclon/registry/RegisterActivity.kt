@@ -1,4 +1,4 @@
-package com.example.tiviclon.views
+package com.example.tiviclon.registry
 
 import android.content.Context
 import android.content.Intent
@@ -7,9 +7,6 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.databinding.ActivityRegisterBinding
-import com.example.tiviclon.presenters.RegisterError
-import com.example.tiviclon.presenters.RegisterPresenter
-import com.example.tiviclon.presenters.RegisterView
 
 class RegisterActivity : AppCompatActivity(), RegisterView {
     companion object {

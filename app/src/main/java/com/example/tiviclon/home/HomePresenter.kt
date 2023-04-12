@@ -1,4 +1,4 @@
-package com.example.tiviclon.presenters
+package com.example.tiviclon.home
 
 import com.example.tiviclon.model.application.User
 
@@ -9,9 +9,4 @@ class HomePresenter(private val view: HomeView) {
         view.setUpListeners()
     }
 
-}
-
-interface HomeView {
-    fun setUpUI(user: User)
-    fun setUpListeners()
 }

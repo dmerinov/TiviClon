@@ -16,13 +16,13 @@
         >
 
         <activity
-            android:name=".views.HomeActivity"
+            android:name=".home.HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".views.RegisterActivity"
+            android:name=".registry.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".views.LoginActivity"
+            android:name=".login.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,4 +1,4 @@
-package com.example.tiviclon.presenters
+package com.example.tiviclon.login
 
 import com.example.tiviclon.model.application.User
 
@@ -29,13 +29,4 @@ class LoginPresenter(private val view: LoginView) {
     fun onVisitWebsiteButtonClicked() {
         view.navigateToWebsite()
     }
-}
-
-interface LoginView {
-    fun setUpUI()
-    fun setUpListeners()
-    fun navigateToHomeActivity(loggedUser: User)
-    fun notifyInvalidCredentials()
-    fun navigateToRegister()
-    fun navigateToWebsite()
 }

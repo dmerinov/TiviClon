@@ -1,4 +1,4 @@
-package com.example.tiviclon.fragments
+package com.example.tiviclon.home.discover
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 
-class DiscoverFragment : Fragment() {
+class DiscoverFragment : Fragment(), DiscoverView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,4 +1,4 @@
-package com.example.tiviclon.presenters
+package com.example.tiviclon.registry
 
 class RegisterPresenter (private val view: RegisterView) {
 
@@ -22,13 +22,6 @@ class RegisterPresenter (private val view: RegisterView) {
         }
     }
 
-}
-
-interface RegisterView{
-    fun setUpUI()
-    fun setUpListeners()
-    fun onValidCredentials(name: String, password: String)
-    fun onInvalidCredentials(error: RegisterError)
 }
 
 enum class RegisterError {
