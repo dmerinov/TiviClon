@@ -1,4 +1,9 @@
 package com.example.tiviclon.home.library
 
-class LibraryPresenter {
+class LibraryPresenter(private val view:LibraryView) {
+
+    fun initialize(){
+        view.setUpUI()
+        view.setUpListeners()
+    }
 }
