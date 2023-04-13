@@ -6,8 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
+import com.example.tiviclon.databinding.FragmentLibraryBinding
 
 class LibraryFragment : Fragment(), LibraryView {
+
+    private var _binding: FragmentLibraryBinding? = null
+    private val binding get() = _binding!! //this is the one that you've to use
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
