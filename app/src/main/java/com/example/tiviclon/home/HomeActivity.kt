@@ -2,6 +2,7 @@ package com.example.tiviclon.home
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -36,12 +37,15 @@ class HomeActivity : AppCompatActivity(), HomeView {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val user = intent.getSerializableExtra(USER_INFO) as User
+        val user = intent.extras?.getSerializable(USER_INFO) as User
         presenter.initialize(user)
     }
 
     override fun setUpUI(user: User) {
-        loadFragment(DiscoverFragment())
+        with(binding){
+            appBar.title = "Buenas, ${user.name}"
+            appBar.setTitleTextColor(Color.WHITE)
+        }
     }
 
     override fun setUpListeners() {
@@ -66,6 +70,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 }
             }
         }
+    }
+
+    override fun initFragments() {
+        loadFragment(DiscoverFragment())
     }
 
     private fun loadFragment(fragment: Fragment) {
