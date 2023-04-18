@@ -18,7 +18,7 @@ import com.example.tiviclon.home.search.SearchFragment
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.model.application.User
 
-class HomeActivity : AppCompatActivity(), IDetailFragment,  HomeView {
+class HomeActivity : AppCompatActivity(), IDetailFragment,FragmentCommonComunication,  HomeView {
 
     companion object {
         const val USER_INFO = "USER_INFO"
@@ -112,6 +112,12 @@ class HomeActivity : AppCompatActivity(), IDetailFragment,  HomeView {
 
     override fun initFragments() {
         loadFragment(DiscoverFragment())
+    }
+
+    override fun updateAppBarText(text: String) {
+        with(binding){
+            appBar.title = text
+        }
     }
 
     private fun loadFragment(fragment: Fragment) {

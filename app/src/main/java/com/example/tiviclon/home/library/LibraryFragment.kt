@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentLibraryBinding
 import com.example.tiviclon.fragment.HomeBaseFragment
+import com.example.tiviclon.home.FragmentCommonComunication
 import com.example.tiviclon.home.HomeActivity
 import com.example.tiviclon.home.library.adapter.LibraryAdapter
 import com.example.tiviclon.model.application.Show
@@ -38,9 +39,9 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
     }
 
     override fun setUpUI() {
-        with(binding){
-            fragmentText.text = "Este es el fragmento de tu biblioteca de series"
-        }
+        val activity = getFragmentContext() as FragmentCommonComunication
+        activity.updateAppBarText("Biblioteca")
+
     }
 
     override fun setUpRecyclerView(shows: List<Show>){
