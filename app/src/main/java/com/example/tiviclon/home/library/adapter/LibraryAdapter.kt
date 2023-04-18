@@ -1,6 +1,7 @@
 package com.example.tiviclon.home.library.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tiviclon.databinding.ShowViewholderBinding
@@ -11,8 +12,11 @@ class LibraryAdapter(private val shows: List<Show>) :
 
 
     class ShowHolder(private val binding: ShowViewholderBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(show: Show){
+        fun bind(show: Show, totalItems: Int){
             binding.itemTitle.text = show.title
+            if(totalItems - 1 == adapterPosition){
+                binding.spacer.visibility = View.GONE
+            }
         }
     }
 
@@ -24,7 +28,7 @@ class LibraryAdapter(private val shows: List<Show>) :
     override fun getItemCount() = shows.size
 
     override fun onBindViewHolder(holder: ShowHolder, position: Int) {
-        holder.bind(shows[position])
+        holder.bind(shows[position], shows.size)
     }
 
 }

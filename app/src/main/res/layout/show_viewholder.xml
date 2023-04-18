@@ -24,6 +24,7 @@
         android:textSize="15sp"
         android:text="TITULO"/>
     <androidx.constraintlayout.utils.widget.ImageFilterView
+        android:id="@+id/spacer"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         app:layout_constraintTop_toBottomOf="@id/item_img"
