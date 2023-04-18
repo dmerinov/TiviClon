@@ -15,6 +15,7 @@ import com.example.tiviclon.home.discover.DiscoverFragment
 import com.example.tiviclon.home.library.IDetailFragment
 import com.example.tiviclon.home.library.LibraryFragment
 import com.example.tiviclon.home.search.SearchFragment
+import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.model.application.User
 
 class HomeActivity : AppCompatActivity(), IDetailFragment,  HomeView {
@@ -106,6 +107,8 @@ class HomeActivity : AppCompatActivity(), IDetailFragment,  HomeView {
         //hide navigation
         //show detail activity.
     }
+
+    override fun getShows():List<Show> = presenter.getShows()
 
     override fun initFragments() {
         loadFragment(DiscoverFragment())

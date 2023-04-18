@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentLibraryBinding
 import com.example.tiviclon.fragment.HomeBaseFragment
+import com.example.tiviclon.home.HomeActivity
 import com.example.tiviclon.home.library.adapter.LibraryAdapter
 import com.example.tiviclon.model.application.Show
 
@@ -42,24 +43,16 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
         }
     }
 
-    override fun setUpRecyclerView(){
+    override fun setUpRecyclerView(shows: List<Show>){
         adapter = LibraryAdapter(getShows())
         with(binding){
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
             rvShowList.adapter = adapter
         }
     }
-    private fun getShows(): MutableList<Show>{
-        val shows:MutableList<Show> = ArrayList()
-        shows.add(Show("Spiderman", "Marvel", "Peter Parker"))
-        shows.add(Show("Daredevil", "Marvel", "Matthew Michael Murdock"))
-        shows.add(Show("Wolverine", "Marvel", "James Howlett"))
-        shows.add(Show("Batman", "DC", "Bruce Wayne",))
-        shows.add(Show("Thor", "Marvel", "Thor Odinson"))
-        shows.add(Show("Flash", "DC", "Jay Garrick"))
-        shows.add(Show("Green Lantern", "DC", "Alan Scott"))
-        shows.add(Show("Wonder Woman", "DC", "Princess Diana"))
-        return shows
+    override fun getShows(): List<Show>{
+        val activity = getFragmentContext() as IDetailFragment
+        return activity.getShows()
     }
 
     override fun setUpListeners() {
@@ -87,4 +80,5 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 //padre.
 interface IDetailFragment{
     fun goShowDetail()
+    fun getShows(): List<Show>
 }
