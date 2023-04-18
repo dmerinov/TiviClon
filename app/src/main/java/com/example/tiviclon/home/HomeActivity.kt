@@ -10,12 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
+import com.example.tiviclon.home.detailShow.DetailShowFragment
 import com.example.tiviclon.home.discover.DiscoverFragment
+import com.example.tiviclon.home.library.IDetailFragment
 import com.example.tiviclon.home.library.LibraryFragment
 import com.example.tiviclon.home.search.SearchFragment
 import com.example.tiviclon.model.application.User
 
-class HomeActivity : AppCompatActivity(), HomeView {
+class HomeActivity : AppCompatActivity(), IDetailFragment,  HomeView {
 
     companion object {
         const val USER_INFO = "USER_INFO"
@@ -69,19 +71,26 @@ class HomeActivity : AppCompatActivity(), HomeView {
         return true
     }
 
+    fun changeDetailFragment(title: String){
+        with(binding){
+            appBar.title = "${title}"
+        }
+        loadFragment(DetailShowFragment())
+    }
+
     override fun setUpListeners() {
         with(binding) {
             bottomNavBar.setOnItemSelectedListener { item ->
                 when (item.itemId) {
-                    R.id.action_favorites -> {
+                    R.id.action_discover -> {
                         loadFragment(DiscoverFragment())
                         true
                     }
-                    R.id.action_music -> {
+                    R.id.action_library -> {
                         loadFragment(LibraryFragment())
                         true
                     }
-                    R.id.action_schedules -> {
+                    R.id.action_search -> {
                         loadFragment(SearchFragment())
                         true
                     }
@@ -91,6 +100,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 }
             }
         }
+    }
+
+    override fun goShowDetail() {
+        //hide navigation
+        //show detail activity.
     }
 
     override fun initFragments() {
