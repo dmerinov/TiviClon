@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentLibraryBinding
 import com.example.tiviclon.fragment.HomeBaseFragment
 import com.example.tiviclon.home.FragmentCommonComunication
-import com.example.tiviclon.home.HomeActivity
 import com.example.tiviclon.home.library.adapter.LibraryAdapter
 import com.example.tiviclon.model.application.Show
 
@@ -16,11 +16,12 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private lateinit var presenter: LibraryPresenter
+    private val viewModel : LibraryViewModel by viewModels { LibraryViewModel.Factory(this)  }
     private lateinit var adapter: LibraryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel
     }
 
     override fun onCreateView(
@@ -34,8 +35,7 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter = LibraryPresenter(this)
-        presenter.initialize()
+        viewModel.initialize()
     }
 
     override fun setUpUI() {
@@ -75,7 +75,6 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
         _binding = null
     }
 }
-
 
 //esta interfaz está en cada fragment (si la interfaz es igual en todos los fragments se unfica) y la hereda la actividad
 //padre.
