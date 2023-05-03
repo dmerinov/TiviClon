@@ -13,13 +13,13 @@ import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.home.detailShow.DetailShowFragment
 import com.example.tiviclon.home.discover.DiscoverFragment
-import com.example.tiviclon.home.library.IDetailFragment
+import com.example.tiviclon.home.library.IActionsFragment
 import com.example.tiviclon.home.library.LibraryFragment
 import com.example.tiviclon.home.search.SearchFragment
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.model.application.User
 
-class HomeActivity : AppCompatActivity(), IDetailFragment,FragmentCommonComunication,  HomeView {
+class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunication,  HomeView {
 
     companion object {
         const val USER_INFO = "USER_INFO"

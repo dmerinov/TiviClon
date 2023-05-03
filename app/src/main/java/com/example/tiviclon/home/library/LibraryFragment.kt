@@ -27,7 +27,7 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentLibraryBinding.inflate(inflater,container,false)
         return binding.root
@@ -44,9 +44,9 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 
     }
 
-    override fun setUpRecyclerView(shows: List<Show>){
+    override fun setUpRecyclerView(){
         adapter = LibraryAdapter(shows = getShows(), onClick =  {
-            val activity = getFragmentContext() as IDetailFragment
+            val activity = getFragmentContext() as IActionsFragment
             activity.goShowDetail(it.id)}
         )
         with(binding){
@@ -55,7 +55,7 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
         }
     }
     override fun getShows(): List<Show>{
-        val activity = getFragmentContext() as IDetailFragment
+        val activity = getFragmentContext() as IActionsFragment
         return activity.getShows()
     }
 
@@ -72,7 +72,7 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 //esta interfaz está en cada fragment (si la interfaz es igual en todos los fragments se unfica) y la hereda la actividad
 //padre.
 //en este caso la interfaz es igual: valorar si se debe sacar a otra clase
-interface IDetailFragment{
+interface IActionsFragment{
     fun goShowDetail(id: Int)
     fun getShows(): List<Show>
 }

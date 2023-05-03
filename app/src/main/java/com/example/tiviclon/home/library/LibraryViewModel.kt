@@ -8,7 +8,7 @@ class LibraryViewModel(val view: LibraryView) : ViewModel() {
     fun initialize(){
         view.setUpUI()
         view.setUpListeners()
-        view.setUpRecyclerView(view.getShows())
+        view.setUpRecyclerView()
     }
 
     @Suppress("UNCHECKED_CAST")

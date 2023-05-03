@@ -2,13 +2,23 @@ package com.example.tiviclon.home.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.tiviclon.home.library.LibraryView
-import com.example.tiviclon.home.library.LibraryViewModel
 
 class SearchViewModel(val view: SearchView) : ViewModel() {
     fun initialize() {
         view.setUpUI()
         view.setUpListeners()
+        view.setUpRecyclerView()
+    }
+
+    fun filterList(filter: String) {
+        val allShows = view.getShows()
+        var filteredShows = allShows.filter {
+            it.title.contains(filter)
+        }
+        if(filteredShows.isEmpty()){
+            filteredShows = allShows
+        }
+        view.updateList(filteredShows)
     }
 
     @Suppress("UNCHECKED_CAST")

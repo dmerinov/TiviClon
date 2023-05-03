@@ -5,6 +5,6 @@ import com.example.tiviclon.model.application.Show
 interface LibraryView {
     fun setUpUI()
     fun setUpListeners()
-    fun setUpRecyclerView(shows: List<Show>)
+    fun setUpRecyclerView()
     fun getShows() : List<Show>
 }
