@@ -5,15 +5,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import com.example.tiviclon.R
+import androidx.fragment.app.viewModels
 import com.example.tiviclon.databinding.FragmentSearchBinding
+import com.example.tiviclon.fragment.HomeBaseFragment
+import com.example.tiviclon.home.FragmentCommonComunication
 
-class SearchFragment : Fragment(), SearchView {
+class SearchFragment : HomeBaseFragment(), SearchView {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private lateinit var presenter: SearchPresenter
+    private val viewModel: SearchViewModel by viewModels { SearchViewModel.Factory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,14 +30,13 @@ class SearchFragment : Fragment(), SearchView {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        _binding = FragmentSearchBinding.inflate(inflater,container,false)
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter = SearchPresenter(this)
-        presenter.initialize()
+        viewModel.initialize()
     }
 
     override fun setUpListeners() {
@@ -44,7 +44,9 @@ class SearchFragment : Fragment(), SearchView {
     }
 
     override fun setUpUI() {
-        with(binding){
+        with(binding) {
+            val activity = getFragmentContext() as FragmentCommonComunication
+            activity.updateAppBarText("Biblioteca")
             fragmentText.text = "Este es el fragmento de busqueda"
         }
     }

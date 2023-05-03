@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
@@ -103,9 +104,8 @@ class HomeActivity : AppCompatActivity(), IDetailFragment,FragmentCommonComunica
         }
     }
 
-    override fun goShowDetail() {
-        //hide navigation
-        //show detail activity.
+    override fun goShowDetail(id: Int) {
+        Toast.makeText(this,"YENDO AL DETALLE DE LA SERIE $id", Toast.LENGTH_SHORT).show()
     }
 
     override fun getShows():List<Show> = presenter.getShows()

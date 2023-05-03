@@ -45,7 +45,10 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
     }
 
     override fun setUpRecyclerView(shows: List<Show>){
-        adapter = LibraryAdapter(getShows())
+        adapter = LibraryAdapter(shows = getShows(), onClick =  {
+            val activity = getFragmentContext() as IDetailFragment
+            activity.goShowDetail(it.id)}
+        )
         with(binding){
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
             rvShowList.adapter = adapter
@@ -57,16 +60,6 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
     }
 
     override fun setUpListeners() {
-        //nothing to do
-        with(binding){
-            fragmentText.setOnClickListener {
-                //------------------------TUTORIA---------------------
-                val activity = getFragmentContext() as IDetailFragment
-                activity.goShowDetail(/*serie*/)
-                //-----------------------TUTORIA-----------------------
-                //navegar al siguiente f
-            }
-        }
     }
 
     override fun onDestroyView() {
@@ -78,7 +71,8 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 
 //esta interfaz está en cada fragment (si la interfaz es igual en todos los fragments se unfica) y la hereda la actividad
 //padre.
+//en este caso la interfaz es igual: valorar si se debe sacar a otra clase
 interface IDetailFragment{
-    fun goShowDetail()
+    fun goShowDetail(id: Int)
     fun getShows(): List<Show>
 }
