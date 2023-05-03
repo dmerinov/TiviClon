@@ -14,9 +14,6 @@ class LibraryAdapter(private val shows: List<Show>, private val onClick: (show:S
     class ShowHolder(private val binding: ShowViewholderBinding, private val onClick: (show:Show) -> Unit) : RecyclerView.ViewHolder(binding.root) {
         fun bind(show: Show, totalItems: Int){
             binding.itemTitle.text = show.title
-            if(totalItems - 1 == adapterPosition){
-                binding.spacer.visibility = View.GONE
-            }
             binding.clItem.setOnClickListener {
                 onClick(show)
             }
