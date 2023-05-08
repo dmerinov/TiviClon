@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.FragmentDiscoverBinding
 import com.example.tiviclon.fragment.HomeBaseFragment
@@ -16,10 +17,11 @@ class DiscoverFragment : HomeBaseFragment(), DiscoverView {
 
     private var _binding: FragmentDiscoverBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private lateinit var presenter: DiscoverPresenter
+    private val viewModel: DiscoverViewModel by viewModels { DiscoverViewModel.Factory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel
     }
 
     override fun onAttach(context: Context) {
@@ -38,8 +40,7 @@ class DiscoverFragment : HomeBaseFragment(), DiscoverView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter = DiscoverPresenter(this)
-        presenter.initialize()
+        viewModel.initialize()
 
     }
 
@@ -50,7 +51,7 @@ class DiscoverFragment : HomeBaseFragment(), DiscoverView {
                 //this id is just an example.
                 //the navigation should be handled on the adapter as a lambda function.
                 //this example ilustrates that.
-                activity.goShowDetail(Show(-1,"showTitle","desc",""))
+                activity.goShowDetail(Show(-1, "showTitle", "desc", ""))
             }
         }
     }

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
@@ -36,7 +37,7 @@ class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunic
     }
 
     private lateinit var binding: ActivityHomeBinding
-    private val presenter = HomePresenter(this)
+    private val viewModel: HomeViewModel by viewModels { HomeViewModel.Factory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +45,7 @@ class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunic
         setContentView(binding.root)
 
         val user = intent.extras?.getSerializable(USER_INFO) as User
-        presenter.initialize(user)
+        viewModel.initialize(user)
     }
 
     override fun setUpUI(user: User) {
@@ -109,7 +110,7 @@ class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunic
         changeDetailFragment(show)
     }
 
-    override fun getShows():List<Show> = presenter.getShows()
+    override fun getShows():List<Show> = viewModel.getShows()
 
     override fun initFragments() {
         loadFragment(DiscoverFragment())
