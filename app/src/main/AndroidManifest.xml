@@ -18,6 +18,8 @@
         <activity
             android:name=".home.HomeActivity"
             android:exported="false" />
+        <activity android:name=".home.detailShow.DetailShowActivity"
+            android:exported="false"/>
         <activity
             android:name=".registry.RegisterActivity"
             android:exported="false" />

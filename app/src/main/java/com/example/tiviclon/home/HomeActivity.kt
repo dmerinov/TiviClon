@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
-import com.example.tiviclon.home.detailShow.DetailShowFragment
+import com.example.tiviclon.home.detailShow.DetailShowActivity
 import com.example.tiviclon.home.discover.DiscoverFragment
 import com.example.tiviclon.home.library.IActionsFragment
 import com.example.tiviclon.home.library.LibraryFragment
@@ -20,7 +20,7 @@ import com.example.tiviclon.home.search.SearchFragment
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.model.application.User
 
-class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunication,  HomeView {
+class HomeActivity : AppCompatActivity(), IActionsFragment, FragmentCommonComunication, HomeView {
 
     companion object {
         const val USER_INFO = "USER_INFO"
@@ -49,7 +49,7 @@ class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunic
     }
 
     override fun setUpUI(user: User) {
-        with(binding){
+        with(binding) {
             appBar.title = "Buenas, ${user.name}"
             appBar.setTitleTextColor(Color.WHITE)
             //appBar will not work without this
@@ -72,13 +72,6 @@ class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunic
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.top_bar_menu, menu)
         return true
-    }
-
-    private fun changeDetailFragment(show: Show){
-        with(binding){
-            appBar.title = show.title
-        }
-        loadFragment(DetailShowFragment())
     }
 
     override fun setUpListeners() {
@@ -106,20 +99,24 @@ class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunic
     }
 
     override fun goShowDetail(show: Show) {
-        Toast.makeText(this,"YENDO AL DETALLE DE LA SERIE ${show.id}", Toast.LENGTH_SHORT).show()
-        changeDetailFragment(show)
+        Toast.makeText(this, "YENDO AL DETALLE DE LA SERIE ${show.id}", Toast.LENGTH_SHORT).show()
+        viewModel.goToDetail(show)
     }
 
-    override fun getShows():List<Show> = viewModel.getShows()
+    override fun getShows(): List<Show> = viewModel.getShows()
 
     override fun initFragments() {
         loadFragment(DiscoverFragment())
     }
 
     override fun updateAppBarText(text: String) {
-        with(binding){
+        with(binding) {
             appBar.title = text
         }
+    }
+
+    override fun navigateToDetail(show: Show) {
+        DetailShowActivity.navigateToShowDetailActivity(this, show)
     }
 
     private fun loadFragment(fragment: Fragment) {

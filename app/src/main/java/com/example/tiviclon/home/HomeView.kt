@@ -7,4 +7,6 @@ interface HomeView {
     fun setUpUI(user: User)
     fun setUpListeners()
     fun initFragments()
+
+    fun navigateToDetail(show: Show)
 }

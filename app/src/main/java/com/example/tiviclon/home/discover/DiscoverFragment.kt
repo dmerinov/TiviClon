@@ -51,7 +51,7 @@ class DiscoverFragment : HomeBaseFragment(), DiscoverView {
                 //this id is just an example.
                 //the navigation should be handled on the adapter as a lambda function.
                 //this example ilustrates that.
-                activity.goShowDetail(Show(-1, "showTitle", "desc", ""))
+                activity.goShowDetail(Show(-1, "buttonShowTitle", "buttonShowDescription", ""))
             }
         }
     }

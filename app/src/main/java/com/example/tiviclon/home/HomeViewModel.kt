@@ -26,6 +26,10 @@ class HomeViewModel(val view: HomeView) : ViewModel() {
         return shows
     }
 
+    fun goToDetail(show: Show){
+        view.navigateToDetail(show)
+    }
+
     @Suppress("UNCHECKED_CAST")
     class Factory(private val view: HomeView) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

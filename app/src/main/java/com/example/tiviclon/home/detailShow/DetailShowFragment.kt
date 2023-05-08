@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.tiviclon.R
 import com.example.tiviclon.databinding.FragmentDetailShowBinding
+import com.example.tiviclon.model.application.Show
 
-class DetailShowFragment : Fragment(), DetailView {
+class DetailShowFragment(val show: Show) : Fragment(), DetailFragmentView {
     private var _binding: FragmentDetailShowBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private val viewModel: DetailShowViewModel by viewModels { DetailShowViewModel.Factory(this) }
+    private val viewModel: DetailShowFragmentViewModel by viewModels {
+        DetailShowFragmentViewModel.Factory(
+            this
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,24 +28,25 @@ class DetailShowFragment : Fragment(), DetailView {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        _binding = FragmentDetailShowBinding.inflate(inflater,container,false)
+        _binding = FragmentDetailShowBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.initialize()
+        viewModel.initialize(show)
     }
 
-    override fun setUpUI() {
-        with(binding){
-            showDetail.text = getString(R.string.description)
+    override fun setUpUI(showVm: Show) {
+        with(binding) {
+            tvTitle.text = showVm.title
+            showDetail.text = showVm.description
         }
     }
 
     override fun setUpListeners() {
         //nothing to do
-        with(binding){
+        with(binding) {
 
         }
     }
