@@ -73,9 +73,9 @@ class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunic
         return true
     }
 
-    fun changeDetailFragment(title: String){
+    private fun changeDetailFragment(show: Show){
         with(binding){
-            appBar.title = "${title}"
+            appBar.title = show.title
         }
         loadFragment(DetailShowFragment())
     }
@@ -104,8 +104,9 @@ class HomeActivity : AppCompatActivity(), IActionsFragment,FragmentCommonComunic
         }
     }
 
-    override fun goShowDetail(id: Int) {
-        Toast.makeText(this,"YENDO AL DETALLE DE LA SERIE $id", Toast.LENGTH_SHORT).show()
+    override fun goShowDetail(show: Show) {
+        Toast.makeText(this,"YENDO AL DETALLE DE LA SERIE ${show.id}", Toast.LENGTH_SHORT).show()
+        changeDetailFragment(show)
     }
 
     override fun getShows():List<Show> = presenter.getShows()

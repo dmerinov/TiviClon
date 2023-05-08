@@ -11,4 +11,6 @@
     <string name="visit_website">Visitar Web</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="navigate_button_str">haz click en el botón para navegar</string>
+    <string name="navigate_bt">navegar</string>
 </resources>

@@ -16,7 +16,7 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private val viewModel : LibraryViewModel by viewModels { LibraryViewModel.Factory(this)  }
+    private val viewModel: LibraryViewModel by viewModels { LibraryViewModel.Factory(this) }
     private lateinit var adapter: LibraryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +29,7 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        _binding = FragmentLibraryBinding.inflate(inflater,container,false)
+        _binding = FragmentLibraryBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -44,17 +44,19 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 
     }
 
-    override fun setUpRecyclerView(){
-        adapter = LibraryAdapter(shows = getShows(), onClick =  {
+    override fun setUpRecyclerView() {
+        adapter = LibraryAdapter(shows = getShows(), onClick = {
             val activity = getFragmentContext() as IActionsFragment
-            activity.goShowDetail(it.id)}
+            activity.goShowDetail(it)
+        }
         )
-        with(binding){
+        with(binding) {
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
             rvShowList.adapter = adapter
         }
     }
-    override fun getShows(): List<Show>{
+
+    override fun getShows(): List<Show> {
         val activity = getFragmentContext() as IActionsFragment
         return activity.getShows()
     }
@@ -72,7 +74,7 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 //esta interfaz está en cada fragment (si la interfaz es igual en todos los fragments se unfica) y la hereda la actividad
 //padre.
 //en este caso la interfaz es igual: valorar si se debe sacar a otra clase
-interface IActionsFragment{
-    fun goShowDetail(id: Int)
+interface IActionsFragment {
+    fun goShowDetail(show: Show)
     fun getShows(): List<Show>
 }

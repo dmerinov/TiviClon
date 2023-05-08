@@ -1,5 +1,6 @@
 package com.example.tiviclon.home.search
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -70,7 +71,7 @@ class SearchFragment : HomeBaseFragment(), SearchView {
         showList = getShows().toMutableList()
         adapter = SearchAdapter(showList, onClick = {
             val activity = getFragmentContext() as IActionsFragment
-            activity.goShowDetail(it.id)
+            activity.goShowDetail(it)
         }
         )
         with(binding) {
@@ -79,6 +80,7 @@ class SearchFragment : HomeBaseFragment(), SearchView {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun updateList(shows: List<Show>) {
         showList.clear()
         showList.addAll(shows)
