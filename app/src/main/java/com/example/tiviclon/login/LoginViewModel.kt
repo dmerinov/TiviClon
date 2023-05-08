@@ -1,8 +1,10 @@
 package com.example.tiviclon.login
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.tiviclon.model.application.User
 
-class LoginPresenter(private val view: LoginView) {
+class LoginViewModel(val view: LoginView) : ViewModel() {
 
     fun initialize() {
         view.setUpUI()
@@ -28,5 +30,12 @@ class LoginPresenter(private val view: LoginView) {
 
     fun onVisitWebsiteButtonClicked() {
         view.navigateToWebsite()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    class Factory(private val view: LoginView) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return LoginViewModel(view) as T
+        }
     }
 }
