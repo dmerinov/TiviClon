@@ -20,7 +20,7 @@ import com.example.tiviclon.home.search.SearchFragment
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.model.application.User
 
-class HomeActivity : AppCompatActivity(), IActionsFragment, FragmentCommonComunication, HomeView {
+class HomeActivity : AppCompatActivity(), IActionsFragment, FragmentCommonComunication {
 
     companion object {
         const val USER_INFO = "USER_INFO"
@@ -37,7 +37,6 @@ class HomeActivity : AppCompatActivity(), IActionsFragment, FragmentCommonComuni
     }
 
     private lateinit var binding: ActivityHomeBinding
-    private val viewModel: HomeViewModel by viewModels { HomeViewModel.Factory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,10 +44,33 @@ class HomeActivity : AppCompatActivity(), IActionsFragment, FragmentCommonComuni
         setContentView(binding.root)
 
         val user = intent.extras?.getSerializable(USER_INFO) as User
-        viewModel.initialize(user)
+        initialize(user)
     }
 
-    override fun setUpUI(user: User) {
+    fun initialize(user: User) {
+        setUpUI(user)
+        setUpListeners()
+        initFragments()
+    }
+
+    override fun getShows(): List<Show> {
+        val shows: MutableList<Show> = ArrayList()
+        shows.add(Show(1, "Spiderman", "Marvel", "Peter Parker"))
+        shows.add(Show(2, "Daredevil", "Marvel", "Matthew Michael Murdock"))
+        shows.add(Show(3, "Wolverine", "Marvel", "James Howlett"))
+        shows.add(Show(4, "Batman", "DC", "Bruce Wayne"))
+        shows.add(Show(5, "Thor", "Marvel", "Thor Odinson"))
+        shows.add(Show(6, "Flash", "DC", "Jay Garrick"))
+        shows.add(Show(7, "Green Lantern", "DC", "Alan Scott"))
+        shows.add(Show(8, "Wonder Woman", "DC", "Princess Diana"))
+        return shows
+    }
+
+    fun goToDetail(show: Show){
+        navigateToDetail(show)
+    }
+
+    fun setUpUI(user: User) {
         with(binding) {
             appBar.title = "Buenas, ${user.name}"
             appBar.setTitleTextColor(Color.WHITE)
@@ -74,7 +96,7 @@ class HomeActivity : AppCompatActivity(), IActionsFragment, FragmentCommonComuni
         return true
     }
 
-    override fun setUpListeners() {
+    fun setUpListeners() {
         with(binding) {
             bottomNavBar.setOnItemSelectedListener { item ->
                 when (item.itemId) {
@@ -100,12 +122,10 @@ class HomeActivity : AppCompatActivity(), IActionsFragment, FragmentCommonComuni
 
     override fun goShowDetail(show: Show) {
         Toast.makeText(this, "YENDO AL DETALLE DE LA SERIE ${show.id}", Toast.LENGTH_SHORT).show()
-        viewModel.goToDetail(show)
+        goToDetail(show)
     }
 
-    override fun getShows(): List<Show> = viewModel.getShows()
-
-    override fun initFragments() {
+    fun initFragments() {
         loadFragment(DiscoverFragment())
     }
 
@@ -115,7 +135,7 @@ class HomeActivity : AppCompatActivity(), IActionsFragment, FragmentCommonComuni
         }
     }
 
-    override fun navigateToDetail(show: Show) {
+    fun navigateToDetail(show: Show) {
         DetailShowActivity.navigateToShowDetailActivity(this, show)
     }
 

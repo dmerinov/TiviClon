@@ -13,15 +13,13 @@ import com.example.tiviclon.home.FragmentCommonComunication
 import com.example.tiviclon.home.library.IActionsFragment
 import com.example.tiviclon.model.application.Show
 
-class DiscoverFragment : HomeBaseFragment(), DiscoverView {
+class DiscoverFragment : HomeBaseFragment(){
 
     private var _binding: FragmentDiscoverBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private val viewModel: DiscoverViewModel by viewModels { DiscoverViewModel.Factory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel
     }
 
     override fun onAttach(context: Context) {
@@ -40,11 +38,11 @@ class DiscoverFragment : HomeBaseFragment(), DiscoverView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.initialize()
-
+        setUpUI()
+        setUpListeners()
     }
 
-    override fun setUpListeners() {
+    fun setUpListeners() {
         with(binding) {
             btNavigate.setOnClickListener {
                 val activity = getFragmentContext() as IActionsFragment
@@ -56,7 +54,7 @@ class DiscoverFragment : HomeBaseFragment(), DiscoverView {
         }
     }
 
-    override fun setUpUI() {
+    fun setUpUI() {
         val activity = getFragmentContext() as FragmentCommonComunication
         activity.updateAppBarText("Descubre")
         with(binding) {

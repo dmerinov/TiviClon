@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentLibraryBinding
 import com.example.tiviclon.fragment.HomeBaseFragment
@@ -12,16 +11,14 @@ import com.example.tiviclon.home.FragmentCommonComunication
 import com.example.tiviclon.home.library.adapter.LibraryAdapter
 import com.example.tiviclon.model.application.Show
 
-class LibraryFragment : HomeBaseFragment(), LibraryView {
+class LibraryFragment : HomeBaseFragment() {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private val viewModel: LibraryViewModel by viewModels { LibraryViewModel.Factory(this) }
     private lateinit var adapter: LibraryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel
     }
 
     override fun onCreateView(
@@ -35,16 +32,18 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.initialize()
+        setUpUI()
+        setUpListeners()
+        setUpRecyclerView()
     }
 
-    override fun setUpUI() {
+    fun setUpUI() {
         val activity = getFragmentContext() as FragmentCommonComunication
         activity.updateAppBarText("Biblioteca")
 
     }
 
-    override fun setUpRecyclerView() {
+    fun setUpRecyclerView() {
         adapter = LibraryAdapter(shows = getShows(), onClick = {
             val activity = getFragmentContext() as IActionsFragment
             activity.goShowDetail(it)
@@ -56,12 +55,12 @@ class LibraryFragment : HomeBaseFragment(), LibraryView {
         }
     }
 
-    override fun getShows(): List<Show> {
+    fun getShows(): List<Show> {
         val activity = getFragmentContext() as IActionsFragment
         return activity.getShows()
     }
 
-    override fun setUpListeners() {
+    fun setUpListeners() {
     }
 
     override fun onDestroyView() {

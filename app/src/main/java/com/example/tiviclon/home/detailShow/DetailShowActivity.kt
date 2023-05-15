@@ -11,7 +11,7 @@ import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
 import com.example.tiviclon.model.application.Show
 
-class DetailShowActivity : AppCompatActivity(), DetailShowActivityView {
+class DetailShowActivity : AppCompatActivity(){
 
     companion object {
         const val DETAIL_SHOW = "DETAIL_SHOW"
@@ -28,7 +28,6 @@ class DetailShowActivity : AppCompatActivity(), DetailShowActivityView {
     }
 
     private lateinit var binding: ActivityDetailShowBinding
-    private val viewModel: DetailShowViewModel by viewModels { DetailShowViewModel.Factory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,10 +35,12 @@ class DetailShowActivity : AppCompatActivity(), DetailShowActivityView {
         setContentView(binding.root)
 
         val show = intent.extras?.getSerializable(DETAIL_SHOW) as Show
-        viewModel.initialize(show)
+        setUpUI(show.title)
+        setUpListeners()
+        initFragments()
     }
 
-    override fun setUpUI(title: String) {
+    fun setUpUI(title: String) {
         with(binding){
             appBar.title = title
             appBar.setTitleTextColor(Color.WHITE)
@@ -48,11 +49,12 @@ class DetailShowActivity : AppCompatActivity(), DetailShowActivityView {
         }
     }
 
-    override fun initFragments() {
-        loadFragment(DetailShowFragment(viewModel.getShow()))
+    fun initFragments() {
+        val show = intent.extras?.getSerializable(DETAIL_SHOW) as Show
+        loadFragment(DetailShowFragment(show))
     }
 
-    override fun setUpListeners() {
+    fun setUpListeners() {
         //nothingToDo
     }
 

@@ -16,17 +16,15 @@ import com.example.tiviclon.home.search.adapter.SearchAdapter
 import com.example.tiviclon.model.application.Show
 import androidx.appcompat.widget.SearchView as androidSearchView
 
-class SearchFragment : HomeBaseFragment(), SearchView {
+class SearchFragment : HomeBaseFragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private val viewModel: SearchViewModel by viewModels { SearchViewModel.Factory(this) }
     private lateinit var adapter: SearchAdapter
     private lateinit var showList: MutableList<Show>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel
     }
 
     override fun onAttach(context: Context) {
@@ -45,10 +43,12 @@ class SearchFragment : HomeBaseFragment(), SearchView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.initialize()
+            setUpUI()
+            setUpListeners()
+            setUpRecyclerView()
     }
 
-    override fun setUpListeners() {
+    fun setUpListeners() {
         with(binding) {
             svShowSearch.setOnQueryTextListener(object :
                 androidSearchView.OnQueryTextListener {
@@ -58,7 +58,7 @@ class SearchFragment : HomeBaseFragment(), SearchView {
 
                 override fun onQueryTextChange(p0: String?): Boolean {
                     p0?.let {
-                        viewModel.filterList(it)
+                        filterList(it)
                     }
                     return false
                 }
@@ -67,7 +67,18 @@ class SearchFragment : HomeBaseFragment(), SearchView {
         }
     }
 
-    override fun setUpRecyclerView() {
+    fun filterList(filter: String) {
+        val allShows = getShows()
+        var filteredShows = allShows.filter {
+            it.title.contains(filter)
+        }
+        if(filteredShows.isEmpty()){
+            filteredShows = allShows
+        }
+        updateList(filteredShows)
+    }
+
+    fun setUpRecyclerView() {
         showList = getShows().toMutableList()
         adapter = SearchAdapter(showList, onClick = {
             val activity = getFragmentContext() as IActionsFragment
@@ -81,13 +92,13 @@ class SearchFragment : HomeBaseFragment(), SearchView {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    override fun updateList(shows: List<Show>) {
+    fun updateList(shows: List<Show>) {
         showList.clear()
         showList.addAll(shows)
         adapter.notifyDataSetChanged()
     }
 
-    override fun setUpUI() {
+    fun setUpUI() {
         with(binding) {
             val activity = getFragmentContext() as FragmentCommonComunication
             activity.updateAppBarText("Buscar")
@@ -95,7 +106,7 @@ class SearchFragment : HomeBaseFragment(), SearchView {
         }
     }
 
-    override fun getShows(): List<Show> {
+    fun getShows(): List<Show> {
         val activity = getFragmentContext() as IActionsFragment
         return activity.getShows()
     }
