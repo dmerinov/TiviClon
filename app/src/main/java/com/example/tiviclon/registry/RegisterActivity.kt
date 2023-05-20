@@ -1,15 +1,13 @@
-package com.example.tiviclon.views
+package com.example.tiviclon.registry
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.databinding.ActivityRegisterBinding
-import com.example.tiviclon.presenters.RegisterError
-import com.example.tiviclon.presenters.RegisterPresenter
-import com.example.tiviclon.presenters.RegisterView
 
 class RegisterActivity : AppCompatActivity(), RegisterView {
     companion object {
@@ -30,14 +28,14 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
     }
 
     private lateinit var binding: ActivityRegisterBinding
-    private val presenter = RegisterPresenter(this)
+    private val viewModel: RegisterViewModel by viewModels { RegisterViewModel.Factory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter.initialize()
+        viewModel.initialize()
     }
 
     override fun setUpUI() {
@@ -47,7 +45,7 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
     override fun setUpListeners() {
         with(binding) {
             btRegister.setOnClickListener {
-                presenter.checkRegistry(
+                viewModel.checkRegistry(
                     etPassword.text.toString(),
                     etRepeatPassword.text.toString(),
                     etUsername.text.toString()
@@ -59,8 +57,8 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
     override fun onValidCredentials(name: String, password: String) {
         val intent = Intent()
         intent.apply {
-            putExtra(REGISTER_NAME,name)
-            putExtra(REGISTER_PASS,password)
+            putExtra(REGISTER_NAME, name)
+            putExtra(REGISTER_PASS, password)
         }
         setResult(RESULT_OK, intent)
         finish()

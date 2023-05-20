@@ -1,22 +1,23 @@
-package com.example.tiviclon.views
+package com.example.tiviclon.login
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.model.application.User
-import com.example.tiviclon.presenters.LoginPresenter
-import com.example.tiviclon.presenters.LoginView
+import com.example.tiviclon.home.HomeActivity
+import com.example.tiviclon.registry.RegisterActivity
 
 
 class LoginActivity : AppCompatActivity(), LoginView {
 
     private lateinit var binding: ActivityLoginBinding
-    private val presenter = LoginPresenter(this)
+    private val viewModel: LoginViewModel by viewModels { LoginViewModel.Factory(this) }
 
     private val responseLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
@@ -44,7 +45,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter.initialize()
+        viewModel.initialize()
     }
 
     override fun setUpUI() {
@@ -54,13 +55,13 @@ class LoginActivity : AppCompatActivity(), LoginView {
     override fun setUpListeners() {
         with(binding) {
             btLogin.setOnClickListener {
-                presenter.checkCredentials(etUsername.text.toString(), etPassword.text.toString())
+                viewModel.checkCredentials(etUsername.text.toString(), etPassword.text.toString())
             }
             btRegister.setOnClickListener {
-                presenter.onRegisterButtonClicked()
+                viewModel.onRegisterButtonClicked()
             }
             btWebsiteLink.setOnClickListener {
-                presenter.onVisitWebsiteButtonClicked()
+                viewModel.onVisitWebsiteButtonClicked()
             }
         }
     }

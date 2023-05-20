@@ -9,4 +9,9 @@
     <string name="repeat_password_string">Repetir contraseña</string>
     <string name="confirm_registry">Confirmar Registro</string>
     <string name="visit_website">Visitar Web</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="navigate_button_str">haz click en el botón para navegar</string>
+    <string name="navigate_bt">navegar</string>
+    <string name="description">\"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut viverra lectus lectus, ultrices tempus odio fermentum sed. Sed quis orci auctor, fringilla felis a, dictum tortor. Vivamus cursus elementum venenatis. Nullam condimentum bibendum risus, ut sodales leo. Nulla tellus magna, congue ac orci et, maximus dignissim leo. Etiam neque justo, fermentum vel bibendum in, condimentum lacinia massa. Phasellus nulla nulla, dignissim in urna eget, suscipit finibus arcu. Donec auctor feugiat tellus eu maximus. Aenean nec efficitur nunc. Maecenas nec sapien sem. \"</string>
 </resources>
