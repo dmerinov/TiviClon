@@ -1,4 +1,4 @@
-package com.example.tiviclon.views
+package com.example.tiviclon.registry
 
 import android.content.Context
 import android.content.Intent
@@ -33,11 +33,31 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initialize()
+    }
+
+    fun setUpUI() {
+        //Nothing to do
+    }
+
+    fun setUpListeners() {
+        with(binding) {
+            btRegister.setOnClickListener {
+                checkRegistry(
+                    etPassword.text.toString(),
+                    etRepeatPassword.text.toString(),
+                    etUsername.text.toString()
+                )
+            }
+        }
+    }
+
+    fun initialize() {
         setUpUI()
         setUpListeners()
     }
 
-    private fun checkRegistry(password: String, repeatedPassword: String, username: String) {
+    fun checkRegistry(password: String, repeatedPassword: String, username: String) {
         if (password.length < 6 || repeatedPassword != password) {
             //errorPassword
             onInvalidCredentials(RegisterError.PasswordError)
@@ -52,23 +72,8 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUpUI() {
-        //Nothing to do
-    }
 
-    private fun setUpListeners() {
-        with(binding) {
-            btRegister.setOnClickListener {
-                checkRegistry(
-                    etPassword.text.toString(),
-                    etRepeatPassword.text.toString(),
-                    etUsername.text.toString()
-                )
-            }
-        }
-    }
-
-    private fun onValidCredentials(name: String, password: String) {
+    fun onValidCredentials(name: String, password: String) {
         val intent = Intent()
         intent.apply {
             putExtra(REGISTER_NAME, name)
@@ -78,7 +83,7 @@ class RegisterActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun onInvalidCredentials(error: RegisterError) {
+    fun onInvalidCredentials(error: RegisterError) {
         when (error) {
             RegisterError.PasswordError -> Toast.makeText(
                 this,
