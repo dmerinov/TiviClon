@@ -1,25 +1,21 @@
 package com.example.tiviclon.views
 
-import AppPermissions
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.provider.Settings
+import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.model.application.User
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import java.util.*
 
 class HomeActivity : AppCompatActivity() {
@@ -39,109 +35,145 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityHomeBinding
-    private lateinit var mFusedLocationClient: FusedLocationProviderClient
-    private val permissionId = 2
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    lateinit var locationRequest: LocationRequest
+    val PERMISSION_ID = 1010
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        with(binding) {
+            button.setOnClickListener {
+                Log.d("Debug:", CheckPermission().toString())
+                Log.d("Debug:", isLocationEnabled().toString())
+                RequestPermission()
+                /* fusedLocationProviderClient.lastLocation.addOnSuccessListener{location: Location? ->
+                     textView.text = location?.latitude.toString() + "," + location?.longitude.toString()
+                 }*/
+                getLastLocation()
+            }
+        }
+
         setUpUI()
         setUpListeners()
-        getLocation()
     }
 
-    private fun isLocationEnabled(): Boolean {
-        val locationManager: LocationManager =
-            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    fun CheckPermission(): Boolean {
+        //this function will return a boolean
+        //true: if we have permission
+        //false if not
+        if (
+            ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+
+        return false
+
+    }
+
+    @SuppressLint("MissingPermission")
+    fun getLastLocation() {
+        if (CheckPermission()) {
+            if (isLocationEnabled()) {
+                fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
+                    var location: Location? = task.result
+                    if (location == null) {
+                        NewLocationData()
+                    } else {
+                        Log.d("Debug:", "Your Location:" + location.longitude)
+                        with(binding) {
+                            tvGreeting.text =
+                                "You Current Location is : Long: " + location.longitude + " , Lat: " + location.latitude + "\n" + getCityName(
+                                    location.latitude,
+                                    location.longitude
+                                )
+
+                        }
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Please Turn on Your device Location", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        } else {
+            RequestPermission()
+        }
+    }
+
+
+    @SuppressLint("MissingPermission")
+    fun NewLocationData() {
+        var locationRequest = com.google.android.gms.location.LocationRequest()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 0
+        locationRequest.fastestInterval = 0
+        locationRequest.numUpdates = 1
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationProviderClient!!.requestLocationUpdates(
+            locationRequest, locationCallback, Looper.myLooper()
+        )
+    }
+
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            var lastLocation: Location = locationResult.lastLocation
+            Log.d("Debug:", "your last last location: " + lastLocation.longitude.toString())
+            binding.tvGreeting.text =
+                "You Last Location is : Long: " + lastLocation.longitude + " , Lat: " + lastLocation.latitude + "\n" + getCityName(
+                    lastLocation.latitude,
+                    lastLocation.longitude
+                )
+        }
+    }
+
+    fun RequestPermission() {
+        //this function will allows us to tell the user to requesut the necessary permsiion if they are not garented
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            PERMISSION_ID
+        )
+    }
+
+
+    fun isLocationEnabled(): Boolean {
+        //this function will return to us the state of the location service
+        //if the gps or the network provider is enabled then it will return true otherwise it will return false
+        var locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER
         )
     }
 
-    private fun checkPermissions(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            return true
-        }
-        return false
+    private fun getCityName(lat: Double, long: Double): String {
+        var cityName = ""
+        var countryName = ""
+        var geoCoder = Geocoder(this, Locale.getDefault())
+        var adress = geoCoder.getFromLocation(lat, long, 3)
+
+        cityName = adress?.get(0)?.locality ?: "city not found"
+        countryName = adress?.get(0)?.countryName ?: "country not found"
+        Log.d("Debug:", "Your City: " + cityName + " ; your Country " + countryName)
+        return cityName
     }
 
-    private fun requestPermissions() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ),
-            permissionId
-        )
-    }
-
-    @SuppressLint("MissingPermission", "SetTextI18n")
-    private fun getLocation() {
-        if (checkPermissions()) {
-            if (isLocationEnabled()) {
-                mFusedLocationClient.lastLocation.addOnCompleteListener(this) { task ->
-                    val location: Location? = task.result
-                    if (location != null) {
-                        val geocoder = Geocoder(this, Locale.getDefault())
-                        val list: List<Address> =
-                            geocoder.getFromLocation(
-                                location.latitude,
-                                location.longitude,
-                                1
-                            ) as List<Address>
-                        with(binding) {
-                            tvGreeting.text = list[0].countryName
-                        }
-                    }
-                }
-            } else {
-                Toast.makeText(this, "Please turn on location", Toast.LENGTH_LONG).show()
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
-            }
-        } else {
-            requestPermissions()
-        }
-    }
-
-    @SuppressLint("MissingSuperCall")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == permissionId) {
-            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                getLocation()
-            }
-        }
-    }
 
     private fun setUpUI() {
-    }
-
-    private fun requestLocationPermission() {
-        val permissions = AppPermissions()
-
-        if (permissions.isLocationOk(this)) {
-            with(binding) {
-                tvGreeting.text = getString(R.string.granted_permission_msg)
-            }
-        } else {
-            permissions.requestLocationPermission(this)
-
-        }
     }
 
     fun setUpListeners() {
