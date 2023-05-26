@@ -86,7 +86,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun navigateToHomeActivity(loggedUser: User) {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()
-        HomeActivity.navigateToHomeActivity(this, loggedUser)
+        // HomeActivity.navigateToHomeActivity(this, loggedUser)
     }
 
     private fun notifyInvalidCredentials() {
