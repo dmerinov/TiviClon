@@ -15,6 +15,7 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.model.application.User
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -102,13 +103,6 @@ class HomeActivity : AppCompatActivity() {
                         with(binding) {
                             tvGreeting.text = list[0].countryName
                         }
-                        /* mainBinding.apply {
-                             tvLatitude.text = "Latitude\n${list[0].latitude}"
-                             tvLongitude.text = "Longitude\n${list[0].longitude}"
-                             tvCountryName.text = "Country Name\n${list[0].countryName}"
-                             tvLocality.text = "Locality\n${list[0].locality}"
-                             tvAddress.text = "Address\n${list[0].getAddressLine(0)}"
-                         }*/
                     }
                 }
             } else {
@@ -135,9 +129,6 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setUpUI() {
-        with(binding) {
-            tvGreeting.text = "you have to ask for location permissions"
-        }
     }
 
     private fun requestLocationPermission() {
@@ -145,43 +136,13 @@ class HomeActivity : AppCompatActivity() {
 
         if (permissions.isLocationOk(this)) {
             with(binding) {
-                tvGreeting.text = "Granted"
+                tvGreeting.text = getString(R.string.granted_permission_msg)
             }
         } else {
             permissions.requestLocationPermission(this)
 
         }
     }
-
-    /*override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            2000 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] ==
-                    PackageManager.PERMISSION_GRANTED
-                ) {
-                    if ((ContextCompat.checkSelfPermission(
-                            this@HomeActivity,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ) ==
-                                PackageManager.PERMISSION_GRANTED)
-                    ) {
-                        with(binding) {
-                            tvGreeting.text = "Granted"
-                        }
-                    }
-                } else {
-                    with(binding) {
-                        tvGreeting.text = "Denied"
-                    }
-                }
-                return
-            }
-        }
-    }*/
 
     fun setUpListeners() {
         //nothing to do

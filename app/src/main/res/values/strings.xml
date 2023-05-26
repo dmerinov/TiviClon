@@ -9,4 +9,5 @@
     <string name="repeat_password_string">Repetir contraseña</string>
     <string name="confirm_registry">Confirmar Registro</string>
     <string name="visit_website">Visitar Web</string>
+    <string name="granted_permission_msg">Permiso Concedido</string>
 </resources>
