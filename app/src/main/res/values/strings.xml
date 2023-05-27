@@ -3,11 +3,15 @@
     <string name="user_string">Usuario</string>
     <string name="password_string">Contraseña</string>
     <string name="tv_login">Log In</string>
-    <string name="valid_user_msg">Usuario válido, Navegando...</string>
+    <string name="valid_user_msg">Usuario válido, Navegando…</string>
     <string name="invalid_user_msg">El usuario no es válido, comprueba tus credenciales e intentalo de nuevo</string>
     <string name="tv_register">Registro</string>
     <string name="repeat_password_string">Repetir contraseña</string>
     <string name="confirm_registry">Confirmar Registro</string>
     <string name="visit_website">Visitar Web</string>
     <string name="granted_permission_msg">Permiso Concedido</string>
+    <string name="additional_listener_msg">revisa los permisos en los ajustes</string>
+    <string name="permissions_denied">all permanently denied</string>
+    <string name="any_permission_denied">any denied</string>
+    <string name="permissions_granted">all granted</string>
 </resources>

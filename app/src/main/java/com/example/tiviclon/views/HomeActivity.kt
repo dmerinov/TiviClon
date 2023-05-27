@@ -1,24 +1,28 @@
 package com.example.tiviclon.views
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.model.application.User
-import com.google.android.gms.location.*
+import com.fondesa.kpermissions.PermissionStatus
+import com.fondesa.kpermissions.allGranted
+import com.fondesa.kpermissions.anyDenied
+import com.fondesa.kpermissions.anyPermanentlyDenied
+import com.fondesa.kpermissions.extension.permissionsBuilder
+import com.fondesa.kpermissions.request.PermissionRequest
+import com.google.android.gms.location.LocationServices
 import java.util.*
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
 
     companion object {
         const val USER_INFO = "USER_INFO"
@@ -35,141 +39,37 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityHomeBinding
-    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    lateinit var locationRequest: LocationRequest
-    val PERMISSION_ID = 1010
+
+    private val request by lazy {
+        permissionsBuilder(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ).build()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        with(binding) {
-            button.setOnClickListener {
-                Log.d("Debug:", CheckPermission().toString())
-                Log.d("Debug:", isLocationEnabled().toString())
-                RequestPermission()
-                /* fusedLocationProviderClient.lastLocation.addOnSuccessListener{location: Location? ->
-                     textView.text = location?.latitude.toString() + "," + location?.longitude.toString()
-                 }*/
-                getLastLocation()
+        request.addListener(this)
+        request.addListener {
+            if (it.anyPermanentlyDenied()) {
+                Toast.makeText(this, R.string.additional_listener_msg, Toast.LENGTH_SHORT).show()
+            }
+            if (it.anyDenied()) {
+                binding.button.setOnClickListener {
+                    request.send()
+                }
+            }
+            if (it.allGranted()) {
+                showLocation()
             }
         }
 
         setUpUI()
         setUpListeners()
-    }
-
-    fun CheckPermission(): Boolean {
-        //this function will return a boolean
-        //true: if we have permission
-        //false if not
-        if (
-            ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            return true
-        }
-
-        return false
-
-    }
-
-    @SuppressLint("MissingPermission")
-    fun getLastLocation() {
-        if (CheckPermission()) {
-            if (isLocationEnabled()) {
-                fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
-                    var location: Location? = task.result
-                    if (location == null) {
-                        NewLocationData()
-                    } else {
-                        Log.d("Debug:", "Your Location:" + location.longitude)
-                        with(binding) {
-                            tvGreeting.text =
-                                "You Current Location is : Long: " + location.longitude + " , Lat: " + location.latitude + "\n" + getCityName(
-                                    location.latitude,
-                                    location.longitude
-                                )
-
-                        }
-                    }
-                }
-            } else {
-                Toast.makeText(this, "Please Turn on Your device Location", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        } else {
-            RequestPermission()
-        }
-    }
-
-
-    @SuppressLint("MissingPermission")
-    fun NewLocationData() {
-        var locationRequest = com.google.android.gms.location.LocationRequest()
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 0
-        locationRequest.fastestInterval = 0
-        locationRequest.numUpdates = 1
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        fusedLocationProviderClient!!.requestLocationUpdates(
-            locationRequest, locationCallback, Looper.myLooper()
-        )
-    }
-
-
-    private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            var lastLocation: Location = locationResult.lastLocation
-            Log.d("Debug:", "your last last location: " + lastLocation.longitude.toString())
-            binding.tvGreeting.text =
-                "You Last Location is : Long: " + lastLocation.longitude + " , Lat: " + lastLocation.latitude + "\n" + getCityName(
-                    lastLocation.latitude,
-                    lastLocation.longitude
-                )
-        }
-    }
-
-    fun RequestPermission() {
-        //this function will allows us to tell the user to requesut the necessary permsiion if they are not garented
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ),
-            PERMISSION_ID
-        )
-    }
-
-
-    fun isLocationEnabled(): Boolean {
-        //this function will return to us the state of the location service
-        //if the gps or the network provider is enabled then it will return true otherwise it will return false
-        var locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
-            LocationManager.NETWORK_PROVIDER
-        )
-    }
-
-    private fun getCityName(lat: Double, long: Double): String {
-        var cityName = ""
-        var countryName = ""
-        var geoCoder = Geocoder(this, Locale.getDefault())
-        var adress = geoCoder.getFromLocation(lat, long, 3)
-
-        cityName = adress?.get(0)?.locality ?: "city not found"
-        countryName = adress?.get(0)?.countryName ?: "country not found"
-        Log.d("Debug:", "Your City: " + cityName + " ; your Country " + countryName)
-        return cityName
+        request.send()
     }
 
 
@@ -178,5 +78,42 @@ class HomeActivity : AppCompatActivity() {
 
     fun setUpListeners() {
         //nothing to do
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun showLocation() {
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location ->
+            binding.tvGreeting.text =
+                buildString {
+                    append("your location is: ")
+                    append(getCityName(location.latitude, location.longitude))
+                }
+        }
+
+    }
+
+    private fun getCityName(lat: Double, long: Double): String {
+        val geoCoder = Geocoder(this, Locale.getDefault())
+        val address = geoCoder.getFromLocation(lat, long, 3)
+        val cityName = address?.get(0)?.locality ?: "city not found"
+        val countryName = address?.get(0)?.countryName ?: "country not found"
+        Log.d("Debug:", "Your City: $cityName ; your Country $countryName")
+        return cityName
+    }
+
+    override fun onPermissionsResult(result: List<PermissionStatus>) {
+        when {
+            result.anyPermanentlyDenied() -> {
+                binding.tvGreeting.text = getString(R.string.permissions_denied)
+            }
+            result.anyDenied() -> {
+                binding.tvGreeting.text = getString(R.string.any_permission_denied)
+            }
+            result.allGranted() -> {
+                binding.tvGreeting.text = getString(R.string.permissions_granted)
+            }
+        }
+
     }
 }
