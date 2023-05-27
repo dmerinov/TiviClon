@@ -60,9 +60,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
             if (it.anyPermanentlyDenied()) {
                 Toast.makeText(this, R.string.additional_listener_msg, Toast.LENGTH_SHORT).show()
             }
-            if (it.anyDenied()) {
-
-            }
+            /*if (it.anyDenied()) {
+                //this is useful if you request more than one permission
+            }*/
             if (it.allGranted()) {
                 showLocation()
             }
@@ -102,14 +102,14 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
 
     private fun setUpUI() {
         with(binding) {
-            toolbar.title = "Tiviclon"
+            toolbar.title = getString(R.string.Appname)
             toolbar.setTitleTextColor(Color.WHITE)
             //appBar will not work without this
             setSupportActionBar(toolbar)
         }
     }
 
-    fun setUpListeners() {
+    private fun setUpListeners() {
         //nothing to do
     }
 
@@ -127,7 +127,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
     }
 
     private fun getCityName(lat: Double, long: Double): String {
-        val geoCoder = Geocoder(this, Locale("es")) //Locale.Engish do the trick too.
+        val geoCoder = Geocoder(this, Locale("es")) //Locale.English do the trick too.
         val address = geoCoder.getFromLocation(lat, long, 3)
         val cityName = address?.get(0)?.locality ?: "city not found"
         val countryName = address?.get(0)?.countryName ?: "country not found"

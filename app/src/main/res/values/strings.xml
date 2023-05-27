@@ -14,4 +14,5 @@
     <string name="permissions_denied">all permanently denied</string>
     <string name="any_permission_denied">any denied</string>
     <string name="permissions_granted">all granted</string>
+    <string name="Appname">Tiviclon</string>
 </resources>
