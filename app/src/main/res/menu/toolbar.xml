@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/it_location"
+        android:icon="@drawable/location"
+        android:title="Pedir permisos"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/it_login"
+        android:icon="@drawable/account_person"
+        android:title="inicia sesion"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/it_exit"
+        android:title="Salir" />
+
+    <item
+        android:id="@+id/it_about"
+        android:title="Acerca de TiviClon" />
+
+</menu>

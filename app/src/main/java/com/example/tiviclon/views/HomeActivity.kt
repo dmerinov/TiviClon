@@ -4,10 +4,13 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
@@ -58,9 +61,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
                 Toast.makeText(this, R.string.additional_listener_msg, Toast.LENGTH_SHORT).show()
             }
             if (it.anyDenied()) {
-                binding.button.setOnClickListener {
-                    request.send()
-                }
+
             }
             if (it.allGranted()) {
                 showLocation()
@@ -72,8 +73,40 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
         request.send()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.toolbar, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here.
+        val id = item.itemId
+
+        if (id == R.id.it_location) {
+            request.send()
+            return true
+        }
+        if (id == R.id.it_exit) {
+            finish()
+            return true
+        }
+        if (id == R.id.it_about) {
+            //web intent
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
+
+    }
 
     private fun setUpUI() {
+        with(binding) {
+            toolbar.title = "Tiviclon"
+            toolbar.setTitleTextColor(Color.WHITE)
+            //appBar will not work without this
+            setSupportActionBar(toolbar)
+        }
     }
 
     fun setUpListeners() {
@@ -94,12 +127,12 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
     }
 
     private fun getCityName(lat: Double, long: Double): String {
-        val geoCoder = Geocoder(this, Locale.getDefault())
+        val geoCoder = Geocoder(this, Locale("es")) //Locale.Engish do the trick too.
         val address = geoCoder.getFromLocation(lat, long, 3)
         val cityName = address?.get(0)?.locality ?: "city not found"
         val countryName = address?.get(0)?.countryName ?: "country not found"
         Log.d("Debug:", "Your City: $cityName ; your Country $countryName")
-        return cityName
+        return countryName
     }
 
     override fun onPermissionsResult(result: List<PermissionStatus>) {
