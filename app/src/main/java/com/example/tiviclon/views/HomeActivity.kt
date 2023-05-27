@@ -45,8 +45,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
 
     private val request by lazy {
         permissionsBuilder(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION, //aproximate granted
+            // Manifest.permission.ACCESS_COARSE_LOCATION //aproximate denied
         ).build()
     }
 
@@ -60,9 +60,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
             if (it.anyPermanentlyDenied()) {
                 Toast.makeText(this, R.string.additional_listener_msg, Toast.LENGTH_SHORT).show()
             }
-            /*if (it.anyDenied()) {
+            if (it.anyDenied()) {
                 //this is useful if you request more than one permission
-            }*/
+                showLocation()
+            }
             if (it.allGranted()) {
                 showLocation()
             }
