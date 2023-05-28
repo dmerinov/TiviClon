@@ -125,6 +125,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
                     }
                     builder.setNeutralButton("Registrarse") { _, _ ->
                         //register
+                        RegisterActivity.navigateToRegisterActivity(this,responseLauncher)
                     }
                 } else {
                     builder.setPositiveButton("Desconectar") { _, _ ->
@@ -215,6 +216,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
                     DrawableCompat.setTint(it,ContextCompat.getColor(this,android.R.color.holo_green_dark))
                 }
                 logged = true
+            } else if (activityResult.resultCode == RegisterActivity.RESULT_OK_REGISTER) {
+                Toast.makeText(
+                    this,
+                    "registrado con éxito",
+                    Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "fallo en login", Toast.LENGTH_SHORT).show()
             }

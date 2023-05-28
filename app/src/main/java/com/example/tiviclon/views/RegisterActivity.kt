@@ -10,6 +10,7 @@ import com.example.tiviclon.databinding.ActivityRegisterBinding
 
 class RegisterActivity : AppCompatActivity() {
     companion object {
+        const val RESULT_OK_REGISTER = -2
         fun navigateToRegisterActivity(
             context: Context,
             responseLauncher: ActivityResultLauncher<Intent>
@@ -68,10 +69,8 @@ class RegisterActivity : AppCompatActivity() {
     private fun onValidCredentials(name: String, password: String) {
         val intent = Intent()
         intent.apply {
-            //putExtra(REGISTER_NAME, name)
-            //putExtra(REGISTER_PASS, password)
         }
-        setResult(RESULT_OK, intent)
+        setResult(RESULT_OK_REGISTER, intent)
         finish()
     }
 
