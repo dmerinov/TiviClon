@@ -4,15 +4,23 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.*
 import android.graphics.Color
 import android.location.Geocoder
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.get
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.model.application.User
@@ -42,6 +50,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
     }
 
     private lateinit var binding: ActivityHomeBinding
+    private var logged = false
 
     private val request by lazy {
         permissionsBuilder(
@@ -59,6 +68,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
         request.addListener {
             if (it.anyPermanentlyDenied()) {
                 Toast.makeText(this, R.string.additional_listener_msg, Toast.LENGTH_SHORT).show()
+                startActivity(Intent().apply {
+                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    data = Uri.fromParts("package", packageName, null)
+                })
+                startActivity(intent)
             }
             if (it.anyDenied()) {
                 //this is useful if you request more than one permission
@@ -84,17 +98,50 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
         // Handle action bar item clicks here.
         val id = item.itemId
 
-        if (id == R.id.it_location) {
-            request.send()
-            return true
-        }
-        if (id == R.id.it_exit) {
-            finish()
-            return true
-        }
-        if (id == R.id.it_about) {
-            //web intent
-            return true
+        when (id) {
+            R.id.it_location -> {
+                request.send()
+                return true
+            }
+            R.id.it_exit -> {
+                finish()
+                return true
+            }
+            R.id.it_about -> {
+                //web intent
+                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://trakt.tv/"))
+                startActivity(webIntent)
+                return true
+            }
+            R.id.it_login -> {
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Mi Cuenta")
+                builder.setMessage("What would you like to do")
+                //builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
+                if (!logged) {
+                    builder.setPositiveButton("Entrar") { _, _ ->
+                        //login
+                        LoginActivity.navigateToLoginActivity(this, responseLauncher)
+                    }
+                    builder.setNeutralButton("Registrarse") { _, _ ->
+                        //register
+                    }
+                } else {
+                    builder.setPositiveButton("Desconectar") { _, _ ->
+                        //log out
+                        val icon = binding.toolbar.menu.findItem(R.id.it_login).icon
+                        icon?.let {
+                            DrawableCompat.setTint(it,ContextCompat.getColor(this,android.R.color.black))
+                        }
+                        logged = false
+                    }
+                }
+
+                builder.setNegativeButton("Cancelar") { _, _ ->
+                    //Exit
+                }
+                builder.show()
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -116,13 +163,16 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
 
     @SuppressLint("MissingPermission")
     private fun showLocation() {
+        //FusedLocationProviderClient.lastLocation needs at least one loaction in the device. Launch G Maps app if it returns null.
         val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location ->
-            binding.tvGreeting.text =
-                buildString {
-                    append("your location is: ")
-                    append(getCityName(location.latitude, location.longitude))
-                }
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location? ->
+            location?.let {
+                binding.tvGreeting.text =
+                    buildString {
+                        append("your location is: ")
+                        append(getCityName(it.latitude, it.longitude))
+                    }
+            }
         }
 
     }
@@ -148,6 +198,25 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener {
                 binding.tvGreeting.text = getString(R.string.permissions_granted)
             }
         }
-
     }
+
+    private val responseLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
+            if (activityResult.resultCode == RESULT_OK) {
+                val name =
+                    activityResult.data?.getStringExtra(LoginActivity.LOGIN_NAME).orEmpty()
+                Toast.makeText(
+                    this,
+                    "logeado con exito: user $name",
+                    Toast.LENGTH_SHORT
+                ).show()
+                val icon = binding.toolbar.menu.findItem(R.id.it_login).icon
+                icon?.let {
+                    DrawableCompat.setTint(it,ContextCompat.getColor(this,android.R.color.holo_green_dark))
+                }
+                logged = true
+            } else {
+                Toast.makeText(this, "fallo en login", Toast.LENGTH_SHORT).show()
+            }
+        }
 }
