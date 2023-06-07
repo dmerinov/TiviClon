@@ -5,17 +5,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.FragmentDiscoveryBinding
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
+import com.example.tiviclon.views.homeFragments.discover.adapter.DiscoverAdapter
+import com.example.tiviclon.views.homeFragments.discover.adapter.PopularAdapter
 
 class DiscoveryFragment : HomeBaseFragment() {
 
     private var _binding: FragmentDiscoveryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
+    private lateinit var locationAdapter: DiscoverAdapter
+    private lateinit var popularAdapter: PopularAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,17 +44,11 @@ class DiscoveryFragment : HomeBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpUI()
         setUpListeners()
+        setUpRecyclerView()
     }
 
     private fun setUpListeners() {
         with(binding) {
-            btNavigate.setOnClickListener {
-                val activity = getFragmentContext() as IActionsFragment
-                //this id is just an example.
-                //the navigation should be handled on the adapter as a lambda function.
-                //this example ilustrates that.
-                activity.goShowDetail(Show(-1, "buttonShowTitle", "buttonShowDescription", ""))
-            }
         }
     }
 
@@ -57,9 +56,36 @@ class DiscoveryFragment : HomeBaseFragment() {
         val activity = getFragmentContext() as FragmentCommonComunication
         activity.updateAppBarText(getString(R.string.discover))
         with(binding) {
-            fragmentText.text = activity.getLocation()
-            btNavigate.text = getString(R.string.navigate_bt)
+            rvTitleLocation.text = getString(R.string.tv_location)
+            rvTitlePopular.text = getString(R.string.tv_populars)
         }
+    }
+
+    private fun setUpRecyclerView() {
+        locationAdapter = DiscoverAdapter(shows = getShows(), onClick = {
+            val activity = getFragmentContext() as IActionsFragment
+            activity.goShowDetail(it)
+        }
+        )
+        popularAdapter = PopularAdapter(shows = getShows(), onClick = {
+            val activity = getFragmentContext() as IActionsFragment
+            activity.goShowDetail(it)
+        }
+        )
+        with(binding) {
+            rvShowListLocation.layoutManager =
+                LinearLayoutManager(getFragmentContext(), LinearLayoutManager.HORIZONTAL, false)
+            rvShowListLocation.adapter = locationAdapter
+
+            rvShowListPopular.layoutManager = LinearLayoutManager(getFragmentContext(), LinearLayoutManager.HORIZONTAL, false)
+            rvShowListPopular.adapter = popularAdapter
+
+        }
+    }
+
+    private fun getShows(): List<Show> {
+        val activity = getFragmentContext() as IActionsFragment
+        return activity.getShows()
     }
 
     override fun onDestroyView() {

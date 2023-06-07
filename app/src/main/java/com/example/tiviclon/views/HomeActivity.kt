@@ -34,7 +34,9 @@ import com.fondesa.kpermissions.anyPermanentlyDenied
 import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.fondesa.kpermissions.request.PermissionRequest
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.coroutineScope
 import java.util.*
+import kotlin.coroutines.coroutineContext
 
 class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCommonComunication,
     IActionsFragment {
@@ -258,7 +260,12 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     }
 
     override fun getShows(): List<Show> {
-        return emptyList()
+        return listOf(
+            Show(1,"peli 1","description",R.drawable.breakingbad),
+            Show(2,"peli 1","description",R.drawable.spiderman),
+            Show(3,"peli 1","description",R.drawable.jhonwick),
+            Show(4,"peli 1","description",R.drawable.sucession)
+        )
     }
 
     override fun updateAppBarText(text: String) {
