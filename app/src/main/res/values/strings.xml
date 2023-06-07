@@ -3,16 +3,37 @@
     <string name="user_string">Usuario</string>
     <string name="password_string">Contraseña</string>
     <string name="tv_login">Log In</string>
-    <string name="valid_user_msg">Usuario válido, Navegando…</string>
+    <string name="valid_user_msg">Usuario válido, Navegando...</string>
     <string name="invalid_user_msg">El usuario no es válido, comprueba tus credenciales e intentalo de nuevo</string>
     <string name="tv_register">Registro</string>
     <string name="repeat_password_string">Repetir contraseña</string>
     <string name="confirm_registry">Confirmar Registro</string>
     <string name="visit_website">Visitar Web</string>
-    <string name="granted_permission_msg">Permiso Concedido</string>
-    <string name="additional_listener_msg">revisa los permisos en los ajustes</string>
-    <string name="permissions_denied">all permanently denied</string>
-    <string name="any_permission_denied">any denied</string>
-    <string name="permissions_granted">all granted</string>
-    <string name="Appname">Tiviclon</string>
+    <string name="navigate_button_str">haz click en el botón para navegar</string>
+    <string name="navigate_bt">navegar</string>
+    <string name="description">\"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut viverra lectus lectus, ultrices tempus odio fermentum sed. Sed quis orci auctor, fringilla felis a, dictum tortor. Vivamus cursus elementum venenatis. Nullam condimentum bibendum risus, ut sodales leo. Nulla tellus magna, congue ac orci et, maximus dignissim leo. Etiam neque justo, fermentum vel bibendum in, condimentum lacinia massa. Phasellus nulla nulla, dignissim in urna eget, suscipit finibus arcu. Donec auctor feugiat tellus eu maximus. Aenean nec efficitur nunc. Maecenas nec sapien sem. \"</string>
+    <string name="all_permissions_denied">all permissions denied</string>
+    <string name="any_permissions_denied">any permissions denied</string>
+    <string name="all_permissions_granted">all permissions granted</string>
+    <string name="additional_listener_msg">Revisa los permisos en los ajustes</string>
+    <string name="discover">Descubre</string>
+    <string name="my_account">Mi Cuenta</string>
+    <string name="login_alert_subtitle">What would you like to do</string>
+    <string name="dialog_login">Entrar</string>
+    <string name="dialog_neutral">Registrarse</string>
+    <string name="dialog_disconect">Desconectar</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="register_ok">registrado con éxito</string>
+    <string name="login_fail">fallo en login</string>
+    <string name="login_success">\"logeado con exito: \"</string>
+    <string name="title_activity_detail_show">DetailShowActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
 </resources>
