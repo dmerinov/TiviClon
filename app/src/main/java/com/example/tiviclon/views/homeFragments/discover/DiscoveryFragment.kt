@@ -52,11 +52,26 @@ class DiscoveryFragment : HomeBaseFragment() {
         }
     }
 
+
+
     private fun setUpUI() {
         val activity = getFragmentContext() as FragmentCommonComunication
+        val location = activity.getLocation()
         activity.updateAppBarText(getString(R.string.discover))
         with(binding) {
-            rvTitleLocation.text = getString(R.string.tv_location)
+            if(location.contains("ERR")){
+                rvShowListLocation.visibility = View.GONE
+                rvTitleLocation.visibility = View.GONE
+
+            }else{
+                rvShowListLocation.visibility = View.VISIBLE
+                rvTitleLocation.visibility = View.VISIBLE
+                rvTitleLocation.text = buildString {
+                    append(getString(R.string.tv_location))
+                    append(location)
+                }
+            }
+
             rvTitlePopular.text = getString(R.string.tv_populars)
         }
     }
@@ -77,7 +92,8 @@ class DiscoveryFragment : HomeBaseFragment() {
                 LinearLayoutManager(getFragmentContext(), LinearLayoutManager.HORIZONTAL, false)
             rvShowListLocation.adapter = locationAdapter
 
-            rvShowListPopular.layoutManager = LinearLayoutManager(getFragmentContext(), LinearLayoutManager.HORIZONTAL, false)
+            rvShowListPopular.layoutManager =
+                LinearLayoutManager(getFragmentContext(), LinearLayoutManager.HORIZONTAL, false)
             rvShowListPopular.adapter = popularAdapter
 
         }

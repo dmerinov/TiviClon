@@ -30,14 +30,14 @@ class DetailShowFragment(val show: Show) : Fragment(){
         setUpListeners()
     }
 
-    fun setUpUI(showVm: Show) {
+    private fun setUpUI(showVm: Show) {
         with(binding) {
-            tvTitle.text = showVm.title
-            showDetail.text = showVm.description
+            itemImg.setImageResource(showVm.image)
+            showDetail.text= showVm.description
         }
     }
 
-    fun setUpListeners() {
+    private fun setUpListeners() {
         //nothing to do
         with(binding) {
 

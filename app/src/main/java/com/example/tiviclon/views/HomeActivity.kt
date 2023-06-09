@@ -27,6 +27,7 @@ import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.detailShow.DetailShowActivity
 import com.example.tiviclon.views.homeFragments.discover.DiscoveryFragment
+import com.example.tiviclon.views.homeFragments.library.LibraryFragment
 import com.fondesa.kpermissions.PermissionStatus
 import com.fondesa.kpermissions.allGranted
 import com.fondesa.kpermissions.anyDenied
@@ -148,7 +149,17 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             toolbar.setTitleTextColor(Color.WHITE)
             //appBar will not work without this
             setSupportActionBar(toolbar)
+        }
+    }
 
+    private fun loadFragment(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragment_container_view, fragment)
+        transaction.commit()
+    }
+
+    private fun setUpListeners() {
+        with(binding){
             bottomNavBar.setOnItemSelectedListener { item ->
                 when (item.itemId) {
                     R.id.action_discover -> {
@@ -156,7 +167,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         true
                     }
                     R.id.action_library -> {
-                        loadFragment(DiscoveryFragment())
+                        loadFragment(LibraryFragment())
                         true
                     }
                     R.id.action_search -> {
@@ -169,15 +180,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 }
             }
         }
-    }
-
-    private fun loadFragment(fragment: Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment_container_view, fragment)
-        transaction.commit()
-    }
-
-    private fun setUpListeners() {
     }
 
     @SuppressLint("MissingPermission")
@@ -211,10 +213,14 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
             result.anyDenied() -> {
                 currentCityName = getString(R.string.any_permissions_denied)
-                loadFragment(DiscoveryFragment())
+                loadFragment(LibraryFragment())
             }
             result.allGranted() -> {
-                loadFragment(DiscoveryFragment())
+                //TODO
+                loadFragment(LibraryFragment())
+                with(binding){
+                    bottomNavBar.selectedItemId = R.id.action_library
+                }
             }
         }
     }
@@ -261,10 +267,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     override fun getShows(): List<Show> {
         return listOf(
-            Show(1,"peli 1","description",R.drawable.breakingbad),
-            Show(2,"peli 1","description",R.drawable.spiderman),
-            Show(3,"peli 1","description",R.drawable.jhonwick),
-            Show(4,"peli 1","description",R.drawable.sucession)
+            Show(1,"Breaking Bad","When Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of only two years left to live. He becomes filled with a sense of fearlessness and an unrelenting desire to secure his family's financial future at any cost as he enters the dangerous world of drugs and crime",R.drawable.breakingbad),
+            Show(2,"Spider-Man: Across the Spider-Verse","After reuniting with Gwen Stacy, Brooklyn’s full-time, friendly neighborhood Spider-Man is catapulted across the Multiverse, where he encounters the Spider Society, a team of Spider-People charged with protecting the Multiverse’s very existence. But when the heroes clash on how to handle a new threat, Miles finds himself pitted against the other Spiders and must set out on his own to save those he loves most",R.drawable.spiderman),
+            Show(3,"John Wick: Chapter 4","With the price on his head ever increasing, John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.",R.drawable.jhonwick),
+            Show(4,"Succession","Follow the lives of the Roy family as they contemplate their future once their aging father begins to step back from the media and entertainment conglomerate they control.",R.drawable.sucession)
         )
     }
 
