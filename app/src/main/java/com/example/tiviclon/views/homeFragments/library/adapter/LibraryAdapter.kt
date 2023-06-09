@@ -4,14 +4,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tiviclon.databinding.LibraryShowViewholderBinding
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 
-class LibraryAdapter (private val shows: List<Show>, private val onClick: (show:Show) -> Unit) :
+class LibraryAdapter (private val shows: List<DetailShow>, private val onClick: (show:DetailShow) -> Unit) :
     RecyclerView.Adapter<LibraryAdapter.ShowHolder>() {
 
 
-    class ShowHolder(private val binding: LibraryShowViewholderBinding, private val onClick: (show:Show) -> Unit) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(show: Show, totalItems: Int){
+    class ShowHolder(private val binding: LibraryShowViewholderBinding, private val onClick: (show:DetailShow) -> Unit) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(show: DetailShow, totalItems: Int){
             binding.tvTitle.text = show.title
             binding.itemImg.setImageResource(show.image)
             binding.clItem.setOnClickListener {

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentLibraryBinding
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
@@ -47,7 +48,7 @@ class LibraryFragment : HomeBaseFragment() {
     fun setUpRecyclerView() {
         adapter = LibraryAdapter(shows = getShows(), onClick = {
             val activity = getFragmentContext() as IActionsFragment
-            activity.goShowDetail(it)
+            activity.goShowDetail(it.id)
         }
         )
         with(binding) {
@@ -56,9 +57,10 @@ class LibraryFragment : HomeBaseFragment() {
         }
     }
 
-    fun getShows(): List<Show> {
+    fun getShows(): List<DetailShow> {
+        //usar preferencias aquí para obtener y guardar las series favoritas.
         val activity = getFragmentContext() as IActionsFragment
-        return activity.getShows()
+        return activity.getDetailShows(listOf(1,4))
     }
 
     fun setUpListeners() {

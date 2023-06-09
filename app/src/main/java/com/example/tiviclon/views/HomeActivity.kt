@@ -22,6 +22,9 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
+import com.example.tiviclon.getMockDetailShows
+import com.example.tiviclon.getMockShows
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -159,7 +162,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     }
 
     private fun setUpListeners() {
-        with(binding){
+        with(binding) {
             bottomNavBar.setOnItemSelectedListener { item ->
                 when (item.itemId) {
                     R.id.action_discover -> {
@@ -218,7 +221,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             result.allGranted() -> {
                 //TODO
                 loadFragment(LibraryFragment())
-                with(binding){
+                with(binding) {
                     bottomNavBar.selectedItemId = R.id.action_library
                 }
             }
@@ -234,9 +237,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                     Toast.makeText(
                         this,
                         buildString {
-        append(getString(R.string.login_success))
-        append(name)
-    },
+                            append(getString(R.string.login_success))
+                            append(name)
+                        },
                         Toast.LENGTH_SHORT
                     ).show()
                     val icon = binding.toolbar.menu.findItem(R.id.it_login).icon
@@ -261,17 +264,24 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
         }
 
-    override fun goShowDetail(show: Show) {
-        DetailShowActivity.navigateToShowDetailActivity(this,show)
+    override fun goShowDetail(showId: Int) {
+        DetailShowActivity.navigateToShowDetailActivity(this, showId)
     }
 
     override fun getShows(): List<Show> {
-        return listOf(
-            Show(1,"Breaking Bad","When Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of only two years left to live. He becomes filled with a sense of fearlessness and an unrelenting desire to secure his family's financial future at any cost as he enters the dangerous world of drugs and crime",R.drawable.breakingbad),
-            Show(2,"Spider-Man: Across the Spider-Verse","After reuniting with Gwen Stacy, Brooklyn’s full-time, friendly neighborhood Spider-Man is catapulted across the Multiverse, where he encounters the Spider Society, a team of Spider-People charged with protecting the Multiverse’s very existence. But when the heroes clash on how to handle a new threat, Miles finds himself pitted against the other Spiders and must set out on his own to save those he loves most",R.drawable.spiderman),
-            Show(3,"John Wick: Chapter 4","With the price on his head ever increasing, John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.",R.drawable.jhonwick),
-            Show(4,"Succession","Follow the lives of the Roy family as they contemplate their future once their aging father begins to step back from the media and entertainment conglomerate they control.",R.drawable.sucession)
-        )
+        return getMockShows()
+    }
+
+    override fun getDetailShows(idList: List<Int>): List<DetailShow> {
+        val allShows = getMockDetailShows()
+        val filteredList = mutableListOf<DetailShow>()
+        for (idShow in idList){
+            val show = allShows.filter { it.id == idShow }
+            if (show.isNotEmpty()){
+                filteredList.add(show[0])
+            }
+        }
+        return filteredList
     }
 
     override fun updateAppBarText(text: String) {

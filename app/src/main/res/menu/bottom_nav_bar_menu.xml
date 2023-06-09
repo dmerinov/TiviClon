@@ -5,21 +5,21 @@
     <item
         android:id="@+id/action_library"
         android:enabled="true"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/local_library"
         android:title="Biblioteca"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_discover"
         android:enabled="true"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/weekend"
         app:showAsAction="collapseActionView"
         android:title="Descubre" />
 
     <item
         android:id="@+id/action_search"
         android:enabled="true"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/search"
         android:title="Buscar"
         app:showAsAction="ifRoom" />
 </menu>

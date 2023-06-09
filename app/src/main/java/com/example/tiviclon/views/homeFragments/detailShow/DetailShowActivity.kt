@@ -8,7 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
+import com.example.tiviclon.getMockDetailShows
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
+import com.example.tiviclon.views.homeFragments.IActionsFragment
 
 class DetailShowActivity : AppCompatActivity() {
 
@@ -17,10 +20,10 @@ class DetailShowActivity : AppCompatActivity() {
 
         fun navigateToShowDetailActivity(
             context: Context,
-            show: Show
+            showId: Int
         ) {
             val intent = Intent(context, DetailShowActivity::class.java).apply {
-                putExtra(DETAIL_SHOW, show)
+                putExtra(DETAIL_SHOW, showId)
             }
             context.startActivity(intent)
         }
@@ -33,7 +36,8 @@ class DetailShowActivity : AppCompatActivity() {
         binding = ActivityDetailShowBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val show = intent.extras?.getSerializable(DETAIL_SHOW) as Show
+        val showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
+        val show = getShow(showId)
         setUpUI(show.title)
         setUpListeners()
         initFragments()
@@ -49,7 +53,8 @@ class DetailShowActivity : AppCompatActivity() {
     }
 
     private fun initFragments() {
-        val show = intent.extras?.getSerializable(DETAIL_SHOW) as Show
+        val showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
+        val show = getShow(showId)
         loadFragment(DetailShowFragment(show))
     }
 
@@ -61,6 +66,11 @@ class DetailShowActivity : AppCompatActivity() {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragment_container_view, fragment)
         transaction.commit()
+    }
+
+    private fun getShow(id:Int) : DetailShow{
+        //petition to retrofit or room (room preferably)
+        return getMockDetailShows().filter { it.id == id }[0]
     }
 
 }

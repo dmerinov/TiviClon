@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.FragmentDiscoveryBinding
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
@@ -79,12 +80,12 @@ class DiscoveryFragment : HomeBaseFragment() {
     private fun setUpRecyclerView() {
         locationAdapter = DiscoverAdapter(shows = getShows(), onClick = {
             val activity = getFragmentContext() as IActionsFragment
-            activity.goShowDetail(it)
+            activity.goShowDetail(it.id)
         }
         )
         popularAdapter = PopularAdapter(shows = getShows(), onClick = {
             val activity = getFragmentContext() as IActionsFragment
-            activity.goShowDetail(it)
+            activity.goShowDetail(it.id)
         }
         )
         with(binding) {
