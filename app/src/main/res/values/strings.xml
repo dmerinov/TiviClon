@@ -37,5 +37,6 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="tv_populars">polulares</string>
     <string name="tv_location">"basado en tu localización: "</string>
+    <string name="gps_error">couldn\'t access gps</string>
 
 </resources>

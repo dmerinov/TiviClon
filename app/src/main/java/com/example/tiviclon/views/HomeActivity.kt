@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.*
 import android.graphics.Color
+import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.net.Uri
@@ -38,9 +39,8 @@ import com.fondesa.kpermissions.anyPermanentlyDenied
 import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.fondesa.kpermissions.request.PermissionRequest
 import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.coroutineScope
+import java.io.IOException
 import java.util.*
-import kotlin.coroutines.coroutineContext
 
 class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCommonComunication,
     IActionsFragment {
@@ -199,7 +199,14 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     private fun setCityName(lat: Double, long: Double) {
         val geoCoder = Geocoder(this, Locale("es")) //Locale.English do the trick too.
-        val address = geoCoder.getFromLocation(lat, long, 3)
+        var address : List<Address>? = null
+        try {
+            address = geoCoder.getFromLocation(lat, long, 3)
+        }catch (e: IOException){
+            Log.i("Exception", "Geocoder is not working")
+            Toast.makeText(this,getString(R.string.gps_error),Toast.LENGTH_SHORT).show()
+        }
+
         val cityName = address?.get(0)?.locality ?: "city not found"
         val countryName = address?.get(0)?.countryName ?: "country not found"
         Log.d("Debug:", "Your City: $cityName ; your Country $countryName")
