@@ -33,5 +33,6 @@
     <string name="gps_error">couldn\'t access gps</string>
     <string name="logging_library">haz login para ver tu biblioteca</string>
     <string name="fill_next_session">rellenar en la siguiente sesión</string>
+    <string name="show_cover">show cover</string>
 
 </resources>
