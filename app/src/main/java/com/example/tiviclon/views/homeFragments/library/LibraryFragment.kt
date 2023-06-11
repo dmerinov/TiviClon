@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentLibraryBinding
 import com.example.tiviclon.model.application.DetailShow
@@ -54,11 +55,14 @@ class LibraryFragment : HomeBaseFragment() {
         }
     }
 
-    fun setUpRecyclerView() {
+    private fun setUpRecyclerView() {
         adapter = LibraryAdapter(shows = getShows(), onClick = {
             val activity = getFragmentContext() as IActionsFragment
             activity.goShowDetail(it.id)
-        }
+        },
+            onLongClick = {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
         )
         with(binding) {
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())

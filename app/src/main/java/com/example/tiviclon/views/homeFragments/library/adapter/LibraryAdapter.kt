@@ -5,25 +5,42 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tiviclon.databinding.LibraryShowViewholderBinding
 import com.example.tiviclon.model.application.DetailShow
-import com.example.tiviclon.model.application.Show
 
-class LibraryAdapter (private val shows: List<DetailShow>, private val onClick: (show:DetailShow) -> Unit) :
+class LibraryAdapter(
+    private val shows: List<DetailShow>,
+    private val onClick: (show: DetailShow) -> Unit,
+    private val onLongClick: (title: String) -> Unit
+) :
     RecyclerView.Adapter<LibraryAdapter.ShowHolder>() {
 
 
-    class ShowHolder(private val binding: LibraryShowViewholderBinding, private val onClick: (show:DetailShow) -> Unit) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(show: DetailShow, totalItems: Int){
-            binding.tvTitle.text = show.title
-            binding.itemImg.setImageResource(show.image)
-            binding.clItem.setOnClickListener {
-                onClick(show)
+    class ShowHolder(
+        private val binding: LibraryShowViewholderBinding,
+        private val onClick: (show: DetailShow) -> Unit,
+        private val onLongClick: (title: String) -> Unit,
+    ) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(show: DetailShow, totalItems: Int) {
+            with(binding) {
+                tvTitle.text = show.title
+                itemImg.setImageResource(show.image)
+                clItem.setOnClickListener {
+                    onClick(show)
+                }
+                clItem.setOnLongClickListener {
+                    onLongClick(show.title)
+                    true
+                }
             }
+
+
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShowHolder {
-        val binding = LibraryShowViewholderBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-        return ShowHolder(binding, onClick)
+        val binding =
+            LibraryShowViewholderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ShowHolder(binding, onClick, onLongClick)
     }
 
     override fun getItemCount() = shows.size
