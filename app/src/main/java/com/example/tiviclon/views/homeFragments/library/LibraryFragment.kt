@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentLibraryBinding
 import com.example.tiviclon.model.application.DetailShow
-import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -42,7 +41,15 @@ class LibraryFragment : HomeBaseFragment() {
     fun setUpUI() {
         val activity = getFragmentContext() as FragmentCommonComunication
         activity.updateAppBarText("Biblioteca")
-
+        if (activity.isUserLogged()) {
+            with(binding) {
+                rvShowList.visibility = View.VISIBLE
+            }
+        } else {
+            with(binding) {
+                rvShowList.visibility = View.GONE
+            }
+        }
     }
 
     fun setUpRecyclerView() {
@@ -60,7 +67,7 @@ class LibraryFragment : HomeBaseFragment() {
     fun getShows(): List<DetailShow> {
         //usar preferencias aquí para obtener y guardar las series favoritas.
         val activity = getFragmentContext() as IActionsFragment
-        return activity.getDetailShows(listOf(1,4))
+        return activity.getDetailShows(listOf(1, 4))
     }
 
     fun setUpListeners() {

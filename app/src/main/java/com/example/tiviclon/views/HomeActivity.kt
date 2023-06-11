@@ -18,8 +18,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityHomeBinding
@@ -123,15 +121,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                     }
                 } else {
                     builder.setPositiveButton(getString(R.string.dialog_disconect)) { _, _ ->
-                        //log out
-                        val icon = binding.toolbar.menu.findItem(R.id.it_login).icon
-                        icon?.let {
-                            DrawableCompat.setTint(
-                                it,
-                                ContextCompat.getColor(this, android.R.color.black)
-                            )
-                        }
-                        logged = false
+                        setLoggedState(false)
+                        loadFragment(LibraryFragment())
+
                     }
                 }
 
@@ -199,12 +191,12 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     private fun setCityName(lat: Double, long: Double) {
         val geoCoder = Geocoder(this, Locale("es")) //Locale.English do the trick too.
-        var address : List<Address>? = null
+        var address: List<Address>? = null
         try {
             address = geoCoder.getFromLocation(lat, long, 3)
-        }catch (e: IOException){
+        } catch (e: IOException) {
             Log.i("Exception", "Geocoder is not working")
-            Toast.makeText(this,getString(R.string.gps_error),Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.gps_error), Toast.LENGTH_SHORT).show()
         }
 
         val cityName = address?.get(0)?.locality ?: "city not found"
@@ -249,14 +241,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         },
                         Toast.LENGTH_SHORT
                     ).show()
-                    val icon = binding.toolbar.menu.findItem(R.id.it_login).icon
-                    icon?.let {
-                        DrawableCompat.setTint(
-                            it,
-                            ContextCompat.getColor(this, android.R.color.holo_green_dark)
-                        )
-                    }
-                    logged = true
+                    setLoggedState(true)
+                    loadFragment(LibraryFragment())
                 }
                 RegisterActivity.RESULT_OK_REGISTER -> {
                     Toast.makeText(
@@ -271,6 +257,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
         }
 
+    override fun isUserLogged() = logged
+    private fun setLoggedState(isLogged: Boolean) {
+        logged = isLogged
+    }
+
     override fun goShowDetail(showId: Int) {
         DetailShowActivity.navigateToShowDetailActivity(this, showId)
     }
@@ -282,9 +273,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     override fun getDetailShows(idList: List<Int>): List<DetailShow> {
         val allShows = getMockDetailShows()
         val filteredList = mutableListOf<DetailShow>()
-        for (idShow in idList){
+        for (idShow in idList) {
             val show = allShows.filter { it.id == idShow }
-            if (show.isNotEmpty()){
+            if (show.isNotEmpty()) {
                 filteredList.add(show[0])
             }
         }
