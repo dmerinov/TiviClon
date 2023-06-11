@@ -14,6 +14,7 @@ import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.search.adapter.SearchAdapter
+import kotlinx.coroutines.*
 import androidx.appcompat.widget.SearchView as androidSearchView
 
 class SearchFragment : HomeBaseFragment() {
@@ -22,6 +23,8 @@ class SearchFragment : HomeBaseFragment() {
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: SearchAdapter
     private lateinit var showList: MutableList<Show>
+    val job = Job()
+    val uiScope = CoroutineScope(Dispatchers.Main + job)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +49,26 @@ class SearchFragment : HomeBaseFragment() {
         setUpUI()
         setUpListeners()
         setUpRecyclerView()
+
+        uiScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                //ui operation
+                binding.progressBar.visibility = View.VISIBLE
+            }
+            //asyncOperation
+            async {
+                getShows {
+                    showList.clear()
+                    showList.addAll(it)
+                }
+                delay(2000)
+            }.await()
+            withContext(Dispatchers.Main) {
+                //ui operation
+                binding.progressBar.visibility = View.INVISIBLE
+                adapter.notifyDataSetChanged()
+            }
+        }
     }
 
     fun setUpListeners() {
@@ -68,7 +91,7 @@ class SearchFragment : HomeBaseFragment() {
     }
 
     fun filterList(filter: String) {
-        val allShows = getShows()
+        val allShows = showList
         var filteredShows = allShows.filter {
             it.title.contains(filter)
         }
@@ -79,7 +102,7 @@ class SearchFragment : HomeBaseFragment() {
     }
 
     fun setUpRecyclerView() {
-        showList = getShows().toMutableList()
+        showList = mutableListOf()
         adapter = SearchAdapter(showList, onClick = {
             val activity = getFragmentContext() as IActionsFragment
             activity.goShowDetail(it.id)
@@ -109,9 +132,9 @@ class SearchFragment : HomeBaseFragment() {
         }
     }
 
-    private fun getShows(): List<Show> {
+    private suspend fun getShows(onShowsObtained: (List<Show>) -> Unit) {
         val activity = getFragmentContext() as IActionsFragment
-        return activity.getShows()
+        onShowsObtained(activity.getShows())
     }
 
     override fun onDestroyView() {
