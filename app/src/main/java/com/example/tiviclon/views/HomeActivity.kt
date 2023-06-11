@@ -25,6 +25,7 @@ import com.example.tiviclon.getMockDetailShows
 import com.example.tiviclon.getMockShows
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
+import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.detailShow.DetailShowActivity
@@ -76,6 +77,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 requestLocation()
             }
         }
+        setUpState()
         setUpUI()
         setUpListeners()
         request.send()
@@ -101,7 +103,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
             R.id.it_about -> {
                 //web intent
-                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://trakt.tv/"))
+                val webIntent = Intent(ACTION_VIEW, Uri.parse("https://trakt.tv/"))
                 startActivity(webIntent)
                 return true
             }
@@ -145,6 +147,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             //appBar will not work without this
             setSupportActionBar(toolbar)
         }
+    }
+
+    private fun setUpState() {
+        logged = prefs.getLoginState()
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -259,11 +265,12 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     override fun isUserLogged() = logged
     private fun setLoggedState(isLogged: Boolean) {
+        prefs.saveLoginState(isLogged)
         logged = isLogged
     }
 
-    override fun goShowDetail(showId: Int) {
-        DetailShowActivity.navigateToShowDetailActivity(this, showId)
+    override fun goShowDetail(id: Int) {
+        DetailShowActivity.navigateToShowDetailActivity(this, id)
     }
 
     override fun getShows(): List<Show> {
