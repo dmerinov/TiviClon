@@ -18,7 +18,7 @@
         android:theme="@style/Theme.TiviClon"
         tools:targetApi="30">
         <activity
-            android:name=".views.homeFragments.detailShow.DetailShowActivity"
+            android:name=".views.detailShow.DetailShowActivity"
             android:exported="false"
             android:label="@string/title_activity_detail_show"
             android:theme="@style/Theme.TiviClon.NoActionBar" />

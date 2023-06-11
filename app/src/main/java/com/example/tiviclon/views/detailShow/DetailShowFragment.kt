@@ -1,4 +1,4 @@
-package com.example.tiviclon.views.homeFragments.detailShow
+package com.example.tiviclon.views.detailShow
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,9 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.model.application.DetailShow
-import com.example.tiviclon.model.application.Show
 
-class DetailShowFragment(val show: DetailShow) : Fragment(){
+class DetailShowFragment(val show: DetailShow) : Fragment() {
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +33,7 @@ class DetailShowFragment(val show: DetailShow) : Fragment(){
     private fun setUpUI(showVm: DetailShow) {
         with(binding) {
             itemImg.setImageResource(showVm.image)
-            showDetail.text= showVm.description
+            showDetail.text = showVm.description
         }
     }
 

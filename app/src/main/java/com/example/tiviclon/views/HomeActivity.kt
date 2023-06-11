@@ -26,9 +26,9 @@ import com.example.tiviclon.getMockShows
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
+import com.example.tiviclon.views.detailShow.DetailShowActivity
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.IActionsFragment
-import com.example.tiviclon.views.homeFragments.detailShow.DetailShowActivity
 import com.example.tiviclon.views.homeFragments.discover.DiscoveryFragment
 import com.example.tiviclon.views.homeFragments.library.LibraryFragment
 import com.example.tiviclon.views.homeFragments.search.SearchFragment

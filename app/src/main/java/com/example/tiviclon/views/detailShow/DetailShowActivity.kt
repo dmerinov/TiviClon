@@ -1,4 +1,4 @@
-package com.example.tiviclon.views.homeFragments.detailShow
+package com.example.tiviclon.views.detailShow
 
 import android.content.Context
 import android.content.Intent
@@ -10,8 +10,6 @@ import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
 import com.example.tiviclon.getMockDetailShows
 import com.example.tiviclon.model.application.DetailShow
-import com.example.tiviclon.model.application.Show
-import com.example.tiviclon.views.homeFragments.IActionsFragment
 
 class DetailShowActivity : AppCompatActivity() {
 
@@ -68,7 +66,7 @@ class DetailShowActivity : AppCompatActivity() {
         transaction.commit()
     }
 
-    private fun getShow(id:Int) : DetailShow{
+    private fun getShow(id: Int): DetailShow {
         //petition to retrofit or room (room preferably)
         return getMockDetailShows().filter { it.id == id }[0]
     }
