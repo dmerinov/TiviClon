@@ -44,10 +44,12 @@ class LibraryFragment : HomeBaseFragment() {
         if (activity.isUserLogged()) {
             with(binding) {
                 rvShowList.visibility = View.VISIBLE
+                tvLoggingWarning.visibility = View.GONE
             }
         } else {
             with(binding) {
                 rvShowList.visibility = View.GONE
+                tvLoggingWarning.visibility = View.VISIBLE
             }
         }
     }

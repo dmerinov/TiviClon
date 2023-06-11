@@ -31,6 +31,7 @@ import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.detailShow.DetailShowActivity
 import com.example.tiviclon.views.homeFragments.discover.DiscoveryFragment
 import com.example.tiviclon.views.homeFragments.library.LibraryFragment
+import com.example.tiviclon.views.homeFragments.search.SearchFragment
 import com.fondesa.kpermissions.PermissionStatus
 import com.fondesa.kpermissions.allGranted
 import com.fondesa.kpermissions.anyDenied
@@ -172,7 +173,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         true
                     }
                     R.id.action_search -> {
-                        loadFragment(DiscoveryFragment())
+                        loadFragment(SearchFragment())
                         true
                     }
                     else -> {
