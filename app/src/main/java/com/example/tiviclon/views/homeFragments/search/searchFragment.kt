@@ -3,6 +3,7 @@ package com.example.tiviclon.views.homeFragments.search
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +23,7 @@ class SearchFragment : HomeBaseFragment() {
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: SearchAdapter
-    private lateinit var showList: MutableList<Show>
+    private var showList: MutableList<Show> = mutableListOf()
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.Main + job)
 
@@ -49,24 +50,25 @@ class SearchFragment : HomeBaseFragment() {
         setUpUI()
         setUpListeners()
         setUpRecyclerView()
-
-        uiScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                //ui operation
-                binding.progressBar.visibility = View.VISIBLE
-            }
-            //asyncOperation
-            async {
-                getShows {
-                    showList.clear()
-                    showList.addAll(it)
+        if(showList.isEmpty()){
+            uiScope.launch(Dispatchers.IO) {
+                withContext(Dispatchers.Main) {
+                    //ui operation
+                    binding.progressBar.visibility = View.VISIBLE
                 }
-                delay(2000)
-            }.await()
-            withContext(Dispatchers.Main) {
-                //ui operation
-                binding.progressBar.visibility = View.INVISIBLE
-                adapter.notifyDataSetChanged()
+                //asyncOperation
+                async {
+                    getShows {
+                        showList.clear()
+                        showList.addAll(it)
+                    }
+                    delay(2000)
+                }.await()
+                withContext(Dispatchers.Main) {
+                    //ui operation
+                    binding.progressBar.visibility = View.INVISIBLE
+                    adapter.notifyDataSetChanged()
+                }
             }
         }
     }
@@ -101,8 +103,7 @@ class SearchFragment : HomeBaseFragment() {
         updateList(filteredShows)
     }
 
-    fun setUpRecyclerView() {
-        showList = mutableListOf()
+    private fun setUpRecyclerView() {
         adapter = SearchAdapter(showList, onClick = {
             val activity = getFragmentContext() as IActionsFragment
             activity.goShowDetail(it.id)
@@ -132,7 +133,7 @@ class SearchFragment : HomeBaseFragment() {
         }
     }
 
-    private suspend fun getShows(onShowsObtained: (List<Show>) -> Unit) {
+    private fun getShows(onShowsObtained: (List<Show>) -> Unit) {
         val activity = getFragmentContext() as IActionsFragment
         onShowsObtained(activity.getShows())
     }
@@ -141,5 +142,7 @@ class SearchFragment : HomeBaseFragment() {
         super.onDestroyView()
         //detach binding
         _binding = null
+        job.cancel()
+        Log.i("JOBS_COR", "job is cancelled")
     }
 }
