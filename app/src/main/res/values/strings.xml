@@ -9,10 +9,29 @@
     <string name="repeat_password_string">Repetir contraseña</string>
     <string name="confirm_registry">Confirmar Registro</string>
     <string name="visit_website">Visitar Web</string>
-    <string name="granted_permission_msg">Permiso Concedido</string>
-    <string name="additional_listener_msg">revisa los permisos en los ajustes</string>
-    <string name="permissions_denied">all permanently denied</string>
-    <string name="any_permission_denied">any denied</string>
-    <string name="permissions_granted">all granted</string>
-    <string name="Appname">Tiviclon</string>
+    <string name="navigate_button_str">haz click en el botón para navegar</string>
+    <string name="navigate_bt">navegar</string>
+    <string name="all_permissions_denied">LOCERR: all permissions denied</string>
+    <string name="any_permissions_denied">LOCERR: any permissions denied</string>
+    <string name="all_permissions_granted">all permissions granted</string>
+    <string name="additional_listener_msg">Revisa los permisos en los ajustes</string>
+    <string name="discover">Descubre</string>
+    <string name="my_account">Mi Cuenta</string>
+    <string name="login_alert_subtitle">What would you like to do</string>
+    <string name="dialog_login">Entrar</string>
+    <string name="dialog_neutral">Registrarse</string>
+    <string name="dialog_disconect">Desconectar</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="register_ok">registrado con éxito</string>
+    <string name="login_fail">fallo en login</string>
+    <string name="login_success">\"logeado con exito: \"</string>
+    <string name="title_activity_detail_show">DetailShowActivity</string>
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="tv_populars">polulares</string>
+    <string name="tv_location">"basado en tu localización: "</string>
+    <string name="gps_error">couldn\'t access gps</string>
+    <string name="logging_library">haz login para ver tu biblioteca</string>
+    <string name="fill_next_session">rellenar en la siguiente sesión</string>
+
 </resources>
