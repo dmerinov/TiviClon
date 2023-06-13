@@ -24,6 +24,7 @@ class SearchFragment : HomeBaseFragment() {
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: SearchAdapter
     private var showList: MutableList<Show> = mutableListOf()
+    private var initialList: MutableList<Show> = mutableListOf()
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.Main + job)
 
@@ -62,6 +63,7 @@ class SearchFragment : HomeBaseFragment() {
                         showList.clear()
                         showList.addAll(it)
                     }
+                    initialList.addAll(showList)
                     delay(2000)
                 }.await()
                 withContext(Dispatchers.Main) {
@@ -93,7 +95,7 @@ class SearchFragment : HomeBaseFragment() {
     }
 
     fun filterList(filter: String) {
-        val allShows = showList
+        val allShows = initialList
         var filteredShows = allShows.filter {
             it.title.contains(filter)
         }
