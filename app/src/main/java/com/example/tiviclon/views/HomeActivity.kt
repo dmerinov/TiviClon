@@ -14,6 +14,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -95,6 +96,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             .create(ApiService::class.java)
 
         GlobalScope.launch(Dispatchers.IO) {
+            binding.progressBar.visibility = View.VISIBLE
             val api_shows = api.getShows(1).await()
             api_shows.tv_shows.forEach {
                 Log.d("RESPONSE_COR", it.toString())
@@ -103,6 +105,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             shows.addAll(api_shows.tv_shows.map {
                 it.toShow()
             })
+            withContext(Dispatchers.Main){
+                binding.progressBar.visibility = View.GONE
+            }
             request.send()
         }
     }

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
@@ -18,6 +19,7 @@ import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.await
 import retrofit2.converter.gson.GsonConverterFactory
@@ -70,11 +72,14 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
             .create(ApiService::class.java)
 
         GlobalScope.launch(Dispatchers.IO) {
+            binding.progressBar.visibility = View.VISIBLE
             val api_shows = api.getDetailedShow(showId).await()
             val collectedShow = api_shows.toDetailShow()
             loadFragment(DetailShowFragment(collectedShow))
+            withContext(Dispatchers.Main){
+                binding.progressBar.visibility = View.GONE
+            }
         }
-
     }
 
     private fun setUpListeners() {

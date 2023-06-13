@@ -54,16 +54,12 @@ class SearchFragment : HomeBaseFragment() {
         if (showList.isEmpty()) {
             uiScope.launch(Dispatchers.IO) {
                 withContext(Dispatchers.Main) {
-                    //ui operation
-                    binding.progressBar.visibility = View.VISIBLE
                 }
                 //asyncOperation
                 async {
                     getShows()
                 }.await()
                 withContext(Dispatchers.Main) {
-                    //ui operation
-                    binding.progressBar.visibility = View.INVISIBLE
                     adapter.notifyDataSetChanged()
                 }
             }
