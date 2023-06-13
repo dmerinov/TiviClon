@@ -4,15 +4,23 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
+import com.example.tiviclon.data.retrofit.ApiService
+import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
-import com.example.tiviclon.getMockDetailShows
-import com.example.tiviclon.getMockShows
-import com.example.tiviclon.model.application.DetailShow
+import com.example.tiviclon.mappers.toDetailShow
+import com.example.tiviclon.mappers.toShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.IActionsFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.await
+import retrofit2.converter.gson.GsonConverterFactory
 
 class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
@@ -31,6 +39,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     }
 
     private lateinit var binding: ActivityDetailShowBinding
+    private val relatedShows = mutableListOf<Show>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,15 +47,13 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         setContentView(binding.root)
 
         val showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
-        val show = getShow(showId)
-        setUpUI(show.title)
+        setUpUI()
         setUpListeners()
         initFragments()
     }
 
-    private fun setUpUI(title: String) {
+    private fun setUpUI() {
         with(binding) {
-            appBar.title = title
             appBar.setTitleTextColor(Color.WHITE)
             //appBar will not work without this
             setSupportActionBar(appBar)
@@ -55,8 +62,19 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
     private fun initFragments() {
         val showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
-        val show = getShow(showId)
-        loadFragment(DetailShowFragment(show))
+
+        val api = Retrofit.Builder()
+            .baseUrl(RetrofitResource.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val api_shows = api.getDetailedShow(showId).await()
+            val collectedShow = api_shows.toDetailShow()
+            loadFragment(DetailShowFragment(collectedShow))
+        }
+
     }
 
     private fun setUpListeners() {
@@ -69,19 +87,31 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         transaction.commit()
     }
 
-    private fun getShow(id: Int): DetailShow {
-        //petition to retrofit or room (room preferably)
-        return getMockDetailShows().filter { it.id == id }[0]
-    }
-
     override fun goShowDetail(id: Int) {
 
     }
 
-    override fun getShows(): List<Show> = emptyList()
+    override fun getShows(onShowsRetrieved: (List<Show>) -> Unit) {
+        //nothing to do
+    }
 
-    override fun getDetailShows(idList: List<Int>): List<DetailShow> = emptyList()
+    override fun getPrefsShows(): List<Int> {
+        //ask repository for detail shows
+        return emptyList()
+    }
 
-    override fun getRelatedShows(genres: List<String>): List<Show> = getMockShows()
+    override fun getDetailShows(id: Int) {
+        GlobalScope.launch(Dispatchers.IO) {
+        }
+    }
 
+    override fun getRelatedShows(
+        genres: List<String>,
+        idList: List<Int>,
+        onShowsRetrieved: (List<Show>) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+
+        }
+    }
 }

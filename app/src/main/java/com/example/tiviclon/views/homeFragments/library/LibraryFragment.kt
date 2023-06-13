@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentLibraryBinding
-import com.example.tiviclon.model.application.DetailShow
+import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -36,7 +36,7 @@ class LibraryFragment : HomeBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpUI()
         setUpListeners()
-        setUpRecyclerView()
+        getShows()
     }
 
     fun setUpUI() {
@@ -55,14 +55,16 @@ class LibraryFragment : HomeBaseFragment() {
         }
     }
 
-    private fun setUpRecyclerView() {
-        adapter = LibraryAdapter(shows = getShows(), onClick = {
-            val activity = getFragmentContext() as IActionsFragment
-            activity.goShowDetail(it.id)
-        },
+    private fun setUpRecyclerView(shows: List<Show>) {
+        adapter = LibraryAdapter(
+            shows = shows, onClick = {
+                val activity = getFragmentContext() as IActionsFragment
+                activity.goShowDetail(it.id)
+            },
             onLongClick = {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            }
+            },
+            context = getFragmentContext()?.baseContext
         )
         with(binding) {
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
@@ -70,10 +72,11 @@ class LibraryFragment : HomeBaseFragment() {
         }
     }
 
-    fun getShows(): List<DetailShow> {
-        //usar preferencias aquí para obtener y guardar las series favoritas.
+    private fun getShows() {
         val activity = getFragmentContext() as IActionsFragment
-        return activity.getDetailShows(listOf(1, 4))
+        activity.getShows {
+            setUpRecyclerView(it.filter {activity.getPrefsShows().contains(it.id) })
+        }
     }
 
     fun setUpListeners() {
