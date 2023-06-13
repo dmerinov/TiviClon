@@ -9,9 +9,12 @@ import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
 import com.example.tiviclon.getMockDetailShows
+import com.example.tiviclon.getMockShows
 import com.example.tiviclon.model.application.DetailShow
+import com.example.tiviclon.model.application.Show
+import com.example.tiviclon.views.homeFragments.IActionsFragment
 
-class DetailShowActivity : AppCompatActivity() {
+class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
     companion object {
         const val DETAIL_SHOW = "DETAIL_SHOW"
@@ -70,5 +73,15 @@ class DetailShowActivity : AppCompatActivity() {
         //petition to retrofit or room (room preferably)
         return getMockDetailShows().filter { it.id == id }[0]
     }
+
+    override fun goShowDetail(id: Int) {
+
+    }
+
+    override fun getShows(): List<Show> = emptyList()
+
+    override fun getDetailShows(idList: List<Int>): List<DetailShow> = emptyList()
+
+    override fun getRelatedShows(genres: List<String>): List<Show> = getMockShows()
 
 }

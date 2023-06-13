@@ -34,5 +34,6 @@
     <string name="logging_library">haz login para ver tu biblioteca</string>
     <string name="fill_next_session">rellenar en la siguiente sesión</string>
     <string name="show_cover">show cover</string>
+    <string name="related_string">Te puede interesar</string>
 
 </resources>

@@ -290,6 +290,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         return filteredList
     }
 
+    override fun getRelatedShows(genres: List<String>): List<Show> {
+        return getMockShows()
+    }
+
     override fun updateAppBarText(text: String) {
         with(binding) {
             toolbar.title = text
