@@ -10,6 +10,7 @@ import com.example.tiviclon.R
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
+import com.example.tiviclon.views.detailShow.adapter.DetailAdapter
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -18,7 +19,7 @@ import com.example.tiviclon.views.homeFragments.discover.adapter.PopularAdapter
 class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private lateinit var popularAdapter: PopularAdapter
+    private lateinit var popularAdapter: DetailAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -50,7 +51,7 @@ class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
     }
 
     private fun setUpRecyclerView() {
-        popularAdapter = PopularAdapter(shows = getShows(show.genres), onClick = {})
+        popularAdapter = DetailAdapter(shows = getShows(show.genres), onClick = {})
         with(binding) {
             rvMoreShows.layoutManager =
                 LinearLayoutManager(getFragmentContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -64,9 +65,10 @@ class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
     }
 
     private fun setUpListeners() {
-        //nothing to do
         with(binding) {
-
+            btFavToggle.setOnClickListener {
+                //change with star_fav or star_not_fav depending on the room state of the instance
+            }
         }
     }
 
