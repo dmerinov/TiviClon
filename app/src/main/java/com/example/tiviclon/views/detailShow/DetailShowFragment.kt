@@ -44,15 +44,12 @@ class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
             itemImg.setImageResource(showVm.image)
             //showDetail.text = showVm.description
             tvRelated.text = getString(R.string.related_string)
-            tvShowDetail.text =
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque quis urna pellentesque, finibus felis sed, porttitor dui. Curabitur rhoncus enim libero, sit amet maximus orci molestie at. Sed mollis, lectus ac congue molestie, neque metus finibus felis, at scelerisque diam elit a dui. Sed volutpat nulla justo, quis molestie dui malesuada vitae. Integer id dolor ipsum. Mauris non dui sodales, congue odio id, placerat purus. Nulla quis dapibus velit. Aliquam id sem vitae quam aliquam vehicula. Quisque eu mauris ullamcorper justo consectetur aliquet ut eu lorem.\n" +
-                    "\n" +
-                    "Etiam non leo varius, mollis velit nec, porta lacus. Duis a ipsum porta mauris aliquet rutrum eu quis odio. Donec tincidunt congue tortor, sed rutrum tellus pulvinar et. Morbi quis est dolor. Nullam aliquam sapien massa, et fringilla dui ornare id. Morbi bibendum eu purus quis viverra. Sed in neque non mi tempus facilisis at ut turpis. Donec sit amet justo a ex mattis accumsan eu id tortor. Etiam vestibulum sit amet lectus ut mattis. Maecenas nec nulla mauris. "
-        ivStockImage.setImageResource(showVm.coverImage)
+            tvShowDetail.text = showVm.description
+            ivStockImage.setImageResource(showVm.coverImage)
         }
     }
 
-    private fun setUpRecyclerView(){
+    private fun setUpRecyclerView() {
         popularAdapter = PopularAdapter(shows = getShows(show.genres), onClick = {})
         with(binding) {
             rvMoreShows.layoutManager =
@@ -61,7 +58,7 @@ class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
         }
     }
 
-    private fun getShows(genres: List<String>): List<Show>{
+    private fun getShows(genres: List<String>): List<Show> {
         val activity = getFragmentContext() as IActionsFragment
         return activity.getRelatedShows(genres)
     }
