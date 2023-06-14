@@ -8,4 +8,6 @@ interface IActionsFragment {
     fun getShows(): List<Show>
 
     fun getDetailShows(idList: List<Int>): List<DetailShow>
+
+    fun getRelatedShows(genres: List<String>): List<Show>
 }

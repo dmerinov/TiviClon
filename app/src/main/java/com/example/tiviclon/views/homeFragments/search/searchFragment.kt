@@ -1,21 +1,40 @@
 package com.example.tiviclon.views.homeFragments.search
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.tiviclon.R
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.databinding.FragmentSearchBinding
+import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
+import com.example.tiviclon.views.homeFragments.IActionsFragment
+import com.example.tiviclon.views.homeFragments.search.adapter.SearchAdapter
+import kotlinx.coroutines.*
+import androidx.appcompat.widget.SearchView as androidSearchView
 
 class SearchFragment : HomeBaseFragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
+    private lateinit var adapter: SearchAdapter
+    private var showList: MutableList<Show> = mutableListOf()
+    private var initialList: MutableList<Show> = mutableListOf()
+    val job = Job()
+    val uiScope = CoroutineScope(Dispatchers.Main + job)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        //here you would make the dependency injection
     }
 
     override fun onCreateView(
@@ -30,13 +49,102 @@ class SearchFragment : HomeBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpUI()
+        setUpListeners()
+        setUpRecyclerView()
+        if(showList.isEmpty()){
+            uiScope.launch(Dispatchers.IO) {
+                withContext(Dispatchers.Main) {
+                    //ui operation
+                    binding.progressBar.visibility = View.VISIBLE
+                }
+                //asyncOperation
+                async {
+                    getShows {
+                        showList.clear()
+                        showList.addAll(it)
+                    }
+                    initialList.addAll(showList)
+                    delay(2000)
+                }.await()
+                withContext(Dispatchers.Main) {
+                    //ui operation
+                    binding.progressBar.visibility = View.INVISIBLE
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        }
     }
 
-    private fun setUpUI() {
-        val activity = getFragmentContext() as FragmentCommonComunication
-        activity.updateAppBarText("Descubre")
+    fun setUpListeners() {
         with(binding) {
-            tvMessage.text = getString(R.string.fill_next_session)
+            svShowSearch.setOnQueryTextListener(object :
+                androidSearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(p0: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(p0: String?): Boolean {
+                    p0?.let {
+                        filterList(it)
+                    }
+                    return false
+                }
+
+            })
         }
+    }
+
+    fun filterList(filter: String) {
+        val allShows = initialList
+        var filteredShows = allShows.filter {
+            it.title.contains(filter)
+        }
+        if (filteredShows.isEmpty()) {
+            filteredShows = allShows
+        }
+        updateList(filteredShows)
+    }
+
+    private fun setUpRecyclerView() {
+        adapter = SearchAdapter(showList, onClick = {
+            val activity = getFragmentContext() as IActionsFragment
+            activity.goShowDetail(it.id)
+        },
+            onLongClick = {
+                Toast.makeText(context, it.title, Toast.LENGTH_SHORT).show()
+            }
+        )
+        with(binding) {
+            rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
+            rvShowList.adapter = adapter
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateList(shows: List<Show>) {
+        showList.clear()
+        showList.addAll(shows)
+        adapter.notifyDataSetChanged()
+    }
+
+    fun setUpUI() {
+        with(binding) {
+            val activity = getFragmentContext() as FragmentCommonComunication
+            activity.updateAppBarText("Buscar")
+            svShowSearch.queryHint = "titulo de la serie"
+        }
+    }
+
+    private fun getShows(onShowsObtained: (List<Show>) -> Unit) {
+        val activity = getFragmentContext() as IActionsFragment
+        onShowsObtained(activity.getShows())
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        //detach binding
+        _binding = null
+        job.cancel()
+        Log.i("JOBS_COR", "job is cancelled")
     }
 }

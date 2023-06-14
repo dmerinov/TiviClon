@@ -8,4 +8,6 @@ data class DetailShow(
     val description: String,
     val year: String,
     val image: Int,
+    val coverImage: Int,
+    val genres: List<String> = emptyList()
 ) : Serializable
