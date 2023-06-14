@@ -1,26 +1,29 @@
 package com.example.tiviclon.views.detailShow
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.tiviclon.R
+import com.example.tiviclon.data.retrofit.ApiService
+import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
+import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
-import com.example.tiviclon.model.application.Show
-import com.example.tiviclon.views.detailShow.adapter.DetailAdapter
-import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
-import com.example.tiviclon.views.homeFragments.IActionsFragment
-import com.example.tiviclon.views.homeFragments.discover.adapter.PopularAdapter
+import kotlinx.coroutines.*
+import retrofit2.Retrofit
+import retrofit2.await
+import retrofit2.converter.gson.GsonConverterFactory
 
-class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
+class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-    private lateinit var popularAdapter: DetailAdapter
+
+    private val job = Job()
+    private val uiScope = CoroutineScope(Dispatchers.Main + job)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -36,45 +39,54 @@ class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpUI(show)
+        val api = Retrofit.Builder()
+            .baseUrl(RetrofitResource.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+
+        uiScope.launch(Dispatchers.IO) {
+            binding.progressBar.visibility = View.VISIBLE
+            val api_shows = api.getDetailedShow(showId).await()
+            val collectedShow = api_shows.toDetailShow()
+            withContext(Dispatchers.Main) {
+                setUpUI(collectedShow)
+                binding.progressBar.visibility = View.GONE
+            }
+        }
         setUpListeners()
-        getShows(show.genres)
     }
 
     private fun setUpUI(showVm: DetailShow) {
         val context = getFragmentContext()?.baseContext
+        var genres = showVm.genres.joinToString(", ")
         with(binding) {
             context?.let {
                 Glide.with(it).load(showVm.image).into(itemImg)
             }
-            //showDetail.text = showVm.description
-            tvRelated.text = getString(R.string.related_string)
+            tvDescription.text = getString(R.string.about)
             tvShowDetail.text = showVm.description
+
+            tvTitle.text = buildString {
+                append(getString(R.string.title))
+                append(" ")
+                append(showVm.title)
+            }
+            tvYear.text = buildString {
+                append(getString(R.string.release_year))
+                append(" ")
+                append(showVm.year)
+            }
+            tvGenres.text = buildString {
+                append(getString(R.string.genres))
+                append(" ")
+                append(genres)
+            }
             context?.let {
                 Glide.with(it).load(showVm.coverImage).into(ivStockImage)
             }
 
         }
-    }
-
-    private fun setUpRecyclerView(shows: List<Show>) {
-        popularAdapter = DetailAdapter(shows = shows, onClick = {}, getFragmentContext()?.baseContext)
-        with(binding) {
-            rvMoreShows.layoutManager =
-                LinearLayoutManager(getFragmentContext(), LinearLayoutManager.HORIZONTAL, false)
-            rvMoreShows.adapter = popularAdapter
-        }
-    }
-
-    private fun getShows(genres: List<String>){
-        val activity = getFragmentContext() as IActionsFragment
-        val ids = mutableListOf<Int>()
-        activity.getShows {
-            it.forEach { ids.add(it.id) }
-        activity.getRelatedShows(genres, ids) { list ->
-            setUpRecyclerView(list)
-        }
-    }
     }
 
     private fun setUpListeners() {
@@ -88,6 +100,8 @@ class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         //detach binding
+        job.cancel()
+        Log.i("JOBS_COR", "detail job is cancelled")
         _binding = null
     }
 }
