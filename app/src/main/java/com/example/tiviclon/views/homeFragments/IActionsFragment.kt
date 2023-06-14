@@ -10,6 +10,4 @@ interface IActionsFragment {
     fun getPrefsShows() : List<Int>
 
     fun getDetailShows(id: Int)
-
-    fun getRelatedShows(genres: List<String>, idList: List<Int>, onShowsRetrieved: (List<Show>) -> Unit)
 }

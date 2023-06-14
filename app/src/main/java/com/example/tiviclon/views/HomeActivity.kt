@@ -96,7 +96,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             .create(ApiService::class.java)
 
         GlobalScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 binding.progressBar.visibility = View.VISIBLE
                 request.send()
             }
@@ -108,7 +108,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             shows.addAll(api_shows.tv_shows.map {
                 it.toShow()
             })
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 binding.progressBar.visibility = View.GONE
                 request.send()
             }
@@ -313,15 +313,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     override fun getDetailShows(id: Int) {
         //nothing to do
     }
-
-    override fun getRelatedShows(
-        genres: List<String>,
-        idList: List<Int>,
-        onShowsRetrieved: (List<Show>) -> Unit
-    ) {
-        //nothing to do
-    }
-
 
     override fun updateAppBarText(text: String) {
         with(binding) {
