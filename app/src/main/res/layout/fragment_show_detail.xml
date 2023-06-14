@@ -61,11 +61,42 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
+            android:layout_marginStart="15dp"
             android:background="@drawable/star_not_fav"
             app:layout_constraintBottom_toBottomOf="@id/cv_Item"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cv_Item" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:textSize="14sp"
             app:layout_constraintStart_toEndOf="@id/cv_Item"
             app:layout_constraintTop_toTopOf="@id/cv_Item" />
+
+        <TextView
+            android:id="@+id/tv_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@id/cv_Item"
+            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+        <TextView
+            android:id="@+id/tv_genres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cv_Item"
+            app:layout_constraintTop_toBottomOf="@id/tv_year" />
 
 
         <TextView
@@ -85,32 +116,13 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:justificationMode="inter_word"
             android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_description" />
-
-        <TextView
-            android:id="@+id/tv_related"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="10dp"
-            android:textSize="16dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/tv_show_detail" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_more_shows"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal"
-            android:paddingBottom="15dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/tv_related" />
 
         <ProgressBar
             android:id="@+id/progress_bar"

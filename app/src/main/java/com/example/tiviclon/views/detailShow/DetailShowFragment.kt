@@ -5,8 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.tiviclon.R
 import com.example.tiviclon.data.retrofit.ApiService
@@ -14,12 +12,7 @@ import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
-import com.example.tiviclon.model.application.Show
-import com.example.tiviclon.views.detailShow.adapter.DetailAdapter
-import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
-import com.example.tiviclon.views.homeFragments.IActionsFragment
-import com.example.tiviclon.views.homeFragments.discover.adapter.PopularAdapter
 import kotlinx.coroutines.*
 import retrofit2.Retrofit
 import retrofit2.await
@@ -56,7 +49,7 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
             binding.progressBar.visibility = View.VISIBLE
             val api_shows = api.getDetailedShow(showId).await()
             val collectedShow = api_shows.toDetailShow()
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 setUpUI(collectedShow)
                 binding.progressBar.visibility = View.GONE
             }
@@ -66,13 +59,29 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
 
     private fun setUpUI(showVm: DetailShow) {
         val context = getFragmentContext()?.baseContext
+        var genres = showVm.genres.joinToString(", ")
         with(binding) {
             context?.let {
                 Glide.with(it).load(showVm.image).into(itemImg)
             }
-            //showDetail.text = showVm.description
-            tvRelated.text = getString(R.string.related_string)
+            tvDescription.text = getString(R.string.about)
             tvShowDetail.text = showVm.description
+
+            tvTitle.text = buildString {
+                append(getString(R.string.title))
+                append(" ")
+                append(showVm.title)
+            }
+            tvYear.text = buildString {
+                append(getString(R.string.release_year))
+                append(" ")
+                append(showVm.year)
+            }
+            tvGenres.text = buildString {
+                append(getString(R.string.genres))
+                append(" ")
+                append(genres)
+            }
             context?.let {
                 Glide.with(it).load(showVm.coverImage).into(ivStockImage)
             }
