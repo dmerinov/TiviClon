@@ -5,9 +5,11 @@ import com.example.tiviclon.model.application.Show
 
 interface IActionsFragment {
     fun goShowDetail(id: Int)
-    fun getShows(): List<Show>
+    fun getShows(onShowsRetrieved: (List<Show>) -> Unit)
 
-    fun getDetailShows(idList: List<Int>): List<DetailShow>
+    fun getPrefsShows() : List<Int>
 
-    fun getRelatedShows(genres: List<String>): List<Show>
+    fun getDetailShows(id: Int)
+
+    fun getRelatedShows(genres: List<String>, idList: List<Int>, onShowsRetrieved: (List<Show>) -> Unit)
 }

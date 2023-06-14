@@ -51,24 +51,15 @@ class SearchFragment : HomeBaseFragment() {
         setUpUI()
         setUpListeners()
         setUpRecyclerView()
-        if(showList.isEmpty()){
+        if (showList.isEmpty()) {
             uiScope.launch(Dispatchers.IO) {
                 withContext(Dispatchers.Main) {
-                    //ui operation
-                    binding.progressBar.visibility = View.VISIBLE
                 }
                 //asyncOperation
                 async {
-                    getShows {
-                        showList.clear()
-                        showList.addAll(it)
-                    }
-                    initialList.addAll(showList)
-                    delay(2000)
+                    getShows()
                 }.await()
                 withContext(Dispatchers.Main) {
-                    //ui operation
-                    binding.progressBar.visibility = View.INVISIBLE
                     adapter.notifyDataSetChanged()
                 }
             }
@@ -106,13 +97,15 @@ class SearchFragment : HomeBaseFragment() {
     }
 
     private fun setUpRecyclerView() {
-        adapter = SearchAdapter(showList, onClick = {
-            val activity = getFragmentContext() as IActionsFragment
-            activity.goShowDetail(it.id)
-        },
+        adapter = SearchAdapter(
+            showList, onClick = {
+                val activity = getFragmentContext() as IActionsFragment
+                activity.goShowDetail(it.id)
+            },
             onLongClick = {
                 Toast.makeText(context, it.title, Toast.LENGTH_SHORT).show()
-            }
+            },
+            context = getFragmentContext()?.baseContext
         )
         with(binding) {
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
@@ -135,9 +128,13 @@ class SearchFragment : HomeBaseFragment() {
         }
     }
 
-    private fun getShows(onShowsObtained: (List<Show>) -> Unit) {
+    private fun getShows() {
         val activity = getFragmentContext() as IActionsFragment
-        onShowsObtained(activity.getShows())
+        activity.getShows {
+            showList.clear()
+            showList.addAll(it)
+            initialList.addAll(showList)
+        }
     }
 
     override fun onDestroyView() {

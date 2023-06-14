@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.tiviclon.R
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.model.application.DetailShow
@@ -37,21 +38,27 @@ class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpUI(show)
         setUpListeners()
-        setUpRecyclerView()
+        getShows(show.genres)
     }
 
     private fun setUpUI(showVm: DetailShow) {
+        val context = getFragmentContext()?.baseContext
         with(binding) {
-            itemImg.setImageResource(showVm.image)
+            context?.let {
+                Glide.with(it).load(showVm.image).into(itemImg)
+            }
             //showDetail.text = showVm.description
             tvRelated.text = getString(R.string.related_string)
             tvShowDetail.text = showVm.description
-            ivStockImage.setImageResource(showVm.coverImage)
+            context?.let {
+                Glide.with(it).load(showVm.coverImage).into(ivStockImage)
+            }
+
         }
     }
 
-    private fun setUpRecyclerView() {
-        popularAdapter = DetailAdapter(shows = getShows(show.genres), onClick = {})
+    private fun setUpRecyclerView(shows: List<Show>) {
+        popularAdapter = DetailAdapter(shows = shows, onClick = {}, getFragmentContext()?.baseContext)
         with(binding) {
             rvMoreShows.layoutManager =
                 LinearLayoutManager(getFragmentContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -59,9 +66,15 @@ class DetailShowFragment(val show: DetailShow) : HomeBaseFragment() {
         }
     }
 
-    private fun getShows(genres: List<String>): List<Show> {
+    private fun getShows(genres: List<String>){
         val activity = getFragmentContext() as IActionsFragment
-        return activity.getRelatedShows(genres)
+        val ids = mutableListOf<Int>()
+        activity.getShows {
+            it.forEach { ids.add(it.id) }
+        activity.getRelatedShows(genres, ids) { list ->
+            setUpRecyclerView(list)
+        }
+    }
     }
 
     private fun setUpListeners() {

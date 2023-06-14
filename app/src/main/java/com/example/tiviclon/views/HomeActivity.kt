@@ -14,16 +14,17 @@ import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
+import com.example.tiviclon.data.retrofit.ApiService
+import com.example.tiviclon.data.retrofit.RetrofitResource.Companion.BASE_URL
 import com.example.tiviclon.databinding.ActivityHomeBinding
-import com.example.tiviclon.getMockDetailShows
-import com.example.tiviclon.getMockShows
-import com.example.tiviclon.model.application.DetailShow
+import com.example.tiviclon.mappers.toShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
 import com.example.tiviclon.views.detailShow.DetailShowActivity
@@ -39,6 +40,10 @@ import com.fondesa.kpermissions.anyPermanentlyDenied
 import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.fondesa.kpermissions.request.PermissionRequest
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.*
+import retrofit2.Retrofit
+import retrofit2.await
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
 
@@ -48,6 +53,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private lateinit var binding: ActivityHomeBinding
     private var logged = false
     private var currentCityName = "none"
+    private val shows: MutableList<Show> = mutableListOf()
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private val request by lazy {
         permissionsBuilder(
@@ -81,7 +88,31 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         setUpState()
         setUpUI()
         setUpListeners()
-        request.send()
+
+        val api = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+
+        GlobalScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main){
+                binding.progressBar.visibility = View.VISIBLE
+                request.send()
+            }
+            val api_shows = api.getShows(1).await()
+            api_shows.tv_shows.forEach {
+                Log.d("RESPONSE_COR", it.toString())
+            }
+            shows.clear()
+            shows.addAll(api_shows.tv_shows.map {
+                it.toShow()
+            })
+            withContext(Dispatchers.Main){
+                binding.progressBar.visibility = View.GONE
+                request.send()
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -274,29 +305,32 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         DetailShowActivity.navigateToShowDetailActivity(this, id)
     }
 
-    override fun getShows(): List<Show> {
-        return getMockShows()
+    override fun getShows(onShowsRetrieved: (List<Show>) -> Unit) {
+        onShowsRetrieved(shows)
     }
 
-    override fun getDetailShows(idList: List<Int>): List<DetailShow> {
-        val allShows = getMockDetailShows()
-        val filteredList = mutableListOf<DetailShow>()
-        for (idShow in idList) {
-            val show = allShows.filter { it.id == idShow }
-            if (show.isNotEmpty()) {
-                filteredList.add(show[0])
-            }
-        }
-        return filteredList
+    override fun getPrefsShows() = listOf(35684, 46692)
+    override fun getDetailShows(id: Int) {
+        //nothing to do
     }
 
-    override fun getRelatedShows(genres: List<String>): List<Show> {
-        return getMockShows()
+    override fun getRelatedShows(
+        genres: List<String>,
+        idList: List<Int>,
+        onShowsRetrieved: (List<Show>) -> Unit
+    ) {
+        //nothing to do
     }
+
 
     override fun updateAppBarText(text: String) {
         with(binding) {
             toolbar.title = text
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
     }
 }

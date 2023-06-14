@@ -5,6 +5,6 @@ import java.io.Serializable
 data class Show(
     val id: Int,
     val title: String,
-    val description: String,
-    val image: Int
+    val status: String,
+    val image: String
 ) : Serializable
