@@ -96,7 +96,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             .create(ApiService::class.java)
 
         GlobalScope.launch(Dispatchers.IO) {
-            binding.progressBar.visibility = View.VISIBLE
+            withContext(Dispatchers.Main){
+                binding.progressBar.visibility = View.VISIBLE
+                request.send()
+            }
             val api_shows = api.getShows(1).await()
             api_shows.tv_shows.forEach {
                 Log.d("RESPONSE_COR", it.toString())
@@ -107,8 +110,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             })
             withContext(Dispatchers.Main){
                 binding.progressBar.visibility = View.GONE
+                request.send()
             }
-            request.send()
         }
     }
 
