@@ -57,10 +57,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private var logged = false
     private var currentCityName = "none"
     private val shows: MutableList<Show> = mutableListOf()
-    private lateinit var db: TiviClonDatabase
+    private var db: TiviClonDatabase? = null
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
+            loadShowsFromBD()
             hideProgressBar()
         })
 
@@ -76,8 +77,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        db = Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
-            .build()
+        db = getBD()
 
         request.addListener(this)
         request.addListener {
@@ -119,13 +119,24 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 it.toShow()
             }
             appShows.forEach {
-                db.showDao().insert(it.toVOShows())
+                getBD().showDao().insert(it.toVOShows())
             }
-            val dbShows = db.showDao().getAllShows()
+            val dbShows = getBD().showDao().getAllShows()
             Log.i("DATABASE_SHOWS", dbShows.toString())
             shows.clear()
             shows.addAll(appShows)
             hideProgressBar()
+        }
+    }
+
+    private fun getBD() = db ?: Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
+        .build()
+
+    private fun loadShowsFromBD(){
+        shows.clear()
+        scope.launch(Dispatchers.IO) {
+            val bdShows = getBD().showDao().getAllShows().map { it.toShow() }
+            shows.addAll(bdShows)
         }
     }
 

@@ -6,3 +6,7 @@ import com.example.tiviclon.model.application.Show
 fun Show.toVOShows() = VOShow(
     id, title, status, image
 )
+
+fun VOShow.toShow() = Show(
+    id = showId,title, status, image
+)
