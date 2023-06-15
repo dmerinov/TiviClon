@@ -12,7 +12,7 @@ fun getMockDetailShows() = listOf(
         "",
         "",
 
-    ),
+        ),
     DetailShow(
         2,
         "Spider-Man: Across the Spider-Verse",

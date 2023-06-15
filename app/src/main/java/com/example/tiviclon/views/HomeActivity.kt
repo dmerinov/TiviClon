@@ -23,11 +23,11 @@ import androidx.fragment.app.Fragment
 import androidx.room.Room
 import com.example.tiviclon.R
 import com.example.tiviclon.data.database.TiviClonDatabase
-import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.data.retrofit.RetrofitResource.Companion.BASE_URL
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.mappers.toShow
+import com.example.tiviclon.mappers.toVOShows
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
 import com.example.tiviclon.views.detailShow.DetailShowActivity
@@ -79,8 +79,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         db = Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
             .build()
 
-        fetchUsers()
-
         request.addListener(this)
         request.addListener {
             if (it.anyPermanentlyDenied()) {
@@ -117,26 +115,18 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             api_shows.tv_shows.forEach {
                 Log.d("RESPONSE_COR", it.toString())
             }
-            shows.clear()
-            shows.addAll(api_shows.tv_shows.map {
+            val appShows = api_shows.tv_shows.map {
                 it.toShow()
-            })
+            }
+            appShows.forEach {
+                db.showDao().insert(it.toVOShows())
+            }
+            val dbShows = db.showDao().getAllShows()
+            Log.i("DATABASE_SHOWS", dbShows.toString())
+            shows.clear()
+            shows.addAll(appShows)
             hideProgressBar()
         }
-    }
-
-    private fun fetchUsers() {
-
-        val user1 = User("David", "password")
-        val user2 = User("Roberto", "password2")
-        val user3 = User("Alicia", "password3")
-
-        GlobalScope.launch {
-            db.userDao().insert(user1)
-            val user = db.userDao().getAllUsers()
-            Log.i("DATABASE_USERS", user.toString())
-        }
-
     }
 
     private fun hideProgressBar() {
