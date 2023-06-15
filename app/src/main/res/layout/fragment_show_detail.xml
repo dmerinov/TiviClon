@@ -26,8 +26,7 @@
                 android:id="@+id/iv_stock_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="fitXY"
-                android:src="@drawable/breakingdetail" />
+                android:scaleType="fitXY" />
 
         </androidx.cardview.widget.CardView>
 
@@ -48,7 +47,6 @@
                 android:layout_height="200dp"
                 android:contentDescription="show cover"
                 android:scaleType="centerCrop"
-                android:src="@drawable/breakingbad"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

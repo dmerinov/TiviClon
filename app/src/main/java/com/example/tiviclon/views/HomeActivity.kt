@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.*
 import android.graphics.Color
+import android.graphics.DiscretePathEffect
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -54,7 +55,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private var logged = false
     private var currentCityName = "none"
     private val shows: MutableList<Show> = mutableListOf()
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val scope =
+        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
+            throwable.printStackTrace()
+            hideProgressBar()
+        })
 
     private val request by lazy {
         permissionsBuilder(
@@ -95,7 +100,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             .build()
             .create(ApiService::class.java)
 
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 binding.progressBar.visibility = View.VISIBLE
                 request.send()
@@ -108,9 +113,15 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             shows.addAll(api_shows.tv_shows.map {
                 it.toShow()
             })
-            withContext(Dispatchers.Main) {
+            hideProgressBar()
+        }
+    }
+
+
+    private fun hideProgressBar() {
+        GlobalScope.launch {
+            withContext(Dispatchers.Main){
                 binding.progressBar.visibility = View.GONE
-                request.send()
             }
         }
     }
