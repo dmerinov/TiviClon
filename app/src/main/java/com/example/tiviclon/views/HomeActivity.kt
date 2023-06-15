@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.*
 import android.graphics.Color
-import android.graphics.DiscretePathEffect
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -21,7 +20,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.room.Room
 import com.example.tiviclon.R
+import com.example.tiviclon.data.database.TiviClonDatabase
+import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.data.retrofit.RetrofitResource.Companion.BASE_URL
 import com.example.tiviclon.databinding.ActivityHomeBinding
@@ -55,6 +57,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private var logged = false
     private var currentCityName = "none"
     private val shows: MutableList<Show> = mutableListOf()
+    private lateinit var db: TiviClonDatabase
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
@@ -72,6 +75,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        db = Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
+            .build()
+
+        fetchUsers()
 
         request.addListener(this)
         request.addListener {
@@ -117,10 +125,23 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         }
     }
 
+    private fun fetchUsers() {
+
+        val user1 = User("David", "password")
+        val user2 = User("Roberto", "password2")
+        val user3 = User("Alicia", "password3")
+
+        GlobalScope.launch {
+            db.userDao().insert(user1)
+            val user = db.userDao().getAllUsers()
+            Log.i("DATABASE_USERS", user.toString())
+        }
+
+    }
 
     private fun hideProgressBar() {
         GlobalScope.launch {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 binding.progressBar.visibility = View.GONE
             }
         }
