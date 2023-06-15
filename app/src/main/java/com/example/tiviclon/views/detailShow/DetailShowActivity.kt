@@ -6,7 +6,9 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.room.Room
 import com.example.tiviclon.R
+import com.example.tiviclon.data.database.TiviClonDatabase
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -31,6 +33,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     }
 
     private lateinit var binding: ActivityDetailShowBinding
+    private var db: TiviClonDatabase? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,5 +85,9 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     override fun getDetailShows(id: Int) {
         GlobalScope.launch(Dispatchers.IO) {
         }
+    }
+
+    override fun getBD(): TiviClonDatabase {
+        TODO("Not yet implemented")
     }
 }

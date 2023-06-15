@@ -1,5 +1,6 @@
 package com.example.tiviclon.views.homeFragments
 
+import com.example.tiviclon.data.database.TiviClonDatabase
 import com.example.tiviclon.model.application.Show
 
 
@@ -10,4 +11,6 @@ interface IActionsFragment {
     fun getPrefsShows() : List<Int>
 
     fun getDetailShows(id: Int)
+
+    fun getBD(): TiviClonDatabase
 }

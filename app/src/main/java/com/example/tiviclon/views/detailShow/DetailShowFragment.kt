@@ -23,7 +23,12 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
     private val binding get() = _binding!! //this is the one that you've to use
 
     private val job = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + job)
+    private val scope =
+        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
+            throwable.printStackTrace()
+            hideProgressBar()
+        })
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -45,12 +50,11 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
             .build()
             .create(ApiService::class.java)
 
-        uiScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             binding.progressBar.visibility = View.VISIBLE
             val api_shows = api.getDetailedShow(showId).await()
-            val collectedShow = api_shows.toDetailShow()
             withContext(Dispatchers.Main) {
-                setUpUI(collectedShow)
+                setUpUI(api_shows.toDetailShow())
                 binding.progressBar.visibility = View.GONE
             }
         }
@@ -95,6 +99,18 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
                 //change with star_fav or star_not_fav depending on the room state of the instance
             }
         }
+    }
+
+    private fun hideProgressBar() {
+        GlobalScope.launch {
+            withContext(Dispatchers.Main) {
+                binding.progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun loadShowFromBD(showId: Int) {
+
     }
 
     override fun onDestroyView() {

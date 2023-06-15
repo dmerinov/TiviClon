@@ -129,10 +129,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         }
     }
 
-    private fun getBD() = db ?: Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
-        .build()
+    override fun getBD() =
+        db ?: Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
+            .build()
 
-    private fun loadShowsFromBD(){
+    private fun loadShowsFromBD() {
         shows.clear()
         scope.launch(Dispatchers.IO) {
             val bdShows = getBD().showDao().getAllShows().map { it.toShow() }
