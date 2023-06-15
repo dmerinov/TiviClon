@@ -322,6 +322,13 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         getString(R.string.register_ok),
                         Toast.LENGTH_SHORT
                     ).show()
+                    scope.launch {
+                        withContext(Dispatchers.IO){
+                            getBD().userDao().getAllUsers().forEach {
+                                Log.i("BD_USERS",it.toString())
+                            }
+                        }
+                    }
                 }
                 else -> {
                     Toast.makeText(this, getString(R.string.login_fail), Toast.LENGTH_SHORT).show()

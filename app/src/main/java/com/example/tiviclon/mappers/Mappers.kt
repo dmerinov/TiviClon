@@ -1,5 +1,7 @@
 package com.example.tiviclon.mappers
 
+import com.example.tiviclon.data.database.entities.User
+import com.example.tiviclon.model.application.AppUser
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.model.data.detail.DetailedShow
@@ -27,4 +29,8 @@ fun DetailedShow.toShow() = Show(
     title = tvShow.name,
     image = tvShow.image_thumbnail_path,
     status = tvShow.status
+)
+
+fun User.toAppUser() = AppUser(
+    name, password
 )

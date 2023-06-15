@@ -37,4 +37,5 @@
     <string name="title">Titulo: </string>
     <string name="release_year">Fecha de salida:</string>
     <string name="genres">Categorías:</string>
+    <string name="user_not_found">El usuario no existe</string>
 </resources>
