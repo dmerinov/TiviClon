@@ -11,5 +11,6 @@ data class VOShow(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "status") val status: String,
     @ColumnInfo(name = "image") val image: String
+
 )
 

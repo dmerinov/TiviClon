@@ -56,21 +56,21 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 //OK
                 //lets check the database and if theres anybody named that way it will be invalid
-                scope.launch(Dispatchers.IO) {
-                    val bdUsers = getBD().userDao().getAllUsers().map { it.toAppUser() }
-                    if (bdUsers.none { it.name == username }){
-                        onValidCredentials(username, password)
-                    }else{
-                        onInvalidCredentials(RegisterError.ExistingUserError)
+                getBD()?.let {
+                    scope.launch(Dispatchers.IO) {
+                        val bdUsers = it.userDao().getAllUsers().map { it.toAppUser() }
+                        if (bdUsers.none { it.name == username }){
+                            onValidCredentials(username, password)
+                        }else{
+                            onInvalidCredentials(RegisterError.ExistingUserError)
+                        }
                     }
                 }
             }
         }
     }
 
-    private fun getBD() =
-        db ?: Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
-            .build()
+    private fun getBD() = TiviClonDatabase.getInstance(applicationContext)
 
     private fun setUpUI() {
         //Nothing to do
@@ -89,16 +89,19 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun onValidCredentials(name: String, password: String) {
-        scope.launch(Dispatchers.IO) {
-            getBD().userDao().insert(User(name, password))
-            val intent = Intent()
-            intent.apply {
-            }
-            setResult(RESULT_OK_REGISTER, intent)
-            withContext(Dispatchers.Main){
-                finish()
+        getBD()?.let {
+            scope.launch(Dispatchers.IO) {
+                it.userDao().insert(User(name, password))
+                val intent = Intent()
+                intent.apply {
+                }
+                setResult(RESULT_OK_REGISTER, intent)
+                withContext(Dispatchers.Main){
+                    finish()
+                }
             }
         }
+
     }
 
     private fun onInvalidCredentials(error: RegisterError) {

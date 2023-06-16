@@ -1,6 +1,8 @@
 package com.example.tiviclon.data.database
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.tiviclon.data.database.dao.ShowDao
 import com.example.tiviclon.data.database.dao.UserDao
@@ -11,4 +13,23 @@ import com.example.tiviclon.data.database.entities.VOShow
 abstract class TiviClonDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun showDao(): ShowDao
+
+    companion object {
+        private var INSTANCE: TiviClonDatabase? = null
+
+        fun getInstance(context: Context): TiviClonDatabase? {
+            if (INSTANCE == null) {
+                synchronized(TiviClonDatabase::class) {
+                    INSTANCE = Room.databaseBuilder(context.applicationContext,
+                        TiviClonDatabase::class.java, "user.db").allowMainThreadQueries()
+                        .build()
+                }
+            }
+            return INSTANCE
+        }
+
+        fun destroyInstance() {
+            INSTANCE = null
+        }
+    }
 }
