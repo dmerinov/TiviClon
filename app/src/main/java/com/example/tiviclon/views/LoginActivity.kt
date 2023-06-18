@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
-import androidx.room.Room
 import com.example.tiviclon.R
 import com.example.tiviclon.data.database.TiviClonDatabase
 import com.example.tiviclon.databinding.ActivityLoginBinding
@@ -30,8 +29,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityLoginBinding
-
-    private var db: TiviClonDatabase? = null
 
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
@@ -65,16 +62,18 @@ class LoginActivity : AppCompatActivity() {
                 val loggedAppUser = AppUser(username, password)
 
                 scope.launch(Dispatchers.IO) {
-                    val users = getBD().userDao().getAllUsers()
-                    if (!users.none {
-                            it.name == username
-                        }) {
-                        withContext(Dispatchers.Main) {
-                            navigateToHomeActivity(loggedAppUser)
-                        }
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            notifyUserNotFound()
+                    getBD()?.let {
+                        val users = it.userDao().getAllUsers()
+                        if (!users.none { user ->
+                                user.name == username
+                            }) {
+                            withContext(Dispatchers.Main) {
+                                navigateToHomeActivity(loggedAppUser)
+                            }
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                notifyUserNotFound()
+                            }
                         }
                     }
                 }
@@ -85,9 +84,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    private fun getBD() =
-        db ?: Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
-            .build()
+    private fun getBD() = TiviClonDatabase.getInstance(applicationContext)
 
     private fun navigateToHomeActivity(loggedAppUser: AppUser) {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()
