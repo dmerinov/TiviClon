@@ -52,7 +52,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <Button
+        <ImageView
             android:id="@+id/bt_fav_toggle"
             android:layout_width="50dp"
             android:layout_height="50dp"

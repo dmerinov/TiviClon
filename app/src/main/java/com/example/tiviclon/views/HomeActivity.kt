@@ -20,7 +20,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.room.Room
 import com.example.tiviclon.R
 import com.example.tiviclon.data.database.TiviClonDatabase
 import com.example.tiviclon.data.retrofit.ApiService
@@ -55,6 +54,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     private lateinit var binding: ActivityHomeBinding
     private var logged = false
+    private var loggedUser = ""
     private var currentCityName = "none"
     private val shows: MutableList<Show> = mutableListOf()
     private var db: TiviClonDatabase? = null
@@ -118,26 +118,28 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             val appShows = api_shows.tv_shows.map {
                 it.toShow()
             }
-            appShows.forEach {
-                getBD().showDao().insert(it.toVOShows())
+            getBD()?.let { bd ->
+                appShows.forEach {
+                    bd.showDao().insert(it.toVOShows())
+                }
+                val dbShows = bd.showDao().getAllShows()
+                Log.i("DATABASE_SHOWS", dbShows.toString())
             }
-            val dbShows = getBD().showDao().getAllShows()
-            Log.i("DATABASE_SHOWS", dbShows.toString())
             shows.clear()
             shows.addAll(appShows)
             hideProgressBar()
         }
     }
 
-    override fun getBD() =
-        db ?: Room.databaseBuilder(applicationContext, TiviClonDatabase::class.java, "database")
-            .build()
+    override fun getBD() = TiviClonDatabase.getInstance(applicationContext)
 
     private fun loadShowsFromBD() {
         shows.clear()
         scope.launch(Dispatchers.IO) {
-            val bdShows = getBD().showDao().getAllShows().map { it.toShow() }
-            shows.addAll(bdShows)
+            getBD()?.let {
+                val bdShows = it.showDao().getAllShows().map { it.toShow() }
+                shows.addAll(bdShows)
+            }
         }
     }
 
@@ -189,7 +191,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                     }
                 } else {
                     builder.setPositiveButton(getString(R.string.dialog_disconect)) { _, _ ->
-                        setLoggedState(false)
+                        setLoggedState(false, "")
                         loadFragment(LibraryFragment())
 
                     }
@@ -217,6 +219,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     private fun setUpState() {
         logged = prefs.getLoginState()
+        prefs.getLoggedUser()?.let {
+            loggedUser = it
+        }
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -313,7 +318,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         },
                         Toast.LENGTH_SHORT
                     ).show()
-                    setLoggedState(true)
+                    setLoggedState(true, name)
                     loadFragment(LibraryFragment())
                 }
                 RegisterActivity.RESULT_OK_REGISTER -> {
@@ -322,12 +327,20 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         getString(R.string.register_ok),
                         Toast.LENGTH_SHORT
                     ).show()
-                    scope.launch {
-                        withContext(Dispatchers.IO){
-                            getBD().userDao().getAllUsers().forEach {
-                                Log.i("BD_USERS",it.toString())
+                    getBD()?.let {
+                        scope.launch {
+                            withContext(Dispatchers.IO) {
+                                it.userDao().getAllUsers().forEach {
+                                    Log.i("BD_USERS", it.toString())
+                                }
                             }
                         }
+                    } ?: kotlin.run {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.bd_fail),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
                 else -> {
@@ -337,8 +350,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         }
 
     override fun isUserLogged() = logged
-    private fun setLoggedState(isLogged: Boolean) {
+    private fun setLoggedState(isLogged: Boolean, name: String) {
         prefs.saveLoginState(isLogged)
+        prefs.saveLoggedUser(name)
         logged = isLogged
     }
 
@@ -350,7 +364,18 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         onShowsRetrieved(shows)
     }
 
-    override fun getPrefsShows() = listOf(35684, 46692)
+    override fun setPrefShow(idShow: String) {
+        // nothing to do
+    }
+
+    override fun deletePrefShow(idShow: String) {
+        //nothing to do
+    }
+
+    override fun getPrefsShows(): List<Int> {
+        return emptyList()
+    }
+
     override fun getDetailShows(id: Int) {
         //nothing to do
     }

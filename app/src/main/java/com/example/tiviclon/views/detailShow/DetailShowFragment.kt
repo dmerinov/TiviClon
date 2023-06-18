@@ -1,5 +1,6 @@
 package com.example.tiviclon.views.detailShow
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
+import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.*
 import retrofit2.Retrofit
 import retrofit2.await
@@ -86,17 +88,30 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
                 append(" ")
                 append(genres)
             }
+            btFavToggle
             context?.let {
                 Glide.with(it).load(showVm.coverImage).into(ivStockImage)
             }
-
+            if (isShowFav()) {
+                btFavToggle.setImageResource(R.drawable.star_fav)
+            } else {
+                btFavToggle.setImageResource(R.drawable.star_not_fav)
+            }
         }
     }
 
     private fun setUpListeners() {
         with(binding) {
             btFavToggle.setOnClickListener {
-                //change with star_fav or star_not_fav depending on the room state of the instance
+                val activity = getFragmentContext() as IActionsFragment
+                if (isShowFav()) {
+                    activity.deletePrefShow(showId.toString())
+                    btFavToggle.setImageResource(R.drawable.star_not_fav)
+                } else {
+                    activity.setPrefShow(showId.toString())
+                    btFavToggle.setImageResource(R.drawable.star_fav)
+
+                }
             }
         }
     }
@@ -109,8 +124,9 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
         }
     }
 
-    private fun loadShowFromBD(showId: Int) {
-
+    private fun isShowFav(): Boolean {
+        val activity = getFragmentContext() as IActionsFragment
+        return activity.getPrefsShows().contains(showId)
     }
 
     override fun onDestroyView() {

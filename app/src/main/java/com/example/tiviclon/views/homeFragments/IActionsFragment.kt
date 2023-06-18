@@ -10,7 +10,11 @@ interface IActionsFragment {
 
     fun getPrefsShows() : List<Int>
 
+    fun deletePrefShow(idShow: String)
+
+    fun setPrefShow(idShow:String)
+
     fun getDetailShows(id: Int)
 
-    fun getBD(): TiviClonDatabase
+    fun getBD(): TiviClonDatabase?
 }

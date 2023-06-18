@@ -4,15 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.tiviclon.data.database.dao.FavoriteDao
 import com.example.tiviclon.data.database.dao.ShowDao
 import com.example.tiviclon.data.database.dao.UserDao
+import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.data.database.entities.VOShow
 
-@Database(entities = [User::class, VOShow::class], version = 1)
+@Database(entities = [User::class, VOShow::class, Favorites::class], version = 1)
 abstract class TiviClonDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun showDao(): ShowDao
+    abstract fun favoriteDao(): FavoriteDao
 
     companion object {
         private var INSTANCE: TiviClonDatabase? = null
