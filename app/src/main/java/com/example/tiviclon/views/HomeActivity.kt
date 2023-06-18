@@ -373,7 +373,13 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     }
 
     override fun getPrefsShows(): List<Int> {
-        return emptyList()
+        val showIds = mutableListOf<Int>()
+        getBD()?.let {db ->
+            showIds.addAll(db.favoriteDao().getUserFavShows(loggedUser).map { fav ->
+                fav.showId.toInt()
+            })
+        }
+        return showIds
     }
 
     override fun getDetailShows(id: Int) {
