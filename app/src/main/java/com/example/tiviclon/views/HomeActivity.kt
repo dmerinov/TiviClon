@@ -138,6 +138,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         scope.launch(Dispatchers.IO) {
             getBD()?.let {
                 val bdShows = it.showDao().getAllShows().map { it.toShow() }
+                shows.clear()
                 shows.addAll(bdShows)
             }
         }
