@@ -127,6 +127,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
             shows.clear()
             shows.addAll(appShows)
+            loadFragment(LibraryFragment())
             hideProgressBar()
         }
     }
