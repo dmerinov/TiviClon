@@ -318,7 +318,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         },
                         Toast.LENGTH_SHORT
                     ).show()
-                    setLoggedState(true,name)
+                    setLoggedState(true, name)
                     loadFragment(LibraryFragment())
                 }
                 RegisterActivity.RESULT_OK_REGISTER -> {
@@ -374,12 +374,14 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     override fun getPrefsShows(): List<Int> {
         val showIds = mutableListOf<Int>()
-        Log.i("USERNAME", prefs.getLoggedUser()!!)
-        Log.i("USERNAME", loggedUser)
-        getBD()?.let {db ->
-            showIds.addAll(db.favoriteDao().getUserFavShows(prefs.getLoggedUser()!!).map { fav ->
-                fav.showId.toInt()
-            })
+        prefs.getLoggedUser()?.let {
+            Log.i("USERNAME", it)
+            Log.i("USERNAME", loggedUser)
+            getBD()?.let { db ->
+                showIds.addAll(db.favoriteDao().getUserFavShows(it).map { fav ->
+                    fav.showId.toInt()
+                })
+            }
         }
         return showIds
     }
