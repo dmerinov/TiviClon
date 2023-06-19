@@ -98,6 +98,17 @@ class LibraryFragment : HomeBaseFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val activity = getFragmentContext() as IActionsFragment
+        val newShowsIds = activity.getPrefsShows()
+        libraryShows.clear()
+        libraryShows.addAll(allShows.filter {show ->
+            newShowsIds.contains(show.id)
+        })
+        adapter.notifyDataSetChanged()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         //detach binding
