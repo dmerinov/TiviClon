@@ -1,7 +1,9 @@
 package com.example.tiviclon.views.detailShow
 
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -71,7 +73,11 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
                 Glide.with(it).load(showVm.image).into(itemImg)
             }
             tvDescription.text = getString(R.string.about)
-            tvShowDetail.text = showVm.description
+            tvShowDetail.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Html.fromHtml(showVm.description, Html.FROM_HTML_MODE_COMPACT)
+            } else {
+                Html.fromHtml(showVm.description)
+            }
 
             tvTitle.text = buildString {
                 append(getString(R.string.title))
