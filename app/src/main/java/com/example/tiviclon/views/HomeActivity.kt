@@ -27,6 +27,7 @@ import com.example.tiviclon.data.retrofit.RetrofitResource.Companion.BASE_URL
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.mappers.toShow
 import com.example.tiviclon.mappers.toVOShows
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
 import com.example.tiviclon.views.detailShow.DetailShowActivity
@@ -62,6 +63,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
             loadShowsFromBD()
+            loadFragment(LibraryFragment())
             hideProgressBar()
         })
 
@@ -107,10 +109,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             .create(ApiService::class.java)
 
         scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                binding.progressBar.visibility = View.VISIBLE
-                request.send()
-            }
+            showProgressBar()
             val api_shows = api.getShows(1).await()
             api_shows.tv_shows.forEach {
                 Log.d("RESPONSE_COR", it.toString())
@@ -144,10 +143,19 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         }
     }
 
-    private fun hideProgressBar() {
+    override fun hideProgressBar() {
         GlobalScope.launch {
             withContext(Dispatchers.Main) {
                 binding.progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun showProgressBar() {
+        GlobalScope.launch {
+            withContext(Dispatchers.Main) {
+                binding.progressBar.visibility = View.VISIBLE
+                request.send()
             }
         }
     }
@@ -387,7 +395,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         return showIds
     }
 
-    override fun getDetailShows(id: Int) {
+    override fun getDetailShows(
+        id: Int,
+        scope: CoroutineScope,
+        onShowRetrieved: (DetailShow) -> Unit
+    ) {
         //nothing to do
     }
 
