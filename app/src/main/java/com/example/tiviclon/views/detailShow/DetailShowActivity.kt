@@ -104,12 +104,12 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         //ask repository for detail shows
         val returnList = mutableListOf<Int>()
         val idUser = prefs.getLoggedUser()
-        return returnList
-    }
-
-    private fun loadShowsFromBD() {
         getBD()?.let { bd ->
+            idUser?.let {
+                returnList.addAll(bd.favoriteDao().getUserFavShows(idUser).map { it.showId.toInt() })
+            }
         }
+        return returnList
     }
 
     override fun deletePrefShow(idShow: String) {
