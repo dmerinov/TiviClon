@@ -2,15 +2,15 @@ package com.example.tiviclon.views
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
+import com.example.tiviclon.data.database.TiviClonDatabase
 import com.example.tiviclon.databinding.ActivityLoginBinding
-import com.example.tiviclon.model.application.User
+import com.example.tiviclon.model.application.AppUser
+import kotlinx.coroutines.*
 
 
 class LoginActivity : AppCompatActivity() {
@@ -29,6 +29,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityLoginBinding
+
+    private val scope =
+        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
+            throwable.printStackTrace()
+        })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,21 +59,38 @@ class LoginActivity : AppCompatActivity() {
     private fun checkCredentials(username: String, password: String) {
         if (username.length > 6 && username.isNotBlank()) {
             if (password.length > 6 && password.isNotBlank()) {
-                val loggedUser = User(username, password)
-                navigateToHomeActivity(loggedUser)
+                val loggedAppUser = AppUser(username, password)
+
+                scope.launch(Dispatchers.IO) {
+                    getBD()?.let {
+                        val users = it.userDao().getAllUsers()
+                        if (!users.none { user ->
+                                user.name == username
+                            }) {
+                            withContext(Dispatchers.Main) {
+                                navigateToHomeActivity(loggedAppUser)
+                            }
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                notifyUserNotFound()
+                            }
+                        }
+                    }
+                }
             } else {
                 notifyInvalidCredentials()
             }
-        } else {
-            notifyInvalidCredentials()
         }
     }
 
-    private fun navigateToHomeActivity(loggedUser: User) {
+
+    private fun getBD() = TiviClonDatabase.getInstance(applicationContext)
+
+    private fun navigateToHomeActivity(loggedAppUser: AppUser) {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()
         val intent = Intent()
         intent.apply {
-            putExtra(LOGIN_NAME, loggedUser.name)
+            putExtra(LOGIN_NAME, loggedAppUser.name)
         }
         setResult(RESULT_OK, intent)
         finish()
@@ -78,10 +100,7 @@ class LoginActivity : AppCompatActivity() {
         Toast.makeText(this, getString(R.string.invalid_user_msg), Toast.LENGTH_SHORT).show()
     }
 
-    private fun navigateToWebsite() {
-        val webIntent: Intent = Uri.parse("https://trakt.tv/").let { webpage ->
-            Intent(Intent.ACTION_VIEW, webpage)
-        }
-        startActivity(webIntent)
+    private fun notifyUserNotFound() {
+        Toast.makeText(this, getString(R.string.user_not_found), Toast.LENGTH_SHORT).show()
     }
 }

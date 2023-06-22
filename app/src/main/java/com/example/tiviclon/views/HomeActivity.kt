@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.*
 import android.graphics.Color
-import android.graphics.DiscretePathEffect
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -22,10 +21,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
+import com.example.tiviclon.data.database.TiviClonDatabase
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.data.retrofit.RetrofitResource.Companion.BASE_URL
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.mappers.toShow
+import com.example.tiviclon.mappers.toVOShows
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
 import com.example.tiviclon.views.detailShow.DetailShowActivity
@@ -53,11 +55,15 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     private lateinit var binding: ActivityHomeBinding
     private var logged = false
+    private var loggedUser = ""
     private var currentCityName = "none"
     private val shows: MutableList<Show> = mutableListOf()
+    private var db: TiviClonDatabase? = null
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
+            loadShowsFromBD()
+            loadFragment(LibraryFragment())
             hideProgressBar()
         })
 
@@ -72,6 +78,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        db = getBD()
 
         request.addListener(this)
         request.addListener {
@@ -101,27 +109,54 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             .create(ApiService::class.java)
 
         scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                binding.progressBar.visibility = View.VISIBLE
-                request.send()
-            }
+            showProgressBar()
             val api_shows = api.getShows(1).await()
             api_shows.tv_shows.forEach {
                 Log.d("RESPONSE_COR", it.toString())
             }
-            shows.clear()
-            shows.addAll(api_shows.tv_shows.map {
+            val appShows = api_shows.tv_shows.map {
                 it.toShow()
-            })
+            }
+            getBD()?.let { bd ->
+                appShows.forEach {
+                    bd.showDao().insert(it.toVOShows())
+                }
+                val dbShows = bd.showDao().getAllShows()
+                Log.i("DATABASE_SHOWS", dbShows.toString())
+            }
+            shows.clear()
+            shows.addAll(appShows)
+            loadFragment(LibraryFragment())
             hideProgressBar()
         }
     }
 
+    override fun getBD() = TiviClonDatabase.getInstance(applicationContext)
 
-    private fun hideProgressBar() {
+    private fun loadShowsFromBD() {
+        shows.clear()
+        scope.launch(Dispatchers.IO) {
+            getBD()?.let {
+                val bdShows = it.showDao().getAllShows().map { it.toShow() }
+                shows.clear()
+                shows.addAll(bdShows)
+            }
+        }
+    }
+
+    override fun hideProgressBar() {
         GlobalScope.launch {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 binding.progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun showProgressBar() {
+        GlobalScope.launch {
+            withContext(Dispatchers.Main) {
+                binding.progressBar.visibility = View.VISIBLE
+                request.send()
             }
         }
     }
@@ -166,7 +201,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                     }
                 } else {
                     builder.setPositiveButton(getString(R.string.dialog_disconect)) { _, _ ->
-                        setLoggedState(false)
+                        setLoggedState(false, "")
                         loadFragment(LibraryFragment())
 
                     }
@@ -194,6 +229,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     private fun setUpState() {
         logged = prefs.getLoginState()
+        prefs.getLoggedUser()?.let {
+            loggedUser = it
+        }
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -290,7 +328,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         },
                         Toast.LENGTH_SHORT
                     ).show()
-                    setLoggedState(true)
+                    setLoggedState(true, name)
                     loadFragment(LibraryFragment())
                 }
                 RegisterActivity.RESULT_OK_REGISTER -> {
@@ -299,6 +337,21 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         getString(R.string.register_ok),
                         Toast.LENGTH_SHORT
                     ).show()
+                    getBD()?.let {
+                        scope.launch {
+                            withContext(Dispatchers.IO) {
+                                it.userDao().getAllUsers().forEach {
+                                    Log.i("BD_USERS", it.toString())
+                                }
+                            }
+                        }
+                    } ?: kotlin.run {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.bd_fail),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
                 else -> {
                     Toast.makeText(this, getString(R.string.login_fail), Toast.LENGTH_SHORT).show()
@@ -307,8 +360,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         }
 
     override fun isUserLogged() = logged
-    private fun setLoggedState(isLogged: Boolean) {
+    private fun setLoggedState(isLogged: Boolean, name: String) {
         prefs.saveLoginState(isLogged)
+        prefs.saveLoggedUser(name)
         logged = isLogged
     }
 
@@ -320,8 +374,33 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         onShowsRetrieved(shows)
     }
 
-    override fun getPrefsShows() = listOf(35684, 46692)
-    override fun getDetailShows(id: Int) {
+    override fun setPrefShow(idShow: String) {
+        // nothing to do
+    }
+
+    override fun deletePrefShow(idShow: String) {
+        //nothing to do
+    }
+
+    override fun getPrefsShows(): List<Int> {
+        val showIds = mutableListOf<Int>()
+        prefs.getLoggedUser()?.let {
+            Log.i("USERNAME", it)
+            Log.i("USERNAME", loggedUser)
+            getBD()?.let { db ->
+                showIds.addAll(db.favoriteDao().getUserFavShows(it).map { fav ->
+                    fav.showId.toInt()
+                })
+            }
+        }
+        return showIds
+    }
+
+    override fun getDetailShows(
+        id: Int,
+        scope: CoroutineScope,
+        onShowRetrieved: (DetailShow) -> Unit
+    ) {
         //nothing to do
     }
 

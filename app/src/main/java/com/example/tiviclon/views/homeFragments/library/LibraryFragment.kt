@@ -12,12 +12,15 @@ import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.library.adapter.LibraryAdapter
+import okhttp3.internal.notifyAll
 
 class LibraryFragment : HomeBaseFragment() {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: LibraryAdapter
+    private val libraryShows = mutableListOf<Show>()
+    private val allShows = mutableListOf<Show>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +60,7 @@ class LibraryFragment : HomeBaseFragment() {
 
     private fun setUpRecyclerView(shows: List<Show>) {
         adapter = LibraryAdapter(
-            shows = shows, onClick = {
+            shows = libraryShows, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
                 activity.goShowDetail(it.id)
             },
@@ -75,11 +78,35 @@ class LibraryFragment : HomeBaseFragment() {
     private fun getShows() {
         val activity = getFragmentContext() as IActionsFragment
         activity.getShows {
-            setUpRecyclerView(it.filter {activity.getPrefsShows().contains(it.id) })
+            allShows.addAll(it)
+            libraryShows.addAll(it.filter { activity.getPrefsShows().contains(it.id) })
+            setUpRecyclerView(libraryShows)
         }
     }
 
-    fun setUpListeners() {
+    private fun setUpListeners() {
+        with(binding) {
+            fabReload.setOnClickListener {
+                val activity = getFragmentContext() as IActionsFragment
+                val newShowsIds = activity.getPrefsShows()
+                libraryShows.clear()
+                libraryShows.addAll(allShows.filter {show ->
+                    newShowsIds.contains(show.id)
+                })
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val activity = getFragmentContext() as IActionsFragment
+        val newShowsIds = activity.getPrefsShows()
+        libraryShows.clear()
+        libraryShows.addAll(allShows.filter {show ->
+            newShowsIds.contains(show.id)
+        })
+        adapter.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {
