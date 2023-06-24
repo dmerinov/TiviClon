@@ -99,4 +99,14 @@ class CommonRepository(
         }
         return success
     }
+
+    override suspend fun addUserDB(username: String, password: String): Boolean {
+        val success: Boolean = try {
+            userDao.insert(User(username, password))
+            true
+        } catch (e: java.lang.Exception) {
+            false
+        }
+        return success
+    }
 }

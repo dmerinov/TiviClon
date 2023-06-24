@@ -6,13 +6,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
-import com.example.tiviclon.data.database.TiviClonDatabase
+import com.example.tiviclon.TiviClon
+import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.data.database.entities.User
-import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.ActivityRegisterBinding
-import com.example.tiviclon.repository.CommonRepository
-import com.example.tiviclon.repository.Repository
-import com.example.tiviclon.sharedPrefs.PreferencesImp
 import kotlinx.coroutines.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -32,7 +29,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityRegisterBinding
-    private lateinit var repository: Repository
+    private lateinit var appContainer: AppContainer
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
@@ -43,14 +40,7 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        repository = CommonRepository(
-            userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
-            remoteDataSource = RetrofitResource.getRetrofit(),
-            preferences = PreferencesImp(context = applicationContext),
-            showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
-            favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
-            detailShowDao = TiviClonDatabase.getInstance(applicationContext).VODetailShow()
-        )
+        appContainer = TiviClon.appContainer
 
         setUpUI()
         setUpListeners()
@@ -69,7 +59,7 @@ class RegisterActivity : AppCompatActivity() {
                 //lets check the database and if theres anybody named that way it will be invalid
                 val bdUsers = mutableListOf<User>()
                 scope.launch {
-                    bdUsers.addAll(repository.getAllUsers())
+                    bdUsers.addAll(appContainer.repository.getAllUsers())
                     if (bdUsers.none { it.name == username }) {
                         onValidCredentials(username, password)
                     } else {
@@ -79,8 +69,6 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
     }
-
-    private fun getBD() = TiviClonDatabase.getInstance(applicationContext)
 
     private fun setUpUI() {
         //Nothing to do
@@ -99,16 +87,13 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun onValidCredentials(name: String, password: String) {
-        getBD()?.let {
-            scope.launch(Dispatchers.IO) {
-                it.userDao().insert(User(name, password))
-                val intent = Intent()
-                intent.apply {
-                }
-                setResult(RESULT_OK_REGISTER, intent)
-                withContext(Dispatchers.Main) {
-                    finish()
-                }
+
+        scope.launch(Dispatchers.IO) {
+            appContainer.repository.addUserDB(name, password)
+            val intent = Intent()
+            setResult(RESULT_OK_REGISTER, intent)
+            withContext(Dispatchers.Main) {
+                finish()
             }
         }
 

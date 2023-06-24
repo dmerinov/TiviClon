@@ -9,15 +9,13 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
-import com.example.tiviclon.data.database.TiviClonDatabase
+import com.example.tiviclon.TiviClon
+import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
-import com.example.tiviclon.repository.CommonRepository
-import com.example.tiviclon.repository.Repository
-import com.example.tiviclon.sharedPrefs.PreferencesImp
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.*
 import retrofit2.Retrofit
@@ -41,7 +39,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
     private lateinit var binding: ActivityDetailShowBinding
     private lateinit var collectedShow: DetailShow
-    private lateinit var repository: Repository
+    private lateinit var appContainer: AppContainer
 
     val job = Job()
     private val uiScope =
@@ -54,14 +52,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         binding = ActivityDetailShowBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        repository = CommonRepository(
-            userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
-            remoteDataSource = RetrofitResource.getRetrofit(),
-            preferences = PreferencesImp(context = applicationContext),
-            showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
-            favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
-            detailShowDao = TiviClonDatabase.getInstance(applicationContext).VODetailShow()
-        )
+        appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
         initFragments()
@@ -117,11 +108,11 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     override fun getPrefsShows(onShowsRetrieved: (List<Int>) -> Unit) {
         //ask repository for detail shows
         val returnList = mutableListOf<Int>()
-        val idUser = repository.getLoggedUser()
+        val idUser = appContainer.repository.getLoggedUser()
 
         idUser?.let {
             uiScope.launch {
-                returnList.addAll(repository.getFavShows(idUser).map {
+                returnList.addAll(appContainer.repository.getFavShows(idUser).map {
                     it.toInt()
                 })
                 onShowsRetrieved(returnList)
@@ -130,17 +121,17 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     }
 
     override fun deletePrefShow(idShow: String) {
-        val idUser = repository.getLoggedUser()
+        val idUser = appContainer.repository.getLoggedUser()
         uiScope.launch {
-            val result = repository.deleteFavUser(idUser.toString(), idShow)
+            val result = appContainer.repository.deleteFavUser(idUser.toString(), idShow)
             Log.i("CONTROL_MESSAGES", "delete show from fav result: $result")
         }
     }
 
     override fun setPrefShow(idShow: String) {
-        val idUser = repository.getLoggedUser()
+        val idUser = appContainer.repository.getLoggedUser()
         uiScope.launch {
-            val result = repository.addFavUser(idUser.toString(), idShow)
+            val result = appContainer.repository.addFavUser(idUser.toString(), idShow)
             Log.i("CONTROL_MESSAGES", "inserted show from fav result: $result")
         }
     }
@@ -162,7 +153,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
                 showProgressBar()
             }
 
-            collectedShow = repository.getDetailShow(id)
+            collectedShow = appContainer.repository.getDetailShow(id)
 
             withContext(Dispatchers.Main) {
                 collectedShow?.let {

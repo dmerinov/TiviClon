@@ -7,13 +7,10 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
-import com.example.tiviclon.data.database.TiviClonDatabase
-import com.example.tiviclon.data.retrofit.RetrofitResource
+import com.example.tiviclon.TiviClon
+import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.model.application.AppUser
-import com.example.tiviclon.repository.CommonRepository
-import com.example.tiviclon.repository.Repository
-import com.example.tiviclon.sharedPrefs.PreferencesImp
 
 
 class LoginActivity : AppCompatActivity() {
@@ -32,21 +29,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var repository: Repository
+    private lateinit var appContainer: AppContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        repository = CommonRepository(
-            userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
-            remoteDataSource = RetrofitResource.getRetrofit(),
-            preferences = PreferencesImp(context = applicationContext),
-            showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
-            favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
-            detailShowDao = TiviClonDatabase.getInstance(applicationContext).VODetailShow()
-        )
+        appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
     }

@@ -22,14 +22,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
-import com.example.tiviclon.data.database.TiviClonDatabase
-import com.example.tiviclon.data.retrofit.RetrofitResource
+import com.example.tiviclon.TiviClon
+import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
-import com.example.tiviclon.repository.CommonRepository
-import com.example.tiviclon.repository.Repository
-import com.example.tiviclon.sharedPrefs.PreferencesImp
 import com.example.tiviclon.views.detailShow.DetailShowActivity
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -51,7 +48,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     IActionsFragment {
 
     private lateinit var binding: ActivityHomeBinding
-    private lateinit var repository: Repository
+    private lateinit var appContainer: AppContainer
     private var logged = false
     private var loggedUser = ""
     private var currentCityName = "none"
@@ -76,14 +73,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        repository = CommonRepository(
-            userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
-            remoteDataSource = RetrofitResource.getRetrofit(),
-            preferences = PreferencesImp(context = applicationContext),
-            showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
-            favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
-            detailShowDao = TiviClonDatabase.getInstance(applicationContext).VODetailShow()
-        )
+        appContainer = TiviClon.appContainer
 
         request.addListener(this)
         request.addListener {
@@ -116,7 +106,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
         }
         scope.launch {
-            val appShows = repository.getShows()
+            val appShows = appContainer.repository.getShows()
             liveDataShows.postValue(appShows)
         }
     }
@@ -124,7 +114,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private fun loadShowsFromBD() {
         shows.clear()
         scope.launch(Dispatchers.IO) {
-            val bdShows = repository.getShows()
+            val bdShows = appContainer.repository.getShows()
             shows.clear()
             shows.addAll(bdShows)
         }
@@ -214,8 +204,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     }
 
     private fun setUpState() {
-        logged = repository.getLoginState()
-        repository.getLoggedUser()?.let {
+        logged = appContainer.repository.getLoginState()
+        appContainer.repository.getLoggedUser()?.let {
             loggedUser = it
         }
     }
@@ -324,7 +314,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         Toast.LENGTH_SHORT
                     ).show()
                     scope.launch {
-                        repository.getAllUsers().forEach {
+                        appContainer.repository.getAllUsers().forEach {
                             Log.i("BD_USERS", it.toString())
                         }
                     }
@@ -337,8 +327,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     override fun isUserLogged() = logged
     private fun setLoggedState(isLogged: Boolean, name: String) {
-        repository.saveLoginState(isLogged)
-        repository.saveLoggedUser(name)
+        appContainer.repository.saveLoginState(isLogged)
+        appContainer.repository.saveLoggedUser(name)
         logged = isLogged
     }
 
@@ -361,10 +351,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     override fun getPrefsShows(onShowsRetrieved: (List<Int>) -> Unit) {
         val showIds = mutableListOf<Int>()
         scope.launch {
-            repository.getLoggedUser()?.let { usernameId ->
+            appContainer.repository.getLoggedUser()?.let { usernameId ->
                 Log.i("USERNAME", usernameId)
                 Log.i("USERNAME", loggedUser)
-                val retreivedShows = repository.getFavShows(usernameId)
+                val retreivedShows = appContainer.repository.getFavShows(usernameId)
                 showIds.addAll(retreivedShows.map {
                     it.toInt()
                 })

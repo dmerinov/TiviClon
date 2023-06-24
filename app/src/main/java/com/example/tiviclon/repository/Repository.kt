@@ -25,4 +25,6 @@ interface Repository {
     suspend fun deleteFavUser(userId: String, showId: String): Boolean
 
     suspend fun addFavUser(userId: String, showId: String): Boolean
+
+    suspend fun addUserDB(username: String, password: String): Boolean
 }
