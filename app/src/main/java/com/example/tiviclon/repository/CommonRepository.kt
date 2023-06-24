@@ -1,7 +1,10 @@
 package com.example.tiviclon.repository
 
 import android.util.Log
-import com.example.tiviclon.data.database.TiviClonDatabase
+import com.example.tiviclon.data.database.dao.DetailShowDao
+import com.example.tiviclon.data.database.dao.FavoriteDao
+import com.example.tiviclon.data.database.dao.ShowDao
+import com.example.tiviclon.data.database.dao.UserDao
 import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.data.retrofit.RetrofitResource
@@ -15,7 +18,10 @@ import com.example.tiviclon.sharedPrefs.Prefs
 import retrofit2.await
 
 class CommonRepository(
-    private val roomDatabase: TiviClonDatabase?,
+    private val userDao: UserDao,
+    private val showDao: ShowDao,
+    private val favoriteDao: FavoriteDao,
+    private val detailShowDao: DetailShowDao,
     private val remoteDataSource: RetrofitResource,
     private val preferences: Prefs
 ) : Repository {
@@ -30,41 +36,31 @@ class CommonRepository(
         val appShows = apiShows.tv_shows.map {
             it.toShow()
         }
-        roomDatabase?.let { database ->
-            appShows.forEach {
-                database.showDao().insert(it.toVOShows())
-            }
-            val dbShows = database.showDao().getAllShows()
-            Log.i("DATABASE_SHOWS", dbShows.toString())
-            retrievedShows.addAll(dbShows.map { it.toShow() })
+        appShows.forEach {
+            showDao.insert(it.toVOShows())
         }
+        val dbShows = showDao.getAllShows()
+        Log.i("DATABASE_SHOWS", dbShows.toString())
+        retrievedShows.addAll(dbShows.map { it.toShow() })
         return retrievedShows
     }
 
     override suspend fun getFavShows(userID: String): List<String> {
         val userFavs = mutableListOf<String>()
-        roomDatabase?.let {
-            userFavs.addAll(it.favoriteDao().getUserFavShows(userID).map { fav ->
-                fav.showId
-            })
-        }
+        userFavs.addAll(favoriteDao.getUserFavShows(userID).map { fav -> fav.showId })
         return userFavs
     }
 
     override suspend fun getDetailShow(showID: Int): DetailShow {
-        val collectedShow = roomDatabase?.VODetailShow()?.getShowByID(showID)
-        var apiShow = DetailShow()
-        collectedShow?.let {
-            apiShow = it.toDetailShow()
-        } ?: run {
-            apiShow = remoteDataSource.getRetrofit().getDetailedShow(showID).await().toDetailShow()
-            roomDatabase?.let { db ->
-                apiShow.let {
-                    db.VODetailShow().insert(it.toDetailedShowVO())
-                }
-            }
+        var collectedShow: DetailShow
+        try {
+            collectedShow = detailShowDao.getShowByID(showID).toDetailShow()
+        } catch (e: java.lang.Exception) {
+            collectedShow =
+                remoteDataSource.getRetrofit().getDetailedShow(showID).await().toDetailShow()
+            detailShowDao.insert(collectedShow.toDetailedShowVO())
         }
-        return apiShow
+        return collectedShow
     }
 
     override fun getLoggedUser(): String? =
@@ -82,28 +78,20 @@ class CommonRepository(
     }
 
     override suspend fun getAllUsers(): List<User> {
-        return roomDatabase?.let {
-            it.userDao().getAllUsers()
-        } ?: kotlin.run {
-            emptyList()
-        }
+        return userDao.getAllUsers()
     }
 
     override suspend fun deleteFavUser(userId: String, showId: String): Boolean {
         var success = false
-        roomDatabase?.let {
-            it.favoriteDao().delete(Favorites(userId, showId))
-            success = true
-        }
+        favoriteDao.delete(Favorites(userId, showId))
+        success = true
         return success
     }
 
     override suspend fun addFavUser(userId: String, showId: String): Boolean {
         var success = false
-        roomDatabase?.let {
-            it.favoriteDao().insert(Favorites(userId, showId))
-            success = true
-        }
+        favoriteDao.insert(Favorites(userId, showId))
+        success = true
         return success
     }
 }

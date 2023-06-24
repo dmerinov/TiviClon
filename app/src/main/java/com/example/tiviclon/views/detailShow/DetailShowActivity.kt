@@ -55,9 +55,12 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         setContentView(binding.root)
 
         repository = CommonRepository(
-            roomDatabase = TiviClonDatabase.getInstance(applicationContext),
+            userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
             remoteDataSource = RetrofitResource(),
-            preferences = Prefs(context = applicationContext)
+            preferences = Prefs(context = applicationContext),
+            showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
+            favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
+            detailShowDao = TiviClonDatabase.getInstance(applicationContext).VODetailShow()
         )
         setUpUI()
         setUpListeners()
