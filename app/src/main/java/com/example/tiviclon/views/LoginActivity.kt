@@ -8,9 +8,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tiviclon.R
 import com.example.tiviclon.data.database.TiviClonDatabase
+import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.model.application.AppUser
-import kotlinx.coroutines.*
+import com.example.tiviclon.repository.CommonRepository
+import com.example.tiviclon.repository.Repository
+import com.example.tiviclon.sharedPrefs.Prefs
 
 
 class LoginActivity : AppCompatActivity() {
@@ -29,17 +32,18 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityLoginBinding
-
-    private val scope =
-        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
-            throwable.printStackTrace()
-        })
+    private lateinit var repository: Repository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        repository = CommonRepository(
+            roomDatabase = TiviClonDatabase.getInstance(applicationContext),
+            remoteDataSource = RetrofitResource(),
+            preferences = Prefs(context = applicationContext)
+        )
         setUpUI()
         setUpListeners()
     }
@@ -60,31 +64,12 @@ class LoginActivity : AppCompatActivity() {
         if (username.length > 6 && username.isNotBlank()) {
             if (password.length > 6 && password.isNotBlank()) {
                 val loggedAppUser = AppUser(username, password)
-
-                scope.launch(Dispatchers.IO) {
-                    getBD()?.let {
-                        val users = it.userDao().getAllUsers()
-                        if (!users.none { user ->
-                                user.name == username
-                            }) {
-                            withContext(Dispatchers.Main) {
-                                navigateToHomeActivity(loggedAppUser)
-                            }
-                        } else {
-                            withContext(Dispatchers.Main) {
-                                notifyUserNotFound()
-                            }
-                        }
-                    }
-                }
+                navigateToHomeActivity(loggedAppUser)
             } else {
                 notifyInvalidCredentials()
             }
         }
     }
-
-
-    private fun getBD() = TiviClonDatabase.getInstance(applicationContext)
 
     private fun navigateToHomeActivity(loggedAppUser: AppUser) {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()

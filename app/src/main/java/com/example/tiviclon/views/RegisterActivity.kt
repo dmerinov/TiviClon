@@ -6,11 +6,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
-import androidx.room.Room
 import com.example.tiviclon.data.database.TiviClonDatabase
 import com.example.tiviclon.data.database.entities.User
+import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.ActivityRegisterBinding
-import com.example.tiviclon.mappers.toAppUser
+import com.example.tiviclon.repository.CommonRepository
+import com.example.tiviclon.repository.Repository
+import com.example.tiviclon.sharedPrefs.Prefs
 import kotlinx.coroutines.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -29,17 +31,23 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
-        throwable.printStackTrace()
-    })
-
     private lateinit var binding: ActivityRegisterBinding
-    private var db: TiviClonDatabase? = null
+    private lateinit var repository: Repository
+    private val scope =
+        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
+            throwable.printStackTrace()
+        })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        repository = CommonRepository(
+            roomDatabase = TiviClonDatabase.getInstance(applicationContext),
+            remoteDataSource = RetrofitResource(),
+            preferences = Prefs(context = applicationContext)
+        )
 
         setUpUI()
         setUpListeners()
@@ -56,14 +64,13 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 //OK
                 //lets check the database and if theres anybody named that way it will be invalid
-                getBD()?.let {
-                    scope.launch(Dispatchers.IO) {
-                        val bdUsers = it.userDao().getAllUsers().map { it.toAppUser() }
-                        if (bdUsers.none { it.name == username }){
-                            onValidCredentials(username, password)
-                        }else{
-                            onInvalidCredentials(RegisterError.ExistingUserError)
-                        }
+                val bdUsers = mutableListOf<User>()
+                scope.launch {
+                    bdUsers.addAll(repository.getAllUsers())
+                    if (bdUsers.none { it.name == username }) {
+                        onValidCredentials(username, password)
+                    } else {
+                        onInvalidCredentials(RegisterError.ExistingUserError)
                     }
                 }
             }
@@ -96,7 +103,7 @@ class RegisterActivity : AppCompatActivity() {
                 intent.apply {
                 }
                 setResult(RESULT_OK_REGISTER, intent)
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     finish()
                 }
             }
@@ -106,7 +113,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun onInvalidCredentials(error: RegisterError) {
         scope.launch {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 when (error) {
                     RegisterError.PasswordError -> Toast.makeText(
                         this@RegisterActivity,
@@ -130,5 +137,5 @@ class RegisterActivity : AppCompatActivity() {
 }
 
 enum class RegisterError {
-    PasswordError, UserError,ExistingUserError
+    PasswordError, UserError, ExistingUserError
 }

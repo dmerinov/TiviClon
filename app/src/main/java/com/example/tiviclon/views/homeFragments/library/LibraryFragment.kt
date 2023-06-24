@@ -12,7 +12,6 @@ import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.library.adapter.LibraryAdapter
-import okhttp3.internal.notifyAll
 
 class LibraryFragment : HomeBaseFragment() {
 
@@ -73,13 +72,24 @@ class LibraryFragment : HomeBaseFragment() {
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
             rvShowList.adapter = adapter
         }
+
+        val activity = getFragmentContext() as IActionsFragment
+        activity.getPrefsShows { prefShows ->
+            libraryShows.clear()
+            libraryShows.addAll(allShows.filter { show ->
+                prefShows.contains(show.id)
+            })
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private fun getShows() {
         val activity = getFragmentContext() as IActionsFragment
         activity.getShows {
             allShows.addAll(it)
-            libraryShows.addAll(it.filter { activity.getPrefsShows().contains(it.id) })
+            activity.getPrefsShows { prefsShows ->
+                libraryShows.addAll(it.filter { prefsShows.contains(it.id) })
+            }
             setUpRecyclerView(libraryShows)
         }
     }
@@ -88,11 +98,12 @@ class LibraryFragment : HomeBaseFragment() {
         with(binding) {
             fabReload.setOnClickListener {
                 val activity = getFragmentContext() as IActionsFragment
-                val newShowsIds = activity.getPrefsShows()
-                libraryShows.clear()
-                libraryShows.addAll(allShows.filter {show ->
-                    newShowsIds.contains(show.id)
-                })
+                activity.getPrefsShows { prefList ->
+                    libraryShows.clear()
+                    libraryShows.addAll(allShows.filter { show ->
+                        prefList.contains(show.id)
+                    })
+                }
                 adapter.notifyDataSetChanged()
             }
         }
@@ -101,11 +112,12 @@ class LibraryFragment : HomeBaseFragment() {
     override fun onResume() {
         super.onResume()
         val activity = getFragmentContext() as IActionsFragment
-        val newShowsIds = activity.getPrefsShows()
-        libraryShows.clear()
-        libraryShows.addAll(allShows.filter {show ->
-            newShowsIds.contains(show.id)
-        })
+        activity.getPrefsShows { prefShows ->
+            libraryShows.clear()
+            libraryShows.addAll(allShows.filter { show ->
+                prefShows.contains(show.id)
+            })
+        }
         adapter.notifyDataSetChanged()
     }
 

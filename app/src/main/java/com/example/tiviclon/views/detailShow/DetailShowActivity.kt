@@ -4,24 +4,23 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
 import com.example.tiviclon.data.database.TiviClonDatabase
-import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
-import com.example.tiviclon.mappers.toDetailShow
-import com.example.tiviclon.mappers.toDetailedShowVO
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
-import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
+import com.example.tiviclon.repository.CommonRepository
+import com.example.tiviclon.repository.Repository
+import com.example.tiviclon.sharedPrefs.Prefs
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.*
 import retrofit2.Retrofit
-import retrofit2.await
 import retrofit2.converter.gson.GsonConverterFactory
 
 class DetailShowActivity : AppCompatActivity(), IActionsFragment {
@@ -42,12 +41,24 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
     private lateinit var binding: ActivityDetailShowBinding
     private lateinit var collectedShow: DetailShow
+    private lateinit var repository: Repository
+
+    val job = Job()
+    private val uiScope =
+        CoroutineScope(Dispatchers.Main + job + CoroutineExceptionHandler { _, throwable ->
+
+        })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailShowBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        repository = CommonRepository(
+            roomDatabase = TiviClonDatabase.getInstance(applicationContext),
+            remoteDataSource = RetrofitResource(),
+            preferences = Prefs(context = applicationContext)
+        )
         setUpUI()
         setUpListeners()
         initFragments()
@@ -100,33 +111,36 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         //nothing to do
     }
 
-    override fun getPrefsShows(): List<Int> {
+    override fun getPrefsShows(onShowsRetrieved: (List<Int>) -> Unit) {
         //ask repository for detail shows
         val returnList = mutableListOf<Int>()
-        val idUser = prefs.getLoggedUser()
-        getBD()?.let { bd ->
-            idUser?.let {
-                returnList.addAll(bd.favoriteDao().getUserFavShows(idUser).map { it.showId.toInt() })
+        val idUser = repository.getLoggedUser()
+
+        idUser?.let {
+            uiScope.launch {
+                returnList.addAll(repository.getFavShows(idUser).map {
+                    it.toInt()
+                })
+                withContext(Dispatchers.Main) {
+                    repository.getFavShows(idUser)
+                }
             }
         }
-        return returnList
     }
 
     override fun deletePrefShow(idShow: String) {
-        val idUser = prefs.getLoggedUser()
-        getBD()?.let { bd ->
-            idUser?.let {
-                bd.favoriteDao().delete(Favorites(idUser, idShow))
-            }
+        val idUser = repository.getLoggedUser()
+        uiScope.launch {
+            val result = repository.deleteFavUser(idUser.toString(), idShow)
+            Log.i("CONTROL_MESSAGES", "delete show from fav result: $result")
         }
     }
 
     override fun setPrefShow(idShow: String) {
-        val idUser = prefs.getLoggedUser()
-        getBD()?.let { bd ->
-            idUser?.let {
-                bd.favoriteDao().insert(Favorites(idUser, idShow))
-            }
+        val idUser = repository.getLoggedUser()
+        uiScope.launch {
+            val result = repository.addFavUser(idUser.toString(), idShow)
+            Log.i("CONTROL_MESSAGES", "delete show from fav result: $result")
         }
     }
 
@@ -147,16 +161,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
                 showProgressBar()
             }
 
-            getBD()?.let {
-                val bdShow = it.VODetailShow().getShowByID(id)
-
-                if (bdShow != null) {
-                    collectedShow = bdShow.toDetailShow()
-                } else {
-                    collectedShow = api.getDetailedShow(id).await().toDetailShow()
-                    it.VODetailShow().insert(collectedShow.toDetailedShowVO())
-                }
-            }
+            collectedShow = repository.getDetailShow(id)
 
             withContext(Dispatchers.Main) {
                 collectedShow?.let {
@@ -168,5 +173,8 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         }
     }
 
-    override fun getBD() = TiviClonDatabase.getInstance(applicationContext)
+    override fun onDestroy() {
+        super.onDestroy()
+        uiScope.cancel()
+    }
 }

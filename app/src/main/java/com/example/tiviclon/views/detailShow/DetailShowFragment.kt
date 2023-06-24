@@ -110,7 +110,9 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
 
     private fun isShowFav(): Boolean {
         val activity = getFragmentContext() as IActionsFragment
-        return activity.getPrefsShows().contains(showId)
+        var contained = false
+        activity.getPrefsShows { contained = true }
+        return contained
     }
 
     override fun onDestroyView() {
