@@ -13,7 +13,7 @@ import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.model.application.AppUser
 import com.example.tiviclon.repository.CommonRepository
 import com.example.tiviclon.repository.Repository
-import com.example.tiviclon.sharedPrefs.Prefs
+import com.example.tiviclon.sharedPrefs.PreferencesImp
 
 
 class LoginActivity : AppCompatActivity() {
@@ -42,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
         repository = CommonRepository(
             userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
             remoteDataSource = RetrofitResource.getRetrofit(),
-            preferences = Prefs(context = applicationContext),
+            preferences = PreferencesImp(context = applicationContext),
             showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
             favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
             detailShowDao = TiviClonDatabase.getInstance(applicationContext).VODetailShow()

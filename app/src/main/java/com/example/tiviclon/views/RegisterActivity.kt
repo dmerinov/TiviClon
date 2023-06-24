@@ -12,7 +12,7 @@ import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.ActivityRegisterBinding
 import com.example.tiviclon.repository.CommonRepository
 import com.example.tiviclon.repository.Repository
-import com.example.tiviclon.sharedPrefs.Prefs
+import com.example.tiviclon.sharedPrefs.PreferencesImp
 import kotlinx.coroutines.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -46,7 +46,7 @@ class RegisterActivity : AppCompatActivity() {
         repository = CommonRepository(
             userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
             remoteDataSource = RetrofitResource.getRetrofit(),
-            preferences = Prefs(context = applicationContext),
+            preferences = PreferencesImp(context = applicationContext),
             showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
             favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
             detailShowDao = TiviClonDatabase.getInstance(applicationContext).VODetailShow()

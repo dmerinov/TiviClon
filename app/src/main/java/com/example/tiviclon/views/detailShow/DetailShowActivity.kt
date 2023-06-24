@@ -17,7 +17,7 @@ import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.repository.CommonRepository
 import com.example.tiviclon.repository.Repository
-import com.example.tiviclon.sharedPrefs.Prefs
+import com.example.tiviclon.sharedPrefs.PreferencesImp
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.*
 import retrofit2.Retrofit
@@ -57,7 +57,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         repository = CommonRepository(
             userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
             remoteDataSource = RetrofitResource.getRetrofit(),
-            preferences = Prefs(context = applicationContext),
+            preferences = PreferencesImp(context = applicationContext),
             showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
             favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
             detailShowDao = TiviClonDatabase.getInstance(applicationContext).VODetailShow()
