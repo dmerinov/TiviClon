@@ -56,7 +56,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
         repository = CommonRepository(
             userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
-            remoteDataSource = RetrofitResource(),
+            remoteDataSource = RetrofitResource.getRetrofit(),
             preferences = Prefs(context = applicationContext),
             showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
             favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),
@@ -124,9 +124,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
                 returnList.addAll(repository.getFavShows(idUser).map {
                     it.toInt()
                 })
-                withContext(Dispatchers.Main) {
-                    repository.getFavShows(idUser)
-                }
+                onShowsRetrieved(returnList)
             }
         }
     }
@@ -143,7 +141,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         val idUser = repository.getLoggedUser()
         uiScope.launch {
             val result = repository.addFavUser(idUser.toString(), idShow)
-            Log.i("CONTROL_MESSAGES", "delete show from fav result: $result")
+            Log.i("CONTROL_MESSAGES", "inserted show from fav result: $result")
         }
     }
 

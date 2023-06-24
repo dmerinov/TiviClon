@@ -13,10 +13,7 @@ import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 
 class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
     private var _binding: FragmentShowDetailBinding? = null
@@ -83,11 +80,7 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
             context?.let {
                 Glide.with(it).load(showVm.coverImage).into(ivStockImage)
             }
-            if (isShowFav()) {
-                btFavToggle.setImageResource(R.drawable.star_fav)
-            } else {
-                btFavToggle.setImageResource(R.drawable.star_not_fav)
-            }
+            isShowFav()
         }
     }
 
@@ -95,24 +88,43 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
         with(binding) {
             btFavToggle.setOnClickListener {
                 val activity = getFragmentContext() as IActionsFragment
-                if (isShowFav()) {
-                    activity.deletePrefShow(showId.toString())
-                    btFavToggle.setImageResource(R.drawable.star_not_fav)
-                } else {
-                    activity.setPrefShow(showId.toString())
-                    btFavToggle.setImageResource(R.drawable.star_fav)
+                uiScope.launch {
+                    activity.getPrefsShows {
+                        if (
+                            it.contains(showId)
+                        ) {
+                            setFavBinding(false)
+                            activity.deletePrefShow(showId.toString())
 
+                        } else {
+                            setFavBinding(true)
+                            activity.setPrefShow(showId.toString())
+                        }
+                    }
                 }
             }
         }
     }
 
 
-    private fun isShowFav(): Boolean {
+    private fun isShowFav() {
         val activity = getFragmentContext() as IActionsFragment
-        var contained = false
-        activity.getPrefsShows { contained = true }
-        return contained
+        runBlocking {
+            activity.getPrefsShows {
+                val contained = it.contains(showId)
+                setFavBinding(contained)
+            }
+        }
+    }
+
+    private fun setFavBinding(fav: Boolean) {
+        with(binding) {
+            if (fav) {
+                btFavToggle.setImageResource(R.drawable.star_fav)
+            } else {
+                btFavToggle.setImageResource(R.drawable.star_not_fav)
+            }
+        }
     }
 
     override fun onDestroyView() {

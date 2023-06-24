@@ -77,7 +77,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
         repository = CommonRepository(
             userDao = TiviClonDatabase.getInstance(applicationContext).userDao(),
-            remoteDataSource = RetrofitResource(),
+            remoteDataSource = RetrofitResource.getRetrofit(),
             preferences = Prefs(context = applicationContext),
             showDao = TiviClonDatabase.getInstance(applicationContext).showDao(),
             favoriteDao = TiviClonDatabase.getInstance(applicationContext).favoriteDao(),

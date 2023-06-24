@@ -7,7 +7,7 @@ import com.example.tiviclon.data.database.dao.ShowDao
 import com.example.tiviclon.data.database.dao.UserDao
 import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
-import com.example.tiviclon.data.retrofit.RetrofitResource
+import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.mappers.toDetailedShowVO
 import com.example.tiviclon.mappers.toShow
@@ -22,14 +22,13 @@ class CommonRepository(
     private val showDao: ShowDao,
     private val favoriteDao: FavoriteDao,
     private val detailShowDao: DetailShowDao,
-    private val remoteDataSource: RetrofitResource,
+    private val remoteDataSource: ApiService,
     private val preferences: Prefs
 ) : Repository {
 
     override suspend fun getShows(): List<Show> {
         val retrievedShows = mutableListOf<Show>()
-        val api = remoteDataSource.getRetrofit()
-        val apiShows = api.getShows(1).await()
+        val apiShows = remoteDataSource.getShows(1).await()
         apiShows.tv_shows.forEach {
             Log.d("RESPONSE_COR", it.toString())
         }
@@ -57,7 +56,7 @@ class CommonRepository(
             collectedShow = detailShowDao.getShowByID(showID).toDetailShow()
         } catch (e: java.lang.Exception) {
             collectedShow =
-                remoteDataSource.getRetrofit().getDetailedShow(showID).await().toDetailShow()
+                remoteDataSource.getDetailedShow(showID).await().toDetailShow()
             detailShowDao.insert(collectedShow.toDetailedShowVO())
         }
         return collectedShow
@@ -82,16 +81,22 @@ class CommonRepository(
     }
 
     override suspend fun deleteFavUser(userId: String, showId: String): Boolean {
-        var success = false
-        favoriteDao.delete(Favorites(userId, showId))
-        success = true
+        val success: Boolean = try {
+            favoriteDao.delete(Favorites(userId, showId))
+            true
+        } catch (e: java.lang.Exception) {
+            false
+        }
         return success
     }
 
     override suspend fun addFavUser(userId: String, showId: String): Boolean {
-        var success = false
-        favoriteDao.insert(Favorites(userId, showId))
-        success = true
+        val success: Boolean = try {
+            favoriteDao.insert(Favorites(userId, showId))
+            true
+        } catch (e: java.lang.Exception) {
+            false
+        }
         return success
     }
 }

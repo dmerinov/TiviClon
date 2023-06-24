@@ -117,8 +117,8 @@ class LibraryFragment : HomeBaseFragment() {
             libraryShows.addAll(allShows.filter { show ->
                 prefShows.contains(show.id)
             })
+            adapter.notifyDataSetChanged()
         }
-        adapter.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {
