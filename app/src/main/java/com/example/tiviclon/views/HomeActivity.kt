@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
 import com.example.tiviclon.data.database.TiviClonDatabase
 import com.example.tiviclon.data.retrofit.RetrofitResource
@@ -104,14 +105,19 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         setUpState()
         setUpUI()
         setUpListeners()
-
-        scope.launch(Dispatchers.IO) {
-            showProgressBar()
+        val liveDataShows = MutableLiveData<List<Show>>()
+        liveDataShows.observe(this) {
+            scope.launch(Dispatchers.IO) {
+                showProgressBar()
+                shows.clear()
+                shows.addAll(it)
+                loadFragment(LibraryFragment())
+                hideProgressBar()
+            }
+        }
+        scope.launch {
             val appShows = repository.getShows()
-            shows.clear()
-            shows.addAll(appShows)
-            loadFragment(LibraryFragment())
-            hideProgressBar()
+            liveDataShows.postValue(appShows)
         }
     }
 
