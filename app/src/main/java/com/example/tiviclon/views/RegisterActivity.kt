@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.data.database.entities.User
@@ -30,6 +31,9 @@ class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var appContainer: AppContainer
+    val username = MutableLiveData<String>("-1")
+    val password = MutableLiveData<String>("-1")
+    val passwordVerification = MutableLiveData<String>("-1")
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
@@ -77,10 +81,13 @@ class RegisterActivity : AppCompatActivity() {
     private fun setUpListeners() {
         with(binding) {
             btRegister.setOnClickListener {
+                username.value = etUsername.text.toString()
+                password.value = etPassword.text.toString()
+                passwordVerification.value = etRepeatPassword.text.toString()
                 checkRegistry(
-                    etPassword.text.toString(),
-                    etRepeatPassword.text.toString(),
-                    etUsername.text.toString()
+                    password.value.toString(),
+                    passwordVerification.value.toString(),
+                    username.value.toString()
                 )
             }
         }
