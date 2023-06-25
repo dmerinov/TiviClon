@@ -8,18 +8,15 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
-import com.example.tiviclon.data.retrofit.ApiService
-import com.example.tiviclon.data.retrofit.RetrofitResource
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.*
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
@@ -141,27 +138,23 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         scope: CoroutineScope,
         onShowRetrieved: (DetailShow) -> Unit
     ) {
-        val api = Retrofit.Builder()
-            .baseUrl(RetrofitResource.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-
-
-        scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                showProgressBar()
-            }
-
-            collectedShow = appContainer.repository.getDetailShow(id)
-
-            withContext(Dispatchers.Main) {
-                collectedShow?.let {
-                    onShowRetrieved(it)
+        val liveDataDetailShow = MutableLiveData<DetailShow>()
+        liveDataDetailShow.observe(this){
+            scope.launch(Dispatchers.IO) {
+                withContext(Dispatchers.Main) {
+                    showProgressBar()
                 }
-                hideProgressBar()
+                withContext(Dispatchers.Main) {
+                    it?.let {
+                        onShowRetrieved(it)
+                    }
+                    hideProgressBar()
+                }
             }
-
+        }
+        scope.launch {
+            collectedShow = appContainer.repository.getDetailShow(id)
+            liveDataDetailShow.postValue(collectedShow)
         }
     }
 

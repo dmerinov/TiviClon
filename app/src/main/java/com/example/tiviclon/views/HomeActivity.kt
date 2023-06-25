@@ -51,7 +51,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private lateinit var appContainer: AppContainer
     private var logged = false
     private var loggedUser = ""
-    private var currentCityName = "none"
+    private var currentCityName = "please, check your enable your gps"
     private val shows: MutableList<Show> = mutableListOf()
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
