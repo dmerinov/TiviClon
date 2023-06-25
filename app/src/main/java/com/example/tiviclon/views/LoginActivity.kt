@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
@@ -30,12 +31,13 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var appContainer: AppContainer
+    val username = MutableLiveData<String>("-1")
+    val password = MutableLiveData<String>("-1")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
@@ -48,7 +50,9 @@ class LoginActivity : AppCompatActivity() {
     private fun setUpListeners() {
         with(binding) {
             btLogin.setOnClickListener {
-                checkCredentials(etUsername.text.toString(), etPassword.text.toString())
+                username.value = etUsername.text.toString()
+                password.value = etPassword.text.toString()
+                checkCredentials(username.value.toString(), password.value.toString())
             }
         }
     }
