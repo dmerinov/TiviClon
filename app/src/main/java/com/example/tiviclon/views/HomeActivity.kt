@@ -357,8 +357,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     override fun getPrefsShows() = favShows.map { it.toInt() }
 
     override fun getDetailShows(
-        id: Int,
-        scope: CoroutineScope,
         onShowRetrieved: (DetailShow) -> Unit
     ) {
         //nothing to do

@@ -2,7 +2,6 @@ package com.example.tiviclon.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.example.tiviclon.data.database.dao.DetailShowDao
 import com.example.tiviclon.data.database.dao.FavoriteDao
@@ -10,18 +9,15 @@ import com.example.tiviclon.data.database.dao.ShowDao
 import com.example.tiviclon.data.database.dao.UserDao
 import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
-import com.example.tiviclon.data.database.entities.VOShow
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.mappers.toDetailShow
-import com.example.tiviclon.mappers.toDetailedShowVO
 import com.example.tiviclon.mappers.toShow
+import com.example.tiviclon.mappers.toVODetailShow
 import com.example.tiviclon.mappers.toVOShows
-import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.Prefs
 import kotlinx.coroutines.*
 import retrofit2.await
-import kotlin.random.Random
 
 class CommonRepository(
     private val userDao: UserDao,
@@ -31,15 +27,17 @@ class CommonRepository(
     private val remoteDataSource: ApiService,
     private val preferences: Prefs
 ) : Repository {
+
+    val job = Job()
+    val uiScope =
+        CoroutineScope(Dispatchers.IO + job + CoroutineExceptionHandler { _, throwable -> })
+
     override fun getShows() = getShowsFromVO()
 
     private fun getShowsFromVO(): LiveData<List<Show>> =
         showDao.getAllShows().map { it.map { it.toShow() } }
 
     override fun fetchData() {
-        val job = Job()
-        val uiScope =
-            CoroutineScope(Dispatchers.IO + job + CoroutineExceptionHandler { _, throwable -> })
         uiScope.launch {
             val apiShows = remoteDataSource.getShows(1).await()
             apiShows.tv_shows.forEach {
@@ -55,19 +53,18 @@ class CommonRepository(
     }
 
     override fun getFavShows(userID: String): LiveData<List<String>> =
-       favoriteDao.getUserFavShows(userID).map { fav -> fav.map { it.showId } }
+        favoriteDao.getUserFavShows(userID).map { fav -> fav.map { it.showId } }
 
 
-    override suspend fun getDetailShow(showID: Int): DetailShow {
-        var collectedShow: DetailShow
-        try {
-            collectedShow = detailShowDao.getShowByID(showID).toDetailShow()
-        } catch (e: java.lang.Exception) {
-            collectedShow =
-                remoteDataSource.getDetailedShow(showID).await().toDetailShow()
-            detailShowDao.insert(collectedShow.toDetailedShowVO())
+    override fun getDetailShow(showID: Int) =
+        detailShowDao.getShowByID(showID).map { it.toDetailShow() }
+
+    override fun fetchDetailData(showId: Int) {
+        uiScope.launch {
+            val show = remoteDataSource.getDetailedShow(showId).await()
+            detailShowDao.insert(show.toVODetailShow())
+            Log.d("RESPONSE_COR", show.toString())
         }
-        return collectedShow
     }
 
     override fun getLoggedUser(): String? =
@@ -117,6 +114,7 @@ class CommonRepository(
         }
         return success
     }
+
     override fun getUserTimestamp() = preferences.getUserTimestamp()
 
 

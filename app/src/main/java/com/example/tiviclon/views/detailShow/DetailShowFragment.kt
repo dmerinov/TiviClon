@@ -1,6 +1,5 @@
 package com.example.tiviclon.views.detailShow
 
-import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
@@ -43,7 +42,7 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val activity = getFragmentContext() as IActionsFragment
-        activity.getDetailShows(showId, uiScope) { setUpUI(it) }
+        activity.getDetailShows { setUpUI(it) }
         setUpListeners()
     }
 
@@ -55,11 +54,8 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
                 Glide.with(it).load(showVm.image).into(itemImg)
             }
             tvDescription.text = getString(R.string.about)
-            tvShowDetail.text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            tvShowDetail.text =
                 Html.fromHtml(showVm.description, Html.FROM_HTML_MODE_COMPACT)
-            } else {
-                Html.fromHtml(showVm.description)
-            }
 
             tvTitle.text = buildString {
                 append(getString(R.string.title))
@@ -84,6 +80,10 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
         }
     }
 
+    private fun setUpLivedata() {
+
+    }
+
     private fun setUpListeners() {
         with(binding) {
             btFavToggle.setOnClickListener {
@@ -102,17 +102,17 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
                             activity.setPrefShow(showId.toString())
                         }
                     }
-                    }
                 }
             }
         }
+    }
 
     private fun isShowFav() {
         val activity = getFragmentContext() as IActionsFragment
         runBlocking {
-            if(activity.getPrefsShows().contains(showId)){
+            if (activity.getPrefsShows().contains(showId)) {
                 setFavBinding(true)
-            }else{
+            } else {
                 setFavBinding(false)
             }
         }
