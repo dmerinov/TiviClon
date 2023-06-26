@@ -31,6 +31,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var appContainer: AppContainer
+    private val userList = mutableListOf<User>()
     val username = MutableLiveData<String>("-1")
     val password = MutableLiveData<String>("-1")
     val passwordVerification = MutableLiveData<String>("-1")
@@ -48,6 +49,7 @@ class RegisterActivity : AppCompatActivity() {
 
         setUpUI()
         setUpListeners()
+        setUpLivedata()
     }
 
     private fun checkRegistry(password: String, repeatedPassword: String, username: String) {
@@ -61,14 +63,10 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 //OK
                 //lets check the database and if theres anybody named that way it will be invalid
-                val bdUsers = mutableListOf<User>()
-                scope.launch {
-                    bdUsers.addAll(appContainer.repository.getAllUsers())
-                    if (bdUsers.none { it.name == username }) {
-                        onValidCredentials(username, password)
-                    } else {
-                        onInvalidCredentials(RegisterError.ExistingUserError)
-                    }
+                if (userList.none { it.name == username }) {
+                    onValidCredentials(username, password)
+                } else {
+                    onInvalidCredentials(RegisterError.ExistingUserError)
                 }
             }
         }
@@ -76,6 +74,13 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun setUpUI() {
         //Nothing to do
+    }
+
+    private fun setUpLivedata() {
+        appContainer.repository.getAllUsers().observe(this) {
+            userList.clear()
+            userList.addAll(it)
+        }
     }
 
     private fun setUpListeners() {

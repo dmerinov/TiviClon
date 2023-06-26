@@ -326,11 +326,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         getString(R.string.register_ok),
                         Toast.LENGTH_SHORT
                     ).show()
-                    scope.launch {
-                        appContainer.repository.getAllUsers().forEach {
-                            Log.i("BD_USERS", it.toString())
-                        }
-                    }
                 }
                 else -> {
                     Toast.makeText(this, getString(R.string.login_fail), Toast.LENGTH_SHORT).show()
@@ -348,6 +343,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     override fun goShowDetail(id: Int) {
         DetailShowActivity.navigateToShowDetailActivity(this, id)
     }
+
     override fun getShows(): List<Show> = shows
 
     override fun setPrefShow(idShow: String) {

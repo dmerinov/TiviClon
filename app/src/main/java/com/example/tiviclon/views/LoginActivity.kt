@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
+import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.model.application.AppUser
 
@@ -31,6 +32,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var appContainer: AppContainer
+    private val userList = mutableListOf<User>()
     val username = MutableLiveData<String>("-1")
     val password = MutableLiveData<String>("-1")
 
@@ -41,10 +43,18 @@ class LoginActivity : AppCompatActivity() {
         appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
+        setUpLivedata()
     }
 
     private fun setUpUI() {
         //get attributes from xml using binding
+    }
+
+    private fun setUpLivedata() {
+        appContainer.repository.getAllUsers().observe(this) {
+            userList.clear()
+            userList.addAll(it)
+        }
     }
 
     private fun setUpListeners() {
@@ -61,8 +71,8 @@ class LoginActivity : AppCompatActivity() {
         if (username.length > 6 && username.isNotBlank()) {
             if (password.length > 6 && password.isNotBlank()) {
                 val loggedAppUser = AppUser(username, password)
-                if(appContainer.repository.getAllUsers().map { it.name }.contains(username))
-                navigateToHomeActivity(loggedAppUser)
+                if (userList.map { it.name }.contains(username))
+                    navigateToHomeActivity(loggedAppUser)
             } else {
                 notifyInvalidCredentials()
             }

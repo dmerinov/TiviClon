@@ -26,7 +26,7 @@ interface Repository {
 
     fun getUserTimestamp(): Long
 
-    fun getAllUsers(): List<User>
+    fun getAllUsers(): LiveData<List<User>>
 
     suspend fun deleteFavUser(userId: String, showId: String): Boolean
 

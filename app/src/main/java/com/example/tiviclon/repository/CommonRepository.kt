@@ -84,7 +84,7 @@ class CommonRepository(
         preferences.saveLoginState(state)
     }
 
-    override fun getAllUsers(): List<User> {
+    override fun getAllUsers(): LiveData<List<User>> {
         return userDao.getAllUsers()
     }
 

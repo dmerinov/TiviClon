@@ -1,5 +1,6 @@
 package com.example.tiviclon.data.database.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.tiviclon.data.database.entities.User
 
@@ -7,7 +8,7 @@ import com.example.tiviclon.data.database.entities.User
 interface UserDao {
 
     @Query("SELECT * FROM user")
-    fun getAllUsers(): List<User>
+    fun getAllUsers(): LiveData<List<User>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(vararg user: User)
