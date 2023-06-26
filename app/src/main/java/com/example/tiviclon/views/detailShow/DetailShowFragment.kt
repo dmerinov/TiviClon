@@ -88,10 +88,11 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
         with(binding) {
             btFavToggle.setOnClickListener {
                 val activity = getFragmentContext() as IActionsFragment
+                val list = activity.getPrefsShows()
                 uiScope.launch {
-                    activity.getPrefsShows {
+                    list?.let { list ->
                         if (
-                            it.contains(showId)
+                            list.contains(showId)
                         ) {
                             setFavBinding(false)
                             activity.deletePrefShow(showId.toString())
@@ -101,18 +102,18 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
                             activity.setPrefShow(showId.toString())
                         }
                     }
+                    }
                 }
             }
         }
-    }
-
 
     private fun isShowFav() {
         val activity = getFragmentContext() as IActionsFragment
         runBlocking {
-            activity.getPrefsShows {
-                val contained = it.contains(showId)
-                setFavBinding(contained)
+            if(activity.getPrefsShows().contains(showId)){
+                setFavBinding(true)
+            }else{
+                setFavBinding(false)
             }
         }
     }

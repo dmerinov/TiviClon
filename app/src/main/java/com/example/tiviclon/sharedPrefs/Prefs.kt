@@ -8,4 +8,8 @@ interface Prefs {
     fun saveLoggedUser(username: String)
 
     fun getLoggedUser(): String?
+
+    fun saveUserTimestamp(tmp: Long)
+
+    fun getUserTimestamp(): Long
 }

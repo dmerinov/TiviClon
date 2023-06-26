@@ -85,6 +85,10 @@ class SearchFragment : HomeBaseFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+    }
     fun filterList(filter: String) {
         val allShows = initialList
         var filteredShows = allShows.filter {
@@ -130,11 +134,9 @@ class SearchFragment : HomeBaseFragment() {
 
     private fun getShows() {
         val activity = getFragmentContext() as IActionsFragment
-        activity.getShows {
-            showList.clear()
-            showList.addAll(it)
-            initialList.addAll(showList)
-        }
+        showList.clear()
+        showList.addAll(activity.getShows())
+        initialList.addAll(showList)
     }
 
     override fun onDestroyView() {

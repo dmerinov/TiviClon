@@ -61,6 +61,7 @@ class LoginActivity : AppCompatActivity() {
         if (username.length > 6 && username.isNotBlank()) {
             if (password.length > 6 && password.isNotBlank()) {
                 val loggedAppUser = AppUser(username, password)
+                if(appContainer.repository.getAllUsers().map { it.name }.contains(username))
                 navigateToHomeActivity(loggedAppUser)
             } else {
                 notifyInvalidCredentials()

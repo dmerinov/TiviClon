@@ -20,7 +20,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
@@ -51,8 +50,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private lateinit var appContainer: AppContainer
     private var logged = false
     private var loggedUser = ""
-    private var currentCityName = "please, check your enable your gps"
+    private var currentCityName = "please, enable your gps"
+    private val oneDay: Long = 86400000
+    private val noTimestamp: Long = -1
     private val shows: MutableList<Show> = mutableListOf()
+    private val favShows: MutableList<String> = mutableListOf()
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
@@ -72,9 +74,32 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         appContainer = TiviClon.appContainer
 
+        requestPermissions()
+        setUpState()
+        setUpUI()
+        setUpListeners()
+        setUpLivedata()
+    }
+
+    private fun setUpLivedata() {
+        appContainer.repository.getShows().observe(this) {
+            scope.launch(Dispatchers.IO) {
+                showProgressBar()
+                shows.clear()
+                shows.addAll(it)
+                loadFragment(LibraryFragment())
+                hideProgressBar()
+            }
+        }
+        val currentTimestamp = System.currentTimeMillis()
+        if ((currentTimestamp - appContainer.repository.getUserTimestamp() == oneDay * 7) || appContainer.repository.getUserTimestamp() == noTimestamp) {
+            appContainer.repository.fetchData()
+        }
+    }
+
+    private fun requestPermissions() {
         request.addListener(this)
         request.addListener {
             if (it.anyPermanentlyDenied()) {
@@ -92,32 +117,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 requestLocation()
             }
         }
-        setUpState()
-        setUpUI()
-        setUpListeners()
-        val liveDataShows = MutableLiveData<List<Show>>()
-        liveDataShows.observe(this) {
-            scope.launch(Dispatchers.IO) {
-                showProgressBar()
-                shows.clear()
-                shows.addAll(it)
-                loadFragment(LibraryFragment())
-                hideProgressBar()
-            }
-        }
-        scope.launch {
-            val appShows = appContainer.repository.getShows()
-            liveDataShows.postValue(appShows)
-        }
     }
 
     private fun loadShowsFromBD() {
-        shows.clear()
-        scope.launch(Dispatchers.IO) {
-            val bdShows = appContainer.repository.getShows()
-            shows.clear()
-            shows.addAll(bdShows)
-        }
+        //nothing to do
     }
 
     override fun hideProgressBar() {
@@ -207,6 +210,12 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         logged = appContainer.repository.getLoginState()
         appContainer.repository.getLoggedUser()?.let {
             loggedUser = it
+        }
+        if (logged) {
+            appContainer.repository.getFavShows(loggedUser).observe(this) {
+                favShows.clear()
+                favShows.addAll(it)
+            }
         }
     }
 
@@ -304,6 +313,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         },
                         Toast.LENGTH_SHORT
                     ).show()
+                    appContainer.repository.getFavShows(loggedUser).observe(this) {
+                        favShows.clear()
+                        favShows.addAll(it)
+                    }
                     setLoggedState(true, name)
                     loadFragment(LibraryFragment())
                 }
@@ -335,10 +348,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     override fun goShowDetail(id: Int) {
         DetailShowActivity.navigateToShowDetailActivity(this, id)
     }
-
-    override fun getShows(onShowsRetrieved: (List<Show>) -> Unit) {
-        onShowsRetrieved(shows)
-    }
+    override fun getShows(): List<Show> = shows
 
     override fun setPrefShow(idShow: String) {
         // nothing to do
@@ -348,22 +358,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         //nothing to do
     }
 
-    override fun getPrefsShows(onShowsRetrieved: (List<Int>) -> Unit) {
-        val showIds = mutableListOf<Int>()
-        scope.launch {
-            appContainer.repository.getLoggedUser()?.let { usernameId ->
-                Log.i("USERNAME", usernameId)
-                Log.i("USERNAME", loggedUser)
-                val retreivedShows = appContainer.repository.getFavShows(usernameId)
-                showIds.addAll(retreivedShows.map {
-                    it.toInt()
-                })
-            }
-            withContext(Dispatchers.Main) {
-                onShowsRetrieved(showIds)
-            }
-        }
-    }
+    override fun getPrefsShows() = favShows.map { it.toInt() }
 
     override fun getDetailShows(
         id: Int,

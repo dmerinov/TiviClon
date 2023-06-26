@@ -104,9 +104,7 @@ class DiscoveryFragment : HomeBaseFragment() {
 
     private fun getShows() {
         val activity = getFragmentContext() as IActionsFragment
-        activity.getShows {
-            setUpRecyclerView(it)
-        }
+        setUpRecyclerView(activity.getShows())
     }
 
     override fun onDestroyView() {

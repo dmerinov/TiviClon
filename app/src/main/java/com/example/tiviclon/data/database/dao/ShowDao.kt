@@ -1,5 +1,7 @@
 package com.example.tiviclon.data.database.dao
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -11,7 +13,7 @@ import com.example.tiviclon.data.database.entities.VOShow
 interface ShowDao {
 
     @Query("SELECT * FROM voshow")
-    fun getAllShows(): List<VOShow>
+    fun getAllShows(): LiveData<List<VOShow>>
 
     @Insert(onConflict = IGNORE)
     fun insert(vararg show: VOShow)

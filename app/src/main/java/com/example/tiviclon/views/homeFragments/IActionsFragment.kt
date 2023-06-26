@@ -7,9 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 
 interface IActionsFragment {
     fun goShowDetail(id: Int)
-    fun getShows(onShowsRetrieved: (List<Show>) -> Unit)
+    fun getShows(): List<Show>
 
-    fun getPrefsShows(onShowsRetrieved: (List<Int>) -> Unit)
+    fun getPrefsShows() : List<Int>
 
     fun deletePrefShow(idShow: String)
 

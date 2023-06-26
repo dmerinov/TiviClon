@@ -1,14 +1,16 @@
 package com.example.tiviclon.repository
 
+import androidx.lifecycle.LiveData
 import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 
 interface Repository {
 
-    suspend fun getShows(): List<Show>
+    fun getShows(): LiveData<List<Show>>
 
-    suspend fun getFavShows(userID: String): List<String>
+    fun fetchData()
+    fun getFavShows(userID: String): LiveData<List<String>>
 
     suspend fun getDetailShow(showID: Int): DetailShow
 
@@ -20,7 +22,11 @@ interface Repository {
 
     fun saveLoginState(state: Boolean)
 
-    suspend fun getAllUsers(): List<User>
+    fun saveUserTimestamp( tmp: Long)
+
+    fun getUserTimestamp(): Long
+
+    fun getAllUsers(): List<User>
 
     suspend fun deleteFavUser(userId: String, showId: String): Boolean
 

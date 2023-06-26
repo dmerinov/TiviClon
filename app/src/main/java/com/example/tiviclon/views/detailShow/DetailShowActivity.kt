@@ -37,6 +37,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     private lateinit var binding: ActivityDetailShowBinding
     private lateinit var collectedShow: DetailShow
     private lateinit var appContainer: AppContainer
+    private val favShows = mutableListOf<String>()
 
     val job = Job()
     private val uiScope =
@@ -53,6 +54,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         setUpUI()
         setUpListeners()
         initFragments()
+        setUpLivedata()
     }
 
     override fun hideProgressBar() {
@@ -79,6 +81,17 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         }
     }
 
+    private fun setUpLivedata() {
+        appContainer.repository.getLoggedUser()?.let {
+            appContainer.repository.getFavShows(it).observe(this) {
+                uiScope.launch(Dispatchers.IO) {
+                    favShows.clear()
+                    favShows.addAll(it)
+                }
+            }
+        }
+    }
+
     private fun initFragments() {
         val showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
         loadFragment(DetailShowFragment(showId))
@@ -98,24 +111,12 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
     }
 
-    override fun getShows(onShowsRetrieved: (List<Show>) -> Unit) {
-        //nothing to do
+    override fun getShows(): List<Show> {
+        //NOTHING TO DO
+        return emptyList()
     }
 
-    override fun getPrefsShows(onShowsRetrieved: (List<Int>) -> Unit) {
-        //ask repository for detail shows
-        val returnList = mutableListOf<Int>()
-        val idUser = appContainer.repository.getLoggedUser()
-
-        idUser?.let {
-            uiScope.launch {
-                returnList.addAll(appContainer.repository.getFavShows(idUser).map {
-                    it.toInt()
-                })
-                onShowsRetrieved(returnList)
-            }
-        }
-    }
+    override fun getPrefsShows() = favShows.map { it.toInt() }
 
     override fun deletePrefShow(idShow: String) {
         val idUser = appContainer.repository.getLoggedUser()
@@ -139,7 +140,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         onShowRetrieved: (DetailShow) -> Unit
     ) {
         val liveDataDetailShow = MutableLiveData<DetailShow>()
-        liveDataDetailShow.observe(this){
+        liveDataDetailShow.observe(this) {
             scope.launch(Dispatchers.IO) {
                 withContext(Dispatchers.Main) {
                     showProgressBar()

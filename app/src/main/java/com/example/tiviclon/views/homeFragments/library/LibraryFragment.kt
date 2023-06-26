@@ -38,10 +38,10 @@ class LibraryFragment : HomeBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpUI()
         setUpListeners()
-        getShows()
+        setUpRecyclerView(libraryShows)
     }
 
-    fun setUpUI() {
+    private fun setUpUI() {
         val activity = getFragmentContext() as FragmentCommonComunication
         activity.updateAppBarText("Biblioteca")
         if (activity.isUserLogged()) {
@@ -58,6 +58,8 @@ class LibraryFragment : HomeBaseFragment() {
     }
 
     private fun setUpRecyclerView(shows: List<Show>) {
+        libraryShows.clear()
+        libraryShows.addAll(shows)
         adapter = LibraryAdapter(
             shows = libraryShows, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
@@ -72,53 +74,27 @@ class LibraryFragment : HomeBaseFragment() {
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
             rvShowList.adapter = adapter
         }
-
-        val activity = getFragmentContext() as IActionsFragment
-        activity.getPrefsShows { prefShows ->
-            libraryShows.clear()
-            libraryShows.addAll(allShows.filter { show ->
-                prefShows.contains(show.id)
-            })
-            adapter.notifyDataSetChanged()
-        }
+        adapter.notifyDataSetChanged()
     }
 
-    private fun getShows() {
+    private fun getShows(): List<Show> {
         val activity = getFragmentContext() as IActionsFragment
-        activity.getShows {
-            allShows.addAll(it)
-            activity.getPrefsShows { prefsShows ->
-                libraryShows.addAll(it.filter { prefsShows.contains(it.id) })
-            }
-            setUpRecyclerView(libraryShows)
-        }
+        val prefShows = activity.getPrefsShows()
+        val allShows = activity.getShows()
+        libraryShows.clear()
+        libraryShows.addAll(allShows.filter { prefShows.contains(it.id) })
+        return emptyList()
     }
 
     private fun setUpListeners() {
-        with(binding) {
-            fabReload.setOnClickListener {
-                val activity = getFragmentContext() as IActionsFragment
-                activity.getPrefsShows { prefList ->
-                    libraryShows.clear()
-                    libraryShows.addAll(allShows.filter { show ->
-                        prefList.contains(show.id)
-                    })
-                }
-                adapter.notifyDataSetChanged()
-            }
-        }
+        //nothing to do
     }
 
     override fun onResume() {
         super.onResume()
-        val activity = getFragmentContext() as IActionsFragment
-        activity.getPrefsShows { prefShows ->
-            libraryShows.clear()
-            libraryShows.addAll(allShows.filter { show ->
-                prefShows.contains(show.id)
-            })
-            adapter.notifyDataSetChanged()
-        }
+        libraryShows.clear()
+        libraryShows.addAll(getShows())
+        adapter.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {

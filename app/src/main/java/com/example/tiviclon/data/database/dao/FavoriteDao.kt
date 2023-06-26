@@ -1,5 +1,6 @@
 package com.example.tiviclon.data.database.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.tiviclon.data.database.entities.Favorites
 
@@ -7,7 +8,7 @@ import com.example.tiviclon.data.database.entities.Favorites
 interface FavoriteDao {
 
     @Query("SELECT * FROM favorites WHERE username = :userId")
-    fun getUserFavShows(userId: String): List<Favorites>
+    fun getUserFavShows(userId: String): LiveData<List<Favorites>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(vararg fav: Favorites)
