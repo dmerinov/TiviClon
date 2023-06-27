@@ -34,7 +34,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     }
 
     private lateinit var binding: ActivityDetailShowBinding
-    private lateinit var collectedShow: DetailShow
+    private var collectedShow = DetailShow()
     private lateinit var appContainer: AppContainer
     private var showId = -1
     private val favShows = mutableListOf<String>()
@@ -53,8 +53,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         appContainer = TiviClon.appContainer
         showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
         setUpUI()
-        setUpListeners()
-        setUpLivedata()
+        initFragments()
     }
 
     override fun hideProgressBar() {
@@ -78,26 +77,6 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
             appBar.setTitleTextColor(Color.WHITE)
             //appBar will not work without this
             setSupportActionBar(appBar)
-        }
-    }
-
-    private fun setUpLivedata() {
-        appContainer.repository.getLoggedUser()?.let {
-            appContainer.repository.getFavShows(it).observe(this) {
-                uiScope.launch(Dispatchers.IO) {
-                    favShows.clear()
-                    favShows.addAll(it)
-                }
-            }
-        }
-        appContainer.repository.getDetailShow(showId).observe(this) {
-            uiScope.launch(Dispatchers.IO) {
-                collectedShow = it
-                showId = it.id
-                withContext(Dispatchers.Main){
-                    initFragments()
-                }
-            }
         }
     }
 
@@ -143,9 +122,19 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     }
 
     override fun getDetailShows(
+        id: Int,
         onShowRetrieved: (DetailShow) -> Unit
     ) {
-        onShowRetrieved(collectedShow)
+        uiScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                showProgressBar()
+            }
+            val bdShow = appContainer.repository.getDetailShow(id)
+            withContext(Dispatchers.Main) {
+                onShowRetrieved(bdShow)
+                hideProgressBar()
+            }
+        }
     }
 
     override fun onDestroy() {

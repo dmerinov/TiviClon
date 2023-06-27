@@ -12,7 +12,7 @@ import com.example.tiviclon.data.database.entities.VODetailShow
 interface DetailShowDao {
 
     @Query("SELECT * FROM vodetailshow WHERE showId = :id")
-    fun getShowByID(id: Int): LiveData<VODetailShow>
+    fun getShowByID(id: Int): VODetailShow
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(vararg show: VODetailShow)

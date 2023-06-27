@@ -3,6 +3,7 @@ package com.example.tiviclon.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.data.database.entities.User
+import com.example.tiviclon.data.database.entities.VODetailShow
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 
@@ -12,10 +13,9 @@ interface Repository {
 
     fun fetchData()
 
-    fun fetchDetailData(showId: Int)
     fun getFavShows(userID: String): LiveData<List<String>>
 
-    fun getDetailShow(showID: Int): LiveData<DetailShow>
+    suspend fun getDetailShow(showID: Int): DetailShow
 
     fun getLoggedUser(): String?
 

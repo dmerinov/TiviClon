@@ -11,9 +11,10 @@ import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.mappers.toDetailShow
+import com.example.tiviclon.mappers.toDetailedShowVO
 import com.example.tiviclon.mappers.toShow
-import com.example.tiviclon.mappers.toVODetailShow
 import com.example.tiviclon.mappers.toVOShows
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.Prefs
 import kotlinx.coroutines.*
@@ -32,7 +33,15 @@ class CommonRepository(
     val uiScope =
         CoroutineScope(Dispatchers.IO + job + CoroutineExceptionHandler { _, throwable -> })
 
+    init {
+        val currentTimestamp = System.currentTimeMillis()
+        if ((currentTimestamp - preferences.getUserTimestamp() == oneDay * 7) || preferences.getUserTimestamp() == noTimestamp) {
+            fetchData()
+        }
+    }
+
     override fun getShows() = getShowsFromVO()
+
 
     private fun getShowsFromVO(): LiveData<List<Show>> =
         showDao.getAllShows().map { it.map { it.toShow() } }
@@ -53,18 +62,24 @@ class CommonRepository(
     }
 
     override fun getFavShows(userID: String): LiveData<List<String>> =
-        favoriteDao.getUserFavShows(userID).map { fav -> fav.map { it.showId } }
-
-
-    override fun getDetailShow(showID: Int) =
-        detailShowDao.getShowByID(showID).map { it.toDetailShow() }
-
-    override fun fetchDetailData(showId: Int) {
-        uiScope.launch {
-            val show = remoteDataSource.getDetailedShow(showId).await()
-            detailShowDao.insert(show.toVODetailShow())
-            Log.d("RESPONSE_COR", show.toString())
+        favoriteDao.getUserFavShows(userID).map { fav ->
+            fav.map {
+                it.showId
+            }
         }
+
+    override suspend fun getDetailShow(showID: Int): DetailShow {
+        var collectedShow: DetailShow
+        try {
+            collectedShow = detailShowDao.getShowByID(showID).toDetailShow()
+            Log.i("COLLECTED_SHOW", "from bd")
+        } catch (e: java.lang.Exception) {
+            Log.i("COLLECTED_SHOW", "from net")
+            collectedShow =
+                remoteDataSource.getDetailedShow(showID).await().toDetailShow()
+            detailShowDao.insert(collectedShow.toDetailedShowVO())
+        }
+        return collectedShow
     }
 
     override fun getLoggedUser(): String? =
@@ -120,5 +135,10 @@ class CommonRepository(
 
     override fun saveUserTimestamp(tmp: Long) {
         preferences.saveUserTimestamp(tmp)
+    }
+
+    companion object {
+        const val oneDay: Long = 86400000
+        const val noTimestamp: Long = -1
     }
 }

@@ -42,7 +42,7 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val activity = getFragmentContext() as IActionsFragment
-        activity.getDetailShows { setUpUI(it) }
+        activity.getDetailShows(showId) {  setUpUI(it) }
         setUpListeners()
     }
 
