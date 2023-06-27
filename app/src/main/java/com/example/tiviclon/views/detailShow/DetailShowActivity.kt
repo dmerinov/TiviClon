@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
@@ -34,9 +35,8 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     }
 
     private lateinit var binding: ActivityDetailShowBinding
-    private var collectedShow = DetailShow()
+    private lateinit var collectedShow: DetailShow
     private lateinit var appContainer: AppContainer
-    private var showId = -1
     private val favShows = mutableListOf<String>()
 
     val job = Job()
@@ -51,9 +51,10 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         setContentView(binding.root)
 
         appContainer = TiviClon.appContainer
-        showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
         setUpUI()
+        setUpListeners()
         initFragments()
+        setUpLivedata()
     }
 
     override fun hideProgressBar() {
@@ -80,7 +81,19 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         }
     }
 
+    private fun setUpLivedata() {
+        appContainer.repository.getLoggedUser()?.let {
+            appContainer.repository.getFavShows(it).observe(this) {
+                uiScope.launch(Dispatchers.IO) {
+                    favShows.clear()
+                    favShows.addAll(it)
+                }
+            }
+        }
+    }
+
     private fun initFragments() {
+        val showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
         loadFragment(DetailShowFragment(showId))
     }
 
@@ -123,17 +136,26 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
     override fun getDetailShows(
         id: Int,
+        scope: CoroutineScope,
         onShowRetrieved: (DetailShow) -> Unit
     ) {
-        uiScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                showProgressBar()
+        val liveDataDetailShow = MutableLiveData<DetailShow>()
+        liveDataDetailShow.observe(this) {
+            scope.launch(Dispatchers.IO) {
+                withContext(Dispatchers.Main) {
+                    showProgressBar()
+                }
+                withContext(Dispatchers.Main) {
+                    it?.let {
+                        onShowRetrieved(it)
+                    }
+                    hideProgressBar()
+                }
             }
-            val bdShow = appContainer.repository.getDetailShow(id)
-            withContext(Dispatchers.Main) {
-                onShowRetrieved(bdShow)
-                hideProgressBar()
-            }
+        }
+        scope.launch {
+            collectedShow = appContainer.repository.getDetailShow(id)
+            liveDataDetailShow.postValue(collectedShow)
         }
     }
 

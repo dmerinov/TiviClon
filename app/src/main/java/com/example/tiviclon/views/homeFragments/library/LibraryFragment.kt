@@ -19,6 +19,7 @@ class LibraryFragment : HomeBaseFragment() {
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: LibraryAdapter
     private val libraryShows = mutableListOf<Show>()
+    private val allShows = mutableListOf<Show>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

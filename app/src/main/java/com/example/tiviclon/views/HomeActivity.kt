@@ -51,6 +51,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private var logged = false
     private var loggedUser = ""
     private var currentCityName = "please, enable your gps"
+    private val oneDay: Long = 86400000
+    private val noTimestamp: Long = -1
     private val shows: MutableList<Show> = mutableListOf()
     private val favShows: MutableList<String> = mutableListOf()
     private val scope =
@@ -90,6 +92,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 loadFragment(LibraryFragment())
                 hideProgressBar()
             }
+        }
+        val currentTimestamp = System.currentTimeMillis()
+        if ((currentTimestamp - appContainer.repository.getUserTimestamp() == oneDay * 7) || appContainer.repository.getUserTimestamp() == noTimestamp) {
+            appContainer.repository.fetchData()
         }
     }
 
@@ -344,15 +350,19 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         // nothing to do
     }
 
-    override fun getDetailShows(id: Int, onShowRetrieved: (DetailShow) -> Unit) {
-        //nothing to do
-    }
-
     override fun deletePrefShow(idShow: String) {
         //nothing to do
     }
 
     override fun getPrefsShows() = favShows.map { it.toInt() }
+
+    override fun getDetailShows(
+        id: Int,
+        scope: CoroutineScope,
+        onShowRetrieved: (DetailShow) -> Unit
+    ) {
+        //nothing to do
+    }
 
     override fun updateAppBarText(text: String) {
         with(binding) {

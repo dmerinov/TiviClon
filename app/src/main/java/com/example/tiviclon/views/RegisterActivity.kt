@@ -63,7 +63,7 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 //OK
                 //lets check the database and if theres anybody named that way it will be invalid
-                if (userList.none { it.name == username }) {
+                if (userList.none { it.name == username } && username.length > 6) {
                     onValidCredentials(username, password)
                 } else {
                     onInvalidCredentials(RegisterError.ExistingUserError)
