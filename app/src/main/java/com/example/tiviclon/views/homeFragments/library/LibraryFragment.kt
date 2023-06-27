@@ -76,13 +76,13 @@ class LibraryFragment : HomeBaseFragment() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun getShows(): List<Show> {
+    private fun getShows() {
         val activity = getFragmentContext() as IActionsFragment
         val prefShows = activity.getPrefsShows()
         val allShows = activity.getShows()
         libraryShows.clear()
         libraryShows.addAll(allShows.filter { prefShows.contains(it.id) })
-        return emptyList()
+        adapter.notifyDataSetChanged()
     }
 
     private fun setUpListeners() {
@@ -92,8 +92,7 @@ class LibraryFragment : HomeBaseFragment() {
     override fun onResume() {
         super.onResume()
         libraryShows.clear()
-        libraryShows.addAll(getShows())
-        adapter.notifyDataSetChanged()
+        getShows()
     }
 
     override fun onDestroyView() {
