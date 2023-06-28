@@ -6,20 +6,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.tiviclon.TiviClon.Companion.appContainer
 import com.example.tiviclon.databinding.FragmentLibraryBinding
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.library.adapter.LibraryAdapter
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
-class LibraryFragment : HomeBaseFragment() {
+class LibraryFragment(val userId: String) : HomeBaseFragment() {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: LibraryAdapter
     private val libraryShows = mutableListOf<Show>()
-    private val allShows = mutableListOf<Show>()
+
+    private val uiScope =
+        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
+            throwable.printStackTrace()
+        })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +48,7 @@ class LibraryFragment : HomeBaseFragment() {
         setUpUI()
         setUpListeners()
         setUpRecyclerView(libraryShows)
+        setUpLivedata()
     }
 
     private fun setUpUI() {
@@ -57,13 +67,19 @@ class LibraryFragment : HomeBaseFragment() {
         }
     }
 
+    private fun setUpLivedata() {
+        appContainer.repository.getFavShows(userId).observe(viewLifecycleOwner) {
+            adapter.swapList(it)
+        }
+    }
+
     private fun setUpRecyclerView(shows: List<Show>) {
         libraryShows.clear()
         libraryShows.addAll(shows)
         adapter = LibraryAdapter(
             shows = libraryShows, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
-                activity.goShowDetail(it.id)
+                activity.goShowDetail(it.id, userId)
             },
             onLongClick = {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -77,23 +93,12 @@ class LibraryFragment : HomeBaseFragment() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun getShows() {
-        val activity = getFragmentContext() as IActionsFragment
-        val prefShows = activity.getPrefsShows()
-        val allShows = activity.getShows()
-        libraryShows.clear()
-        libraryShows.addAll(allShows.filter { prefShows.contains(it.id) })
-        adapter.notifyDataSetChanged()
-    }
-
     private fun setUpListeners() {
         //nothing to do
     }
 
     override fun onResume() {
         super.onResume()
-        libraryShows.clear()
-        getShows()
     }
 
     override fun onDestroyView() {

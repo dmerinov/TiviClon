@@ -11,9 +11,9 @@ interface Repository {
     fun getShows(): LiveData<List<Show>>
 
     fun fetchData()
-    fun getFavShows(userID: String): LiveData<List<String>>
+    fun getFavShows(userID: String): LiveData<List<Show>>
 
-    fun getDetailShow(showID: Int): LiveData<VODetailShow>
+    fun getDetailShow(showID: String, userId: String): LiveData<DetailShow>
 
     fun getLoggedUser(): String?
 

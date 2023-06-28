@@ -9,13 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.example.tiviclon.R
+import com.example.tiviclon.TiviClon.Companion.appContainer
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.*
 
-class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
+class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragment() {
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
 
@@ -25,7 +26,6 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
             val activity = getFragmentContext() as IActionsFragment
             activity.hideProgressBar()
         })
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,9 +42,19 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val activity = getFragmentContext() as IActionsFragment
-        activity.getDetailShows(showId, uiScope) { setUpUI(it) }
-        setUpListeners()
+        setUpLivedata()
+    }
+
+    private fun setUpLivedata() { //TODO VER CON ROBERTO MAÑANA
+
+        showId?.let { showId ->
+            appContainer.repository.getDetailShow(showID = showId, userId = userId)
+                .observe(viewLifecycleOwner) {
+                    val collectedShow = it
+                    setUpUI(collectedShow)
+                    setUpListeners(collectedShow.favorite)
+                }
+        }
     }
 
     private fun setUpUI(showVm: DetailShow) {
@@ -76,54 +86,29 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
                 append(" ")
                 append(genres)
             }
-            btFavToggle
             context?.let {
                 Glide.with(it).load(showVm.coverImage).into(ivStockImage)
             }
-            isShowFav()
-        }
-    }
 
-    private fun setUpListeners() {
-        with(binding) {
-            btFavToggle.setOnClickListener {
-                val activity = getFragmentContext() as IActionsFragment
-                val list = activity.getPrefsShows()
-                uiScope.launch {
-                    list?.let { list ->
-                        if (
-                            list.contains(showId)
-                        ) {
-                            setFavBinding(false)
-                            activity.deletePrefShow(showId.toString())
-
-                        } else {
-                            setFavBinding(true)
-                            activity.setPrefShow(showId.toString())
-                        }
-                    }
-                    }
-                }
-            }
-        }
-
-    private fun isShowFav() {
-        val activity = getFragmentContext() as IActionsFragment
-        runBlocking {
-            if(activity.getPrefsShows().contains(showId)){
-                setFavBinding(true)
-            }else{
-                setFavBinding(false)
-            }
-        }
-    }
-
-    private fun setFavBinding(fav: Boolean) {
-        with(binding) {
-            if (fav) {
+            if (showVm.favorite) {
                 btFavToggle.setImageResource(R.drawable.star_fav)
             } else {
                 btFavToggle.setImageResource(R.drawable.star_not_fav)
+            }
+        }
+    }
+
+    private fun setUpListeners(isFav: Boolean) {
+        with(binding) {
+            btFavToggle.setOnClickListener {
+                //obtener usuario y show
+                uiScope.launch {
+                    if (isFav) {
+                        appContainer.repository.deleteFavUser(userId = userId, showId = showId)
+                    } else {
+                        appContainer.repository.addFavUser(userId = userId, showId = showId)
+                    }
+                }
             }
         }
     }

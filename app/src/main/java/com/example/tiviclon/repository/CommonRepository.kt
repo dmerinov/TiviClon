@@ -11,9 +11,8 @@ import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.data.database.entities.VODetailShow
 import com.example.tiviclon.data.retrofit.ApiService
-import com.example.tiviclon.mappers.toShow
-import com.example.tiviclon.mappers.toVODetailShow
-import com.example.tiviclon.mappers.toVOShows
+import com.example.tiviclon.mappers.*
+import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.Prefs
 import kotlinx.coroutines.*
@@ -69,12 +68,23 @@ class CommonRepository(
         }
     }
 
-    override fun getFavShows(userID: String): LiveData<List<String>> =
-        favoriteDao.getUserFavShows(userID).map { fav -> fav.map { it.showId } }
+    override fun getFavShows(userID: String): LiveData<List<Show>> {
+        val returnedLiveData = favoriteDao.getUserFavShows(userID).map {
+            it.map { voShow ->
+                voShow.toFavShow()
+            }
+        }
+        return returnedLiveData
+    }
 
 
-    override fun getDetailShow(showID: Int): LiveData<VODetailShow> =
-        detailShowDao.getShowByID(showID)
+    override fun getDetailShow(showID: String, userId: String): LiveData<DetailShow>{
+        val isFav = favoriteDao.isShowFav(userId,showID)
+      val returnedLivedata = detailShowDao.getShowByID(showID.toInt()).map {
+          it.toDetailShow(isFav)
+      }
+        return returnedLivedata
+    }
 
     override fun getLoggedUser(): String? =
         preferences.getLoggedUser()

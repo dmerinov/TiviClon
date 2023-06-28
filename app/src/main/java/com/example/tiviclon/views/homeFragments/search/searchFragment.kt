@@ -18,7 +18,7 @@ import com.example.tiviclon.views.homeFragments.search.adapter.SearchAdapter
 import kotlinx.coroutines.*
 import androidx.appcompat.widget.SearchView as androidSearchView
 
-class SearchFragment : HomeBaseFragment() {
+class SearchFragment(val userId: String) : HomeBaseFragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
@@ -89,6 +89,7 @@ class SearchFragment : HomeBaseFragment() {
         super.onResume()
 
     }
+
     fun filterList(filter: String) {
         val allShows = initialList
         var filteredShows = allShows.filter {
@@ -104,7 +105,7 @@ class SearchFragment : HomeBaseFragment() {
         adapter = SearchAdapter(
             showList, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
-                activity.goShowDetail(it.id)
+                activity.goShowDetail(it.id, userId)
             },
             onLongClick = {
                 Toast.makeText(context, it.title, Toast.LENGTH_SHORT).show()

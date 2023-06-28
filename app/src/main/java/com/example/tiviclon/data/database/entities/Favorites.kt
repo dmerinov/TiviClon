@@ -10,9 +10,14 @@ import androidx.room.ForeignKey
             entity = User::class,
             childColumns = ["username"],
             parentColumns = ["username"]
+        ),
+        ForeignKey(
+            entity = VOShow::class,
+            childColumns = ["showId"],
+            parentColumns = ["showId"]
         )
     ],
-    primaryKeys = ["username","showId"]
+    primaryKeys = ["username", "showId"]
 )
 data class Favorites(
     @ColumnInfo(name = "username") val name: String,

@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 
 
 interface IActionsFragment {
-    fun goShowDetail(id: Int)
+    fun goShowDetail(id: Int, userId: String)
     fun getShows(): List<Show>
 
     fun getPrefsShows() : List<Int>

@@ -11,7 +11,8 @@ fun TvShow.toShow() = Show(
     id = id,
     title = name,
     status = status,
-    image = image_thumbnail_path
+    image = image_thumbnail_path,
+    favorite = false
 )
 
 fun DetailedShow.toDetailShow() = DetailShow(
@@ -28,7 +29,8 @@ fun DetailedShow.toShow() = Show(
     id = tvShow.id,
     title = tvShow.name,
     image = tvShow.image_thumbnail_path,
-    status = tvShow.status
+    status = tvShow.status,
+    favorite = false
 )
 
 fun User.toAppUser() = AppUser(

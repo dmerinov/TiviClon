@@ -51,13 +51,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private var logged = false
     private var loggedUser = ""
     private var currentCityName = "please, enable your gps"
-    private val shows: MutableList<Show> = mutableListOf()
-    private val favShows: MutableList<String> = mutableListOf()
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
             loadShowsFromBD()
-            loadFragment(LibraryFragment())
+            loadFragment(LibraryFragment(loggedUser))
             hideProgressBar()
         })
 
@@ -78,19 +76,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         setUpState()
         setUpUI()
         setUpListeners()
-        setUpLivedata()
-    }
-
-    private fun setUpLivedata() {
-        appContainer.repository.getShows().observe(this) {
-            scope.launch(Dispatchers.IO) {
-                showProgressBar()
-                shows.clear()
-                shows.addAll(it)
-                loadFragment(LibraryFragment())
-                hideProgressBar()
-            }
-        }
     }
 
     private fun requestPermissions() {
@@ -175,7 +160,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 } else {
                     builder.setPositiveButton(getString(R.string.dialog_disconect)) { _, _ ->
                         setLoggedState(false, "")
-                        loadFragment(LibraryFragment())
+                        loadFragment(LibraryFragment(loggedUser))
 
                     }
                 }
@@ -205,12 +190,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         appContainer.repository.getLoggedUser()?.let {
             loggedUser = it
         }
-        if (logged) {
-            appContainer.repository.getFavShows(loggedUser).observe(this) {
-                favShows.clear()
-                favShows.addAll(it)
-            }
-        }
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -224,15 +203,15 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             bottomNavBar.setOnItemSelectedListener { item ->
                 when (item.itemId) {
                     R.id.action_discover -> {
-                        loadFragment(DiscoveryFragment())
+                        loadFragment(DiscoveryFragment(loggedUser))
                         true
                     }
                     R.id.action_library -> {
-                        loadFragment(LibraryFragment())
+                        loadFragment(LibraryFragment(loggedUser))
                         true
                     }
                     R.id.action_search -> {
-                        loadFragment(SearchFragment())
+                        loadFragment(SearchFragment(loggedUser))
                         true
                     }
                     else -> {
@@ -281,11 +260,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
             result.anyDenied() -> {
                 currentCityName = getString(R.string.any_permissions_denied)
-                loadFragment(LibraryFragment())
+                loadFragment(DiscoveryFragment(loggedUser))
             }
             result.allGranted() -> {
                 //TODO
-                loadFragment(LibraryFragment())
+                loadFragment(DiscoveryFragment(loggedUser))
                 with(binding) {
                     bottomNavBar.selectedItemId = R.id.action_library
                 }
@@ -307,12 +286,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         },
                         Toast.LENGTH_SHORT
                     ).show()
-                    appContainer.repository.getFavShows(loggedUser).observe(this) {
-                        favShows.clear()
-                        favShows.addAll(it)
-                    }
                     setLoggedState(true, name)
-                    loadFragment(LibraryFragment())
+                    appContainer.repository.saveLoggedUser(name)
+                    loadFragment(LibraryFragment(name))
                 }
                 RegisterActivity.RESULT_OK_REGISTER -> {
                     Toast.makeText(
@@ -334,11 +310,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         logged = isLogged
     }
 
-    override fun goShowDetail(id: Int) {
-        DetailShowActivity.navigateToShowDetailActivity(this, id)
+    override fun goShowDetail(id: Int, userId: String) {
+        DetailShowActivity.navigateToShowDetailActivity(this, id, userId)
     }
 
-    override fun getShows(): List<Show> = shows
+    override fun getShows(): List<Show> = emptyList()
 
     override fun setPrefShow(idShow: String) {
         // nothing to do
@@ -348,7 +324,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         //nothing to do
     }
 
-    override fun getPrefsShows() = favShows.map { it.toInt() }
+    override fun getPrefsShows() = emptyList<Int>()
 
     override fun getDetailShows(
         id: Int,

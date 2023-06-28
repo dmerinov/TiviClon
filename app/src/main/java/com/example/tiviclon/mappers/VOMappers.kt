@@ -11,7 +11,11 @@ fun Show.toVOShows() = VOShow(
 )
 
 fun VOShow.toShow() = Show(
-    id = showId, title, status, image
+    id = showId, title, status, image, favorite = false
+)
+
+fun VOShow.toFavShow() = Show(
+    id = showId, title, status, image, favorite = true
 )
 
 fun DetailShow.toDetailedShowVO() = VODetailShow(
@@ -26,7 +30,7 @@ fun DetailShow.toDetailedShowVO() = VODetailShow(
     year = year
 )
 
-fun VODetailShow.toDetailShow() = DetailShow(
+fun VODetailShow.toDetailShow(isFav: Boolean) = DetailShow(
     id = showId,
     title = title,
     description = description,
@@ -35,7 +39,8 @@ fun VODetailShow.toDetailShow() = DetailShow(
     coverImage = image_thumbnail_path,
     genres = toVOList(genres),
     status = status,
-    country = country
+    country = country,
+    favorite = isFav
 )
 
 fun DetailedShow.toVODetailShow() = VODetailShow(
@@ -59,7 +64,7 @@ fun toVOString(list: List<String>): String {
     var returnString = ""
     list.forEach {
         if (list.indexOf(it) == list.size - 1) {
-           returnString =  returnString.plus(it)
+            returnString = returnString.plus(it)
         } else {
             returnString = returnString.plus("$it,")
         }

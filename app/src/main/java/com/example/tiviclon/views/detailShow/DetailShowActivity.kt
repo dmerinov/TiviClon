@@ -12,7 +12,6 @@ import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
-import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -22,13 +21,16 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
 
     companion object {
         const val DETAIL_SHOW = "DETAIL_SHOW"
+        const val USERNAME = "USERNAME"
 
         fun navigateToShowDetailActivity(
             context: Context,
-            showId: Int
+            showId: Int,
+            userId: String
         ) {
             val intent = Intent(context, DetailShowActivity::class.java).apply {
                 putExtra(DETAIL_SHOW, showId)
+                putExtra(USERNAME, userId)
             }
             context.startActivity(intent)
         }
@@ -53,8 +55,8 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
         appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
-        initFragments()
         setUpLivedata()
+        initFragments()
     }
 
     override fun hideProgressBar() {
@@ -73,6 +75,17 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
         }
     }
 
+    private fun setUpLivedata() {
+        /*appContainer.repository.getLoggedUser()?.let {
+            appContainer.repository.getFavShows(it).observe(this) {
+                uiScope.launch(Dispatchers.IO) {
+                    favShows.clear()
+                    favShows.addAll(it)
+                }
+            }
+        }*/
+    }
+
     private fun setUpUI() {
         with(binding) {
             appBar.setTitleTextColor(Color.WHITE)
@@ -81,29 +94,10 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
         }
     }
 
-    private fun setUpLivedata() { //TODO VER CON ROBERTO MAÑANA
-        val intent = Intent()
-        val showId = intent.extras?.getInt(DETAIL_SHOW)
-
-        appContainer.repository.getLoggedUser()?.let {
-            appContainer.repository.getFavShows(it).observe(this) {
-                uiScope.launch(Dispatchers.IO) {
-                    favShows.clear()
-                    favShows.addAll(it)
-                }
-            }
-        }
-        showId?.let {
-            appContainer.repository.getDetailShow(showID = it).observe(this) {
-                collectedShow = it.toDetailShow()
-                initFragments()
-            }
-        }
-    }
-
     private fun initFragments() {
-        val showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
-        loadFragment(DetailShowFragment(showId))
+        val showId = intent.extras?.getInt(DETAIL_SHOW)
+        val userId = intent.extras?.getString(USERNAME)
+        loadFragment(DetailShowFragment(showId.toString(), userId ?: ""))
     }
 
     private fun setUpListeners() {
@@ -116,7 +110,7 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
         transaction.commit()
     }
 
-    override fun goShowDetail(id: Int) {
+    override fun goShowDetail(id: Int, userId: String) {
 
     }
 

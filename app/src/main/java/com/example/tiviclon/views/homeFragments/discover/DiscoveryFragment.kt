@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.R
+import com.example.tiviclon.TiviClon
 import com.example.tiviclon.databinding.FragmentDiscoveryBinding
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
@@ -15,7 +16,7 @@ import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.discover.adapter.DiscoverAdapter
 import com.example.tiviclon.views.homeFragments.discover.adapter.PopularAdapter
 
-class DiscoveryFragment : HomeBaseFragment() {
+class DiscoveryFragment(val userId: String) : HomeBaseFragment() {
 
     private var _binding: FragmentDiscoveryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
@@ -44,11 +45,19 @@ class DiscoveryFragment : HomeBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpUI()
         setUpListeners()
-        getShows()
+        setUpRecyclerView(mutableListOf())
+        setUpLivedata()
     }
 
     private fun setUpListeners() {
         with(binding) {
+        }
+    }
+
+    private fun setUpLivedata() {
+        TiviClon.appContainer.repository.getShows().observe(viewLifecycleOwner) {
+            popularAdapter.swapList(it)
+            locationAdapter.swapList(it)
         }
     }
 
@@ -75,18 +84,18 @@ class DiscoveryFragment : HomeBaseFragment() {
         }
     }
 
-    private fun setUpRecyclerView(shows: List<Show>) {
+    private fun setUpRecyclerView(shows: MutableList<Show>) {
         locationAdapter = DiscoverAdapter(
             shows = shows, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
-                activity.goShowDetail(it.id)
+                activity.goShowDetail(it.id, userId = userId )
             },
             context = getFragmentContext()?.baseContext
         )
         popularAdapter = PopularAdapter(
             shows = shows, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
-                activity.goShowDetail(it.id)
+                activity.goShowDetail(it.id, userId)
             },
             context = getFragmentContext()?.baseContext
         )
@@ -100,11 +109,6 @@ class DiscoveryFragment : HomeBaseFragment() {
             rvShowListPopular.adapter = popularAdapter
 
         }
-    }
-
-    private fun getShows() {
-        val activity = getFragmentContext() as IActionsFragment
-        setUpRecyclerView(activity.getShows())
     }
 
     override fun onDestroyView() {
