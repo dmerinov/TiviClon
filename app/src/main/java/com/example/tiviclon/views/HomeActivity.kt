@@ -162,7 +162,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                     builder.setPositiveButton(getString(R.string.dialog_disconect)) { _, _ ->
                         setLoggedState(false, "")
                         loadFragment(DiscoveryFragment(loggedUser))
-                        with(binding){
+                        with(binding) {
                             bottomNavBar.selectedItemId = R.id.action_discover
                         }
 
@@ -297,6 +297,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                     setLoggedState(true, name)
                     appContainer.repository.saveLoggedUser(name)
                     loadFragment(DiscoveryFragment(name))
+                    with(binding) {
+                        bottomNavBar.selectedItemId = R.id.action_discover
+                    }
                 }
                 RegisterActivity.RESULT_OK_REGISTER -> {
                     Toast.makeText(
