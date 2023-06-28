@@ -55,7 +55,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
             loadShowsFromBD()
-            loadFragment(LibraryFragment(loggedUser))
+            loadFragment(DiscoveryFragment(loggedUser))
             hideProgressBar()
         })
 
@@ -72,10 +72,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         setContentView(binding.root)
         appContainer = TiviClon.appContainer
 
-        requestPermissions()
         setUpState()
         setUpUI()
         setUpListeners()
+        requestPermissions()
     }
 
     private fun requestPermissions() {
@@ -96,6 +96,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 requestLocation()
             }
         }
+        request.send()
     }
 
     private fun loadShowsFromBD() {
@@ -160,7 +161,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 } else {
                     builder.setPositiveButton(getString(R.string.dialog_disconect)) { _, _ ->
                         setLoggedState(false, "")
-                        loadFragment(LibraryFragment(loggedUser))
+                        loadFragment(DiscoveryFragment(loggedUser))
+                        with(binding){
+                            bottomNavBar.selectedItemId = R.id.action_discover
+                        }
+
 
                     }
                 }
@@ -261,12 +266,15 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             result.anyDenied() -> {
                 currentCityName = getString(R.string.any_permissions_denied)
                 loadFragment(DiscoveryFragment(loggedUser))
+                with(binding) {
+                    bottomNavBar.selectedItemId = R.id.action_discover
+                }
             }
             result.allGranted() -> {
                 //TODO
                 loadFragment(DiscoveryFragment(loggedUser))
                 with(binding) {
-                    bottomNavBar.selectedItemId = R.id.action_library
+                    bottomNavBar.selectedItemId = R.id.action_discover
                 }
             }
         }
@@ -288,7 +296,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                     ).show()
                     setLoggedState(true, name)
                     appContainer.repository.saveLoggedUser(name)
-                    loadFragment(LibraryFragment(name))
+                    loadFragment(DiscoveryFragment(name))
                 }
                 RegisterActivity.RESULT_OK_REGISTER -> {
                     Toast.makeText(

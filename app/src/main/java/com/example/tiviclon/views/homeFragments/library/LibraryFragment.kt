@@ -23,7 +23,6 @@ class LibraryFragment(val userId: String) : HomeBaseFragment() {
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: LibraryAdapter
-    private val libraryShows = mutableListOf<Show>()
 
     private val uiScope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
@@ -47,7 +46,7 @@ class LibraryFragment(val userId: String) : HomeBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpUI()
         setUpListeners()
-        setUpRecyclerView(libraryShows)
+        setUpRecyclerView(mutableListOf())
         setUpLivedata()
     }
 
@@ -73,11 +72,9 @@ class LibraryFragment(val userId: String) : HomeBaseFragment() {
         }
     }
 
-    private fun setUpRecyclerView(shows: List<Show>) {
-        libraryShows.clear()
-        libraryShows.addAll(shows)
+    private fun setUpRecyclerView(shows: MutableList<Show>) {
         adapter = LibraryAdapter(
-            shows = libraryShows, onClick = {
+            shows = shows, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
                 activity.goShowDetail(it.id, userId)
             },
