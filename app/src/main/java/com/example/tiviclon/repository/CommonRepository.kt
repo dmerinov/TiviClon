@@ -79,9 +79,8 @@ class CommonRepository(
 
 
     override fun getDetailShow(showID: String, userId: String): LiveData<DetailShow>{
-        val isFav = favoriteDao.isShowFav(userId,showID)
       val returnedLivedata = detailShowDao.getShowByID(showID.toInt()).map {
-          it.toDetailShow(isFav)
+          it.toDetailShow(false)
       }
         return returnedLivedata
     }

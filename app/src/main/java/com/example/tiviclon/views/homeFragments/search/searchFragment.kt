@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.tiviclon.TiviClon
 import com.example.tiviclon.databinding.FragmentSearchBinding
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
@@ -24,7 +25,7 @@ class SearchFragment(val userId: String) : HomeBaseFragment() {
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: SearchAdapter
     private var showList: MutableList<Show> = mutableListOf()
-    private var initialList: MutableList<Show> = mutableListOf()
+    private var initialShowList: MutableList<Show> = mutableListOf()
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.Main + job)
 
@@ -51,22 +52,10 @@ class SearchFragment(val userId: String) : HomeBaseFragment() {
         setUpUI()
         setUpListeners()
         setUpRecyclerView()
-        if (showList.isEmpty()) {
-            uiScope.launch(Dispatchers.IO) {
-                withContext(Dispatchers.Main) {
-                }
-                //asyncOperation
-                async {
-                    getShows()
-                }.await()
-                withContext(Dispatchers.Main) {
-                    adapter.notifyDataSetChanged()
-                }
-            }
-        }
+        setUpLivedata()
     }
 
-    fun setUpListeners() {
+    private fun setUpListeners() {
         with(binding) {
             svShowSearch.setOnQueryTextListener(object :
                 androidSearchView.OnQueryTextListener {
@@ -85,18 +74,25 @@ class SearchFragment(val userId: String) : HomeBaseFragment() {
         }
     }
 
+    private fun setUpLivedata() {
+        TiviClon.appContainer.repository.getShows().observe(viewLifecycleOwner) {
+            adapter.swapList(it)
+            initialShowList.addAll(it)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
 
     }
 
     fun filterList(filter: String) {
-        val allShows = initialList
+        val allShows = initialShowList
         var filteredShows = allShows.filter {
             it.title.contains(filter)
         }
         if (filteredShows.isEmpty()) {
-            filteredShows = allShows
+            filteredShows
         }
         updateList(filteredShows)
     }
@@ -131,13 +127,6 @@ class SearchFragment(val userId: String) : HomeBaseFragment() {
             activity.updateAppBarText("Buscar")
             svShowSearch.queryHint = "titulo de la serie"
         }
-    }
-
-    private fun getShows() {
-        val activity = getFragmentContext() as IActionsFragment
-        showList.clear()
-        showList.addAll(activity.getShows())
-        initialList.addAll(showList)
     }
 
     override fun onDestroyView() {
