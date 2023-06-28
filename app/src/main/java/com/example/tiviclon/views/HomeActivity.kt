@@ -255,7 +255,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         currentCityName = countryName
     }
 
-    override fun getLocation() = currentCityName
+    override fun getLocation(): String {
+        requestLocation()
+        return currentCityName
+    }
 
     override fun onPermissionsResult(result: List<PermissionStatus>) {
         requestLocation()
