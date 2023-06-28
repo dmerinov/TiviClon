@@ -11,6 +11,9 @@ interface FavoriteDao {
     @Query("SELECT * FROM VOShow WHERE showId in (SELECT showId FROM favorites WHERE username = :userId)")
     fun getUserFavShows(userId: String): LiveData<List<VOShow>>
 
+    @Query("SELECT COUNT(*) FROM Favorites WHERE (showId = :id and username = :userId)")
+    fun isShowFav(id: Int, userId: String): Int
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insert(vararg fav: Favorites)
 

@@ -5,9 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.VODetailShow
-import com.example.tiviclon.model.application.DetailShow
 
 @Dao
 interface DetailShowDao {

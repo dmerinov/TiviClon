@@ -9,7 +9,6 @@ import com.example.tiviclon.data.database.dao.ShowDao
 import com.example.tiviclon.data.database.dao.UserDao
 import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
-import com.example.tiviclon.data.database.entities.VODetailShow
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.mappers.*
 import com.example.tiviclon.model.application.DetailShow
@@ -78,10 +77,10 @@ class CommonRepository(
     }
 
 
-    override fun getDetailShow(showID: String, userId: String): LiveData<DetailShow>{
-      val returnedLivedata = detailShowDao.getShowByID(showID.toInt()).map {
-          it.toDetailShow(false)
-      }
+    override fun getDetailShow(showID: String, userId: String): LiveData<DetailShow> {
+        val returnedLivedata = detailShowDao.getShowByID(showID.toInt()).map {
+            it.toDetailShow(favoriteDao.isShowFav(showID.toInt(), userId) == 1)
+        }
         return returnedLivedata
     }
 
