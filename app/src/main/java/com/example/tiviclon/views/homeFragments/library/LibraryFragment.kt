@@ -23,11 +23,7 @@ class LibraryFragment(val userId: String) : HomeBaseFragment() {
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: LibraryAdapter
-
-    private val uiScope =
-        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
-            throwable.printStackTrace()
-        })
+    private val showList = mutableListOf<Show>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +42,7 @@ class LibraryFragment(val userId: String) : HomeBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpUI()
         setUpListeners()
-        setUpRecyclerView(mutableListOf())
+        setUpRecyclerView(showList)
         setUpLivedata()
     }
 

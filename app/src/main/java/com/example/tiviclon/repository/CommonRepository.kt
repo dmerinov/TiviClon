@@ -7,6 +7,7 @@ import com.example.tiviclon.data.database.dao.DetailShowDao
 import com.example.tiviclon.data.database.dao.FavoriteDao
 import com.example.tiviclon.data.database.dao.ShowDao
 import com.example.tiviclon.data.database.dao.UserDao
+import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.mappers.*
@@ -107,8 +108,10 @@ class CommonRepository(
             val userFavList = show.favoriteList.toMutableList()
             if (userFavList.contains(userId)) {
                 userFavList.remove(userId)
+                favoriteDao.delete(Favorites(userId, show.id.toString()))
             } else {
                 userFavList.add(userId)
+                favoriteDao.insert(Favorites(userId, show.id.toString()))
             }
             detailShowDao.updateShow(toVOString(userFavList.toList()), showId = show.id.toString())
             true
