@@ -8,17 +8,17 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
+import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.*
 
-class DetailShowActivity : AppCompatActivity(), IActionsFragment {
+class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
 
     companion object {
         const val DETAIL_SHOW = "DETAIL_SHOW"
@@ -35,7 +35,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     }
 
     private lateinit var binding: ActivityDetailShowBinding
-    private lateinit var collectedShow: DetailShow
+    private var collectedShow = DetailShow()
     private lateinit var appContainer: AppContainer
     private val favShows = mutableListOf<String>()
 
@@ -81,13 +81,22 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         }
     }
 
-    private fun setUpLivedata() {
+    private fun setUpLivedata() { //TODO VER CON ROBERTO MAÑANA
+        val intent = Intent()
+        val showId = intent.extras?.getInt(DETAIL_SHOW)
+
         appContainer.repository.getLoggedUser()?.let {
             appContainer.repository.getFavShows(it).observe(this) {
                 uiScope.launch(Dispatchers.IO) {
                     favShows.clear()
                     favShows.addAll(it)
                 }
+            }
+        }
+        showId?.let {
+            appContainer.repository.getDetailShow(showID = it).observe(this) {
+                collectedShow = it.toDetailShow()
+                initFragments()
             }
         }
     }
@@ -139,24 +148,7 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         scope: CoroutineScope,
         onShowRetrieved: (DetailShow) -> Unit
     ) {
-        val liveDataDetailShow = MutableLiveData<DetailShow>()
-        liveDataDetailShow.observe(this) {
-            scope.launch(Dispatchers.IO) {
-                withContext(Dispatchers.Main) {
-                    showProgressBar()
-                }
-                withContext(Dispatchers.Main) {
-                    it?.let {
-                        onShowRetrieved(it)
-                    }
-                    hideProgressBar()
-                }
-            }
-        }
-        scope.launch {
-            collectedShow = appContainer.repository.getDetailShow(id)
-            liveDataDetailShow.postValue(collectedShow)
-        }
+        onShowRetrieved(collectedShow)
     }
 
     override fun onDestroy() {
