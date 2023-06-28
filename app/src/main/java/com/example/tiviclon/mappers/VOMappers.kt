@@ -18,7 +18,7 @@ fun VOShow.toFavShow() = Show(
     id = showId, title, status, image, favorite = true
 )
 
-fun DetailShow.toDetailedShowVO() = VODetailShow(
+fun DetailShow.toVoDetailShow() = VODetailShow(
     showId = id,
     title = title,
     status = status,
@@ -27,10 +27,11 @@ fun DetailShow.toDetailedShowVO() = VODetailShow(
     genres = toVOString(genres),
     description = description,
     image_thumbnail_path = coverImage,
-    year = year
+    year = year,
+    favorite = toVOString(favoriteList)
 )
 
-fun VODetailShow.toDetailShow(isFav: Boolean) = DetailShow(
+fun VODetailShow.toDetailShow() = DetailShow(
     id = showId,
     title = title,
     description = description,
@@ -40,7 +41,7 @@ fun VODetailShow.toDetailShow(isFav: Boolean) = DetailShow(
     genres = toVOList(genres),
     status = status,
     country = country,
-    favorite = isFav
+    favoriteList = toVOList(favorite)
 )
 
 fun DetailedShow.toVODetailShow() = VODetailShow(
@@ -52,8 +53,8 @@ fun DetailedShow.toVODetailShow() = VODetailShow(
     genres = toVOString(tvShow.genres),
     description = tvShow.description,
     image_thumbnail_path = tvShow.image_thumbnail_path,
-    year = tvShow.start_date
-
+    year = tvShow.start_date,
+    favorite = ""
 )
 
 fun toVOList(string: String): List<String> {

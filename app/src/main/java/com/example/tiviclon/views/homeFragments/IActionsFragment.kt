@@ -11,9 +11,7 @@ interface IActionsFragment {
 
     fun getPrefsShows() : List<Int>
 
-    fun deletePrefShow(idShow: String)
-
-    fun setPrefShow(idShow: String)
+    fun updatePrefShow(show: DetailShow)
 
     fun getDetailShows(id: Int, scope: CoroutineScope, onShowRetrieved: (DetailShow) -> Unit)
 

@@ -7,7 +7,6 @@ import com.example.tiviclon.data.database.dao.DetailShowDao
 import com.example.tiviclon.data.database.dao.FavoriteDao
 import com.example.tiviclon.data.database.dao.ShowDao
 import com.example.tiviclon.data.database.dao.UserDao
-import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.data.retrofit.ApiService
 import com.example.tiviclon.mappers.*
@@ -79,7 +78,7 @@ class CommonRepository(
 
     override fun getDetailShow(showID: String, userId: String): LiveData<DetailShow> {
         val returnedLivedata = detailShowDao.getShowByID(showID.toInt()).map {
-            it.toDetailShow(favoriteDao.isShowFav(showID.toInt(), userId) == 1)
+            it.toDetailShow()
         }
         return returnedLivedata
     }
@@ -102,19 +101,16 @@ class CommonRepository(
         return userDao.getAllUsers()
     }
 
-    override suspend fun deleteFavUser(userId: String, showId: String): Boolean {
+    override suspend fun updateFavUser(userId: String, show: DetailShow): Boolean {
         val success: Boolean = try {
-            favoriteDao.delete(Favorites(userId, showId))
-            true
-        } catch (e: java.lang.Exception) {
-            false
-        }
-        return success
-    }
 
-    override suspend fun addFavUser(userId: String, showId: String): Boolean {
-        val success: Boolean = try {
-            favoriteDao.insert(Favorites(userId, showId))
+            val userFavList = show.favoriteList.toMutableList()
+            if (userFavList.contains(userId)) {
+                userFavList.remove(userId)
+            } else {
+                userFavList.add(userId)
+            }
+            detailShowDao.updateShow(toVOString(userFavList.toList()), showId = show.id.toString())
             true
         } catch (e: java.lang.Exception) {
             false

@@ -2,7 +2,6 @@ package com.example.tiviclon.repository
 
 import androidx.lifecycle.LiveData
 import com.example.tiviclon.data.database.entities.User
-import com.example.tiviclon.data.database.entities.VODetailShow
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 
@@ -29,9 +28,7 @@ interface Repository {
 
     fun getAllUsers(): LiveData<List<User>>
 
-    suspend fun deleteFavUser(userId: String, showId: String): Boolean
-
-    suspend fun addFavUser(userId: String, showId: String): Boolean
+    suspend fun updateFavUser(userId:String, show: DetailShow): Boolean
 
     suspend fun addUserDB(username: String, password: String): Boolean
 }

@@ -296,6 +296,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                     ).show()
                     setLoggedState(true, name)
                     appContainer.repository.saveLoggedUser(name)
+                    loggedUser = name
                     loadFragment(DiscoveryFragment(name))
                     with(binding) {
                         bottomNavBar.selectedItemId = R.id.action_discover
@@ -327,12 +328,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     override fun getShows(): List<Show> = emptyList()
 
-    override fun setPrefShow(idShow: String) {
-        // nothing to do
-    }
-
-    override fun deletePrefShow(idShow: String) {
-        //nothing to do
+    override fun updatePrefShow(show: DetailShow) {
+        //nothingtodo
     }
 
     override fun getPrefsShows() = emptyList<Int>()

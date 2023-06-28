@@ -121,19 +121,11 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
 
     override fun getPrefsShows() = favShows.map { it.toInt() }
 
-    override fun deletePrefShow(idShow: String) {
+    override fun updatePrefShow(show: DetailShow) {
         val idUser = appContainer.repository.getLoggedUser()
         uiScope.launch {
-            val result = appContainer.repository.deleteFavUser(idUser.toString(), idShow)
+            val result = appContainer.repository.updateFavUser(idUser.toString(), show)
             Log.i("CONTROL_MESSAGES", "delete show from fav result: $result")
-        }
-    }
-
-    override fun setPrefShow(idShow: String) {
-        val idUser = appContainer.repository.getLoggedUser()
-        uiScope.launch {
-            val result = appContainer.repository.addFavUser(idUser.toString(), idShow)
-            Log.i("CONTROL_MESSAGES", "inserted show from fav result: $result")
         }
     }
 

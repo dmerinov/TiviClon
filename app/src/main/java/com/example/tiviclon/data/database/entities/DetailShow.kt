@@ -16,4 +16,5 @@ data class VODetailShow(
     @ColumnInfo(name = "description") val description: String,
     @ColumnInfo(name = "image_thumb") val image_thumbnail_path: String,
     @ColumnInfo(name = "year") val year: String,
+    @ColumnInfo(name = "favorite") val favorite: String
 )

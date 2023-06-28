@@ -45,14 +45,14 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
         setUpLivedata()
     }
 
-    private fun setUpLivedata() { //TODO VER CON ROBERTO MAÑANA
+    private fun setUpLivedata() {
 
         showId?.let { showId ->
             appContainer.repository.getDetailShow(showID = showId, userId = userId)
                 .observe(viewLifecycleOwner) {
                     val collectedShow = it
                     setUpUI(collectedShow)
-                    setUpListeners(collectedShow.favorite)
+                    setUpListeners(collectedShow)
                 }
         }
     }
@@ -90,7 +90,7 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
                 Glide.with(it).load(showVm.coverImage).into(ivStockImage)
             }
 
-            if (showVm.favorite) {
+            if (showVm.favoriteList.contains(userId)) {
                 btFavToggle.setImageResource(R.drawable.star_fav)
             } else {
                 btFavToggle.setImageResource(R.drawable.star_not_fav)
@@ -98,16 +98,12 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
         }
     }
 
-    private fun setUpListeners(isFav: Boolean) {
+    private fun setUpListeners(collectedShow: DetailShow) {
         with(binding) {
             btFavToggle.setOnClickListener {
                 //obtener usuario y show
                 uiScope.launch {
-                    if (isFav) {
-                        appContainer.repository.deleteFavUser(userId = userId, showId = showId)
-                    } else {
-                        appContainer.repository.addFavUser(userId = userId, showId = showId)
-                    }
+                        appContainer.repository.updateFavUser(userId,collectedShow)
                 }
             }
         }
