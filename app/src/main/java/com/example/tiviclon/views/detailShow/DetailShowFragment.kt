@@ -58,12 +58,12 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
                         favourite?.let {
                             val detailshow = collectedShow.toDetailShow(true)
                             setUpUI(detailshow)
-                            setUpListeners(detailshow)
+                            setUpListeners(detailshow, true)
                         }
                     } else {
-                        val detailshow = appContainer.repository.getDetailShow(showId)
-                        setUpUI(detailshow.toDetailShow(false))
-                        setUpListeners(detailshow.toDetailShow(false))
+                        val detailshow = appContainer.repository.getDetailShow(showId).toDetailShow(false)
+                        setUpUI(detailshow)
+                        setUpListeners(detailshow,false)
                     }
 
                 }
@@ -111,12 +111,14 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
         }
     }
 
-    private fun setUpListeners(collectedShow: DetailShow) {
-        with(binding) {
-            btFavToggle.setOnClickListener {
-                //obtener usuario y show
-                uiScope.launch {
-                    appContainer.repository.updateFavUser(userId, collectedShow)
+    private fun setUpListeners(collectedShow: DetailShow, favClickable: Boolean) {
+        if(favClickable){
+            with(binding) {
+                btFavToggle.setOnClickListener {
+                    //obtener usuario y show
+                    uiScope.launch {
+                        appContainer.repository.updateFavUser(userId, collectedShow)
+                    }
                 }
             }
         }
