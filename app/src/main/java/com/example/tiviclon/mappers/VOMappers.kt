@@ -1,5 +1,6 @@
 package com.example.tiviclon.mappers
 
+import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.VODetailShow
 import com.example.tiviclon.data.database.entities.VOShow
 import com.example.tiviclon.model.application.DetailShow
@@ -27,11 +28,10 @@ fun DetailShow.toVoDetailShow() = VODetailShow(
     genres = toVOString(genres),
     description = description,
     image_thumbnail_path = coverImage,
-    year = year,
-    favorite = toVOString(favoriteList)
+    year = year
 )
 
-fun VODetailShow.toDetailShow() = DetailShow(
+fun VODetailShow.toDetailShow(isFav: Boolean) = DetailShow(
     id = showId,
     title = title,
     description = description,
@@ -41,7 +41,7 @@ fun VODetailShow.toDetailShow() = DetailShow(
     genres = toVOList(genres),
     status = status,
     country = country,
-    favoriteList = toVOList(favorite)
+    favorite = isFav
 )
 
 fun DetailedShow.toVODetailShow() = VODetailShow(
@@ -54,7 +54,6 @@ fun DetailedShow.toVODetailShow() = VODetailShow(
     description = tvShow.description,
     image_thumbnail_path = tvShow.image_thumbnail_path,
     year = tvShow.start_date,
-    favorite = ""
 )
 
 fun toVOList(string: String): List<String> {

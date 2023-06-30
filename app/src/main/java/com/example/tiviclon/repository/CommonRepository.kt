@@ -9,8 +9,12 @@ import com.example.tiviclon.data.database.dao.ShowDao
 import com.example.tiviclon.data.database.dao.UserDao
 import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
+import com.example.tiviclon.data.database.entities.VODetailShow
 import com.example.tiviclon.data.retrofit.ApiService
-import com.example.tiviclon.mappers.*
+import com.example.tiviclon.mappers.toFavShow
+import com.example.tiviclon.mappers.toShow
+import com.example.tiviclon.mappers.toVODetailShow
+import com.example.tiviclon.mappers.toVOShows
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.sharedPrefs.Prefs
@@ -77,12 +81,16 @@ class CommonRepository(
     }
 
 
-    override fun getDetailShow(showID: String, userId: String): LiveData<DetailShow> {
-        val returnedLivedata = detailShowDao.getShowByID(showID.toInt()).map {
-            it.toDetailShow()
-        }
+    override fun getDetailShow(
+        showID: String,
+        userId: String
+    ): LiveData<VODetailShow> {
+        val returnedLivedata =
+            detailShowDao.getFavShowByID(showID.toInt(), userId)
         return returnedLivedata
     }
+
+    override fun getDetailShow(showID: String): VODetailShow = detailShowDao.getShowByID(showID.toInt())
 
     override fun getLoggedUser(): String? =
         preferences.getLoggedUser()
@@ -104,21 +112,18 @@ class CommonRepository(
 
     override suspend fun updateFavUser(userId: String, show: DetailShow): Boolean {
         val success: Boolean = try {
-
-            val userFavList = show.favoriteList.toMutableList()
-            if (userFavList.contains(userId)) {
-                userFavList.remove(userId)
+            if (show.favorite) {
                 favoriteDao.delete(Favorites(userId, show.id.toString()))
             } else {
-                userFavList.add(userId)
                 favoriteDao.insert(Favorites(userId, show.id.toString()))
             }
-            detailShowDao.updateShow(toVOString(userFavList.toList()), showId = show.id.toString())
+            // detailShowDao.updateShow(toVOString(userFavList.toList()), showId = show.id.toString())
             true
         } catch (e: java.lang.Exception) {
             false
         }
         return success
+        return false
     }
 
     override suspend fun addUserDB(username: String, password: String): Boolean {

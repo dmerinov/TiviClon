@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon.Companion.appContainer
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
+import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -50,9 +51,21 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
         showId?.let { showId ->
             appContainer.repository.getDetailShow(showID = showId, userId = userId)
                 .observe(viewLifecycleOwner) {
-                    val collectedShow = it
-                    setUpUI(collectedShow)
-                    setUpListeners(collectedShow)
+
+                    val collectedShow = it// show detail
+                    if (collectedShow != null) {
+                        val favourite = collectedShow.favorite // Favorite
+                        favourite?.let {
+                            val detailshow = collectedShow.toDetailShow(true)
+                            setUpUI(detailshow)
+                            setUpListeners(detailshow)
+                        }
+                    } else {
+                        val detailshow = appContainer.repository.getDetailShow(showId)
+                        setUpUI(detailshow.toDetailShow(false))
+                        setUpListeners(detailshow.toDetailShow(false))
+                    }
+
                 }
         }
     }
@@ -90,7 +103,7 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
                 Glide.with(it).load(showVm.coverImage).into(ivStockImage)
             }
 
-            if (showVm.favoriteList.contains(userId)) {
+            if (showVm.favorite) {
                 btFavToggle.setImageResource(R.drawable.star_fav)
             } else {
                 btFavToggle.setImageResource(R.drawable.star_not_fav)
@@ -103,7 +116,7 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
             btFavToggle.setOnClickListener {
                 //obtener usuario y show
                 uiScope.launch {
-                        appContainer.repository.updateFavUser(userId,collectedShow)
+                    appContainer.repository.updateFavUser(userId, collectedShow)
                 }
             }
         }

@@ -1,7 +1,9 @@
 package com.example.tiviclon.repository
 
 import androidx.lifecycle.LiveData
+import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.User
+import com.example.tiviclon.data.database.entities.VODetailShow
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
 
@@ -12,7 +14,9 @@ interface Repository {
     fun fetchData()
     fun getFavShows(userID: String): LiveData<List<Show>>
 
-    fun getDetailShow(showID: String, userId: String): LiveData<DetailShow>
+    fun getDetailShow(showID: String, userId: String):  LiveData<VODetailShow>
+
+    fun getDetailShow(showID: String): VODetailShow
 
     fun getLoggedUser(): String?
 
