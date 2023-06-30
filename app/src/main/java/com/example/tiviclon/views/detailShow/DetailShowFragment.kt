@@ -33,8 +33,7 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentShowDetailBinding.inflate(inflater, container, false)
@@ -58,12 +57,13 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
                         favourite?.let {
                             val detailshow = collectedShow.toDetailShow(true)
                             setUpUI(detailshow)
-                            setUpListeners(detailshow, true)
+                            setUpListeners(detailshow, userId)
                         }
                     } else {
-                        val detailshow = appContainer.repository.getDetailShow(showId).toDetailShow(false)
+                        val detailshow =
+                            appContainer.repository.getDetailShow(showId).toDetailShow(false)
                         setUpUI(detailshow)
-                        setUpListeners(detailshow,false)
+                        setUpListeners(detailshow, userId)
                     }
 
                 }
@@ -111,8 +111,8 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
         }
     }
 
-    private fun setUpListeners(collectedShow: DetailShow, favClickable: Boolean) {
-        if(favClickable){
+    private fun setUpListeners(collectedShow: DetailShow, username: String) {
+        if (username.isNotBlank()) {
             with(binding) {
                 btFavToggle.setOnClickListener {
                     //obtener usuario y show

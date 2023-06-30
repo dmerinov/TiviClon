@@ -161,6 +161,7 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 } else {
                     builder.setPositiveButton(getString(R.string.dialog_disconect)) { _, _ ->
                         setLoggedState(false, "")
+                        loggedUser = ""
                         loadFragment(DiscoveryFragment(loggedUser))
                         with(binding) {
                             bottomNavBar.selectedItemId = R.id.action_discover
