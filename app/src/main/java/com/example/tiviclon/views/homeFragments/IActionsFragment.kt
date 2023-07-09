@@ -11,8 +11,6 @@ interface IActionsFragment {
 
     fun getPrefsShows() : List<Int>
 
-    fun updatePrefShow(show: DetailShow)
-
     fun getDetailShows(id: Int, scope: CoroutineScope, onShowRetrieved: (DetailShow) -> Unit)
 
     fun hideProgressBar()

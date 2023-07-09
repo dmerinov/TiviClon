@@ -55,7 +55,6 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
         appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
-        setUpLivedata()
         initFragments()
     }
 
@@ -73,17 +72,6 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
                 binding.progressBar.visibility = View.VISIBLE
             }
         }
-    }
-
-    private fun setUpLivedata() {
-        /*appContainer.repository.getLoggedUser()?.let {
-            appContainer.repository.getFavShows(it).observe(this) {
-                uiScope.launch(Dispatchers.IO) {
-                    favShows.clear()
-                    favShows.addAll(it)
-                }
-            }
-        }*/
     }
 
     private fun setUpUI() {
@@ -120,14 +108,6 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
     }
 
     override fun getPrefsShows() = favShows.map { it.toInt() }
-
-    override fun updatePrefShow(show: DetailShow) {
-        val idUser = appContainer.repository.getLoggedUser()
-        uiScope.launch {
-            val result = appContainer.repository.updateFavUser(idUser.toString(), show)
-            Log.i("CONTROL_MESSAGES", "delete show from fav result: $result")
-        }
-    }
 
     override fun getDetailShows(
         id: Int,

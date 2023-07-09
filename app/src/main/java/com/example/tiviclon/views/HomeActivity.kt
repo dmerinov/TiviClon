@@ -332,10 +332,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     override fun getShows(): List<Show> = emptyList()
 
-    override fun updatePrefShow(show: DetailShow) {
-        //nothingtodo
-    }
-
     override fun getPrefsShows() = emptyList<Int>()
 
     override fun getDetailShows(
