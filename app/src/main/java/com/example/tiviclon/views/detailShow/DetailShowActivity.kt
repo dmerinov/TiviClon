@@ -8,15 +8,14 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
-import com.example.tiviclon.TiviClon
-import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
-import com.example.tiviclon.model.application.DetailShow
-import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.IActionsFragment
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
+class DetailShowActivity : AppCompatActivity(), IActionsFragment {
 
     companion object {
         const val DETAIL_SHOW = "DETAIL_SHOW"
@@ -36,16 +35,11 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
     }
 
     private lateinit var binding: ActivityDetailShowBinding
-    private var collectedShow = DetailShow()
-    private lateinit var appContainer: AppContainer
-    private val favShows = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailShowBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
         initFragments()
@@ -92,16 +86,6 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
     }
 
     override fun goShowDetail(id: Int, userId: String) {
-
-    }
-
-    override fun getPrefsShows() = favShows.map { it.toInt() }
-
-    override fun getDetailShows(
-        id: Int,
-        scope: CoroutineScope,
-        onShowRetrieved: (DetailShow) -> Unit
-    ) {
-        onShowRetrieved(collectedShow)
+        //nothing to do
     }
 }

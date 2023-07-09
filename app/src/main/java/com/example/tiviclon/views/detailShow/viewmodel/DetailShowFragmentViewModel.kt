@@ -1,4 +1,4 @@
-package com.example.tiviclon.views.detailShow
+package com.example.tiviclon.views.detailShow.viewmodel
 
 import androidx.lifecycle.*
 import com.example.tiviclon.TiviClon
@@ -7,7 +7,7 @@ import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
 import kotlinx.coroutines.launch
 
-class DetailShowViewModel(private val showId: String?, private val userId: String) : ViewModel() {
+class DetailShowFragmentViewModel(private val showId: String?, private val userId: String) : ViewModel() {
     private val detailShow: MutableLiveData<VODetailShow> by lazy {
         MutableLiveData<VODetailShow>().also {
             loadDetailShow()
@@ -44,7 +44,7 @@ class DetailShowViewModel(private val showId: String?, private val userId: Strin
     class Factory(private val showId: String?, private val userId: String) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return DetailShowViewModel(showId, userId) as T
+            return DetailShowFragmentViewModel(showId, userId) as T
         }
     }
 

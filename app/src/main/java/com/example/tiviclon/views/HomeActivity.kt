@@ -24,7 +24,6 @@ import com.example.tiviclon.R
 import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityHomeBinding
-import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.views.detailShow.DetailShowActivity
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -50,13 +49,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     private var logged = false
     private var loggedUser = ""
     private var currentCityName = "please, enable your gps"
-    private val scope =
-        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
-            throwable.printStackTrace()
-            loadShowsFromBD()
-            loadFragment(DiscoveryFragment(loggedUser))
-            hideProgressBar()
-        })
 
     private val request by lazy {
         permissionsBuilder(
@@ -96,10 +88,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
         }
         request.send()
-    }
-
-    private fun loadShowsFromBD() {
-        //nothing to do
     }
 
     override fun hideProgressBar() {
@@ -329,24 +317,9 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         DetailShowActivity.navigateToShowDetailActivity(this, id, userId)
     }
 
-    override fun getPrefsShows() = emptyList<Int>()
-
-    override fun getDetailShows(
-        id: Int,
-        scope: CoroutineScope,
-        onShowRetrieved: (DetailShow) -> Unit
-    ) {
-        //nothing to do
-    }
-
     override fun updateAppBarText(text: String) {
         with(binding) {
             toolbar.title = text
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        scope.cancel()
     }
 }

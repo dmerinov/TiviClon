@@ -12,13 +12,14 @@ import com.example.tiviclon.R
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
+import com.example.tiviclon.views.detailShow.viewmodel.DetailShowFragmentViewModel
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 
 class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragment() {
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private val showDetailViewModel:
-            DetailShowViewModel by viewModels { DetailShowViewModel.Factory(showId, userId) }
+            DetailShowFragmentViewModel by viewModels { DetailShowFragmentViewModel.Factory(showId, userId) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
