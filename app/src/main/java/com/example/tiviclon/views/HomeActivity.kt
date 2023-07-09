@@ -25,7 +25,6 @@ import com.example.tiviclon.TiviClon
 import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityHomeBinding
 import com.example.tiviclon.model.application.DetailShow
-import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.detailShow.DetailShowActivity
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -329,8 +328,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     override fun goShowDetail(id: Int, userId: String) {
         DetailShowActivity.navigateToShowDetailActivity(this, id, userId)
     }
-
-    override fun getShows(): List<Show> = emptyList()
 
     override fun getPrefsShows() = emptyList<Int>()
 

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -40,12 +39,6 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
     private var collectedShow = DetailShow()
     private lateinit var appContainer: AppContainer
     private val favShows = mutableListOf<String>()
-
-    val job = Job()
-    private val uiScope =
-        CoroutineScope(Dispatchers.Main + job + CoroutineExceptionHandler { _, throwable ->
-
-        })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,11 +95,6 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
 
     }
 
-    override fun getShows(): List<Show> {
-        //NOTHING TO DO
-        return emptyList()
-    }
-
     override fun getPrefsShows() = favShows.map { it.toInt() }
 
     override fun getDetailShows(
@@ -115,10 +103,5 @@ class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
         onShowRetrieved: (DetailShow) -> Unit
     ) {
         onShowRetrieved(collectedShow)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        uiScope.cancel()
     }
 }
