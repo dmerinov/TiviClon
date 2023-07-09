@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.example.tiviclon.R
-import com.example.tiviclon.TiviClon.Companion.appContainer
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
@@ -49,13 +48,10 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
                     setUpListeners(detailshow, userId)
                 }
             } else {
-                val detailshow =
-                    appContainer.repository.getDetailShow(showId)
-                        .toDetailShow(false)
-                setUpUI(detailshow)
-                setUpListeners(detailshow, userId)
+                val detailShow = showDetailViewModel.requestDetailShow(showId)
+                setUpUI(detailShow)
+                setUpListeners(detailShow, userId)
             }
-
         }
     }
 
