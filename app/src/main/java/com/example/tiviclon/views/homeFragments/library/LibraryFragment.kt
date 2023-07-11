@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tiviclon.TiviClon.Companion.appContainer
 import com.example.tiviclon.databinding.FragmentLibraryBinding
@@ -13,17 +15,16 @@ import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.library.adapter.LibraryAdapter
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import com.example.tiviclon.views.homeFragments.library.viewmodel.LibraryViewModel
 
 class LibraryFragment(val userId: String) : HomeBaseFragment() {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: LibraryAdapter
-    private val showList = mutableListOf<Show>()
+    private val libraryViewModel:
+            LibraryViewModel by viewModels { LibraryViewModel.Factory(userId) }
+    private lateinit var showList: LiveData<List<Show>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +41,10 @@ class LibraryFragment(val userId: String) : HomeBaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        showList = libraryViewModel.getShowList()
         setUpUI()
         setUpListeners()
-        setUpRecyclerView(showList)
+        setUpRecyclerView(showList.value?.toMutableList() ?: mutableListOf())
         setUpLivedata()
     }
 
