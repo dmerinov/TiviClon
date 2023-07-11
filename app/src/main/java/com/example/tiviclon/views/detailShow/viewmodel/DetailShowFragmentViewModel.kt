@@ -8,25 +8,13 @@ import com.example.tiviclon.model.application.DetailShow
 import kotlinx.coroutines.launch
 
 class DetailShowFragmentViewModel(private val showId: String?, private val userId: String) : ViewModel() {
-    private val detailShow: MutableLiveData<VODetailShow> by lazy {
-        MutableLiveData<VODetailShow>().also {
-            loadDetailShow()
-        }
-    }
+    private lateinit var detailShow: LiveData<VODetailShow>
 
-    private lateinit var liveDataObserver: LiveData<VODetailShow>
-
-    fun getDetailShow(): LiveData<VODetailShow> {
-        return detailShow
-    }
-
-    private fun loadDetailShow() {
-        showId?.let { showId ->
-            liveDataObserver =
-                TiviClon.appContainer.repository.getDetailShow(showID = showId, userId = userId)
-            liveDataObserver.observeForever {
-                detailShow.postValue(it)
-            }
+    init {
+        showId?.let {
+            detailShow = TiviClon.appContainer.repository.getDetailShow(it, userId)
+        } ?: run {
+            detailShow = MutableLiveData<VODetailShow>()
         }
     }
 
@@ -41,11 +29,12 @@ class DetailShowFragmentViewModel(private val showId: String?, private val userI
             .toDetailShow(false)
     }
 
+    fun getDetailShow() = detailShow
+
     class Factory(private val showId: String?, private val userId: String) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return DetailShowFragmentViewModel(showId, userId) as T
         }
     }
-
 }
