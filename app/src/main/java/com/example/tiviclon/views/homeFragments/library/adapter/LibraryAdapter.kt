@@ -9,7 +9,7 @@ import com.example.tiviclon.databinding.LibraryShowViewholderBinding
 import com.example.tiviclon.model.application.Show
 
 class LibraryAdapter(
-    private val shows: List<Show>,
+    private val shows: MutableList<Show>,
     private val onClick: (show: Show) -> Unit,
     private val onLongClick: (title: String) -> Unit,
     private val context: Context?
@@ -54,6 +54,12 @@ class LibraryAdapter(
 
     override fun onBindViewHolder(holder: ShowHolder, position: Int) {
         holder.bind(shows[position], shows.size)
+    }
+
+    fun swapList(list: List<Show>) {
+        shows.clear()
+        shows.addAll(list)
+        notifyDataSetChanged()
     }
 
 }

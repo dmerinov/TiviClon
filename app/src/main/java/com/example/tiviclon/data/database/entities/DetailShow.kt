@@ -1,6 +1,7 @@
 package com.example.tiviclon.data.database.entities
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -12,8 +13,9 @@ data class VODetailShow(
     @ColumnInfo(name = "status") val status: String,
     @ColumnInfo(name = "image") val image: String,
     @ColumnInfo(name = "country") val country: String,
-    @ColumnInfo(name = "genres") val genres: List<String>,
+    @ColumnInfo(name = "genres") val genres: String,
     @ColumnInfo(name = "description") val description: String,
     @ColumnInfo(name = "image_thumb") val image_thumbnail_path: String,
     @ColumnInfo(name = "year") val year: String,
+    @Embedded val favorite: Favorites? = null
 )

@@ -1,5 +1,6 @@
 package com.example.tiviclon.mappers
 
+import com.example.tiviclon.data.database.entities.Favorites
 import com.example.tiviclon.data.database.entities.VODetailShow
 import com.example.tiviclon.data.database.entities.VOShow
 import com.example.tiviclon.model.application.DetailShow
@@ -11,31 +12,36 @@ fun Show.toVOShows() = VOShow(
 )
 
 fun VOShow.toShow() = Show(
-    id = showId, title, status, image
+    id = showId, title, status, image, favorite = false
 )
 
-fun DetailShow.toDetailedShowVO() = VODetailShow(
+fun VOShow.toFavShow() = Show(
+    id = showId, title, status, image, favorite = true
+)
+
+fun DetailShow.toVoDetailShow() = VODetailShow(
     showId = id,
     title = title,
     status = status,
     image = image,
     country = country,
-    genres = genres,
+    genres = toVOString(genres),
     description = description,
     image_thumbnail_path = coverImage,
     year = year
 )
 
-fun VODetailShow.toDetailShow() = DetailShow(
+fun VODetailShow.toDetailShow(isFav: Boolean) = DetailShow(
     id = showId,
     title = title,
     description = description,
     year = year,
     image = image,
     coverImage = image_thumbnail_path,
-    genres = genres,
+    genres = toVOList(genres),
     status = status,
-    country = country
+    country = country,
+    favorite = isFav
 )
 
 fun DetailedShow.toVODetailShow() = VODetailShow(
@@ -44,9 +50,25 @@ fun DetailedShow.toVODetailShow() = VODetailShow(
     status = tvShow.status,
     image = tvShow.image_path,
     country = tvShow.country,
-    genres = tvShow.genres,
+    genres = toVOString(tvShow.genres),
     description = tvShow.description,
     image_thumbnail_path = tvShow.image_thumbnail_path,
-    year = tvShow.start_date
-
+    year = tvShow.start_date,
 )
+
+fun toVOList(string: String): List<String> {
+    return string.split(",")
+}
+
+fun toVOString(list: List<String>): String {
+    var returnString = ""
+    list.forEach {
+        if (list.indexOf(it) == list.size - 1) {
+            returnString = returnString.plus(it)
+        } else {
+            returnString = returnString.plus("$it,")
+        }
+
+    }
+    return returnString
+}

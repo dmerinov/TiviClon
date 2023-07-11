@@ -4,52 +4,58 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
-import com.example.tiviclon.data.database.TiviClonDatabase
-import com.example.tiviclon.data.database.entities.Favorites
-import com.example.tiviclon.data.retrofit.ApiService
-import com.example.tiviclon.data.retrofit.RetrofitResource
+import com.example.tiviclon.TiviClon
+import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityDetailShowBinding
-import com.example.tiviclon.mappers.toDetailShow
-import com.example.tiviclon.mappers.toDetailedShowVO
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
-import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import kotlinx.coroutines.*
-import retrofit2.Retrofit
-import retrofit2.await
-import retrofit2.converter.gson.GsonConverterFactory
 
-class DetailShowActivity : AppCompatActivity(), IActionsFragment {
+class DetailShowActivity() : AppCompatActivity(), IActionsFragment {
 
     companion object {
         const val DETAIL_SHOW = "DETAIL_SHOW"
+        const val USERNAME = "USERNAME"
 
         fun navigateToShowDetailActivity(
             context: Context,
-            showId: Int
+            showId: Int,
+            userId: String
         ) {
             val intent = Intent(context, DetailShowActivity::class.java).apply {
                 putExtra(DETAIL_SHOW, showId)
+                putExtra(USERNAME, userId)
             }
             context.startActivity(intent)
         }
     }
 
     private lateinit var binding: ActivityDetailShowBinding
-    private lateinit var collectedShow: DetailShow
+    private var collectedShow = DetailShow()
+    private lateinit var appContainer: AppContainer
+    private val favShows = mutableListOf<String>()
+
+    val job = Job()
+    private val uiScope =
+        CoroutineScope(Dispatchers.Main + job + CoroutineExceptionHandler { _, throwable ->
+
+        })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailShowBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
+        setUpLivedata()
         initFragments()
     }
 
@@ -69,6 +75,17 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         }
     }
 
+    private fun setUpLivedata() {
+        /*appContainer.repository.getLoggedUser()?.let {
+            appContainer.repository.getFavShows(it).observe(this) {
+                uiScope.launch(Dispatchers.IO) {
+                    favShows.clear()
+                    favShows.addAll(it)
+                }
+            }
+        }*/
+    }
+
     private fun setUpUI() {
         with(binding) {
             appBar.setTitleTextColor(Color.WHITE)
@@ -78,8 +95,9 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
     }
 
     private fun initFragments() {
-        val showId = intent.extras?.getSerializable(DETAIL_SHOW) as Int
-        loadFragment(DetailShowFragment(showId))
+        val showId = intent.extras?.getInt(DETAIL_SHOW)
+        val userId = intent.extras?.getString(USERNAME)
+        loadFragment(DetailShowFragment(showId.toString(), userId ?: ""))
     }
 
     private fun setUpListeners() {
@@ -92,41 +110,22 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         transaction.commit()
     }
 
-    override fun goShowDetail(id: Int) {
+    override fun goShowDetail(id: Int, userId: String) {
 
     }
 
-    override fun getShows(onShowsRetrieved: (List<Show>) -> Unit) {
-        //nothing to do
+    override fun getShows(): List<Show> {
+        //NOTHING TO DO
+        return emptyList()
     }
 
-    override fun getPrefsShows(): List<Int> {
-        //ask repository for detail shows
-        val returnList = mutableListOf<Int>()
-        val idUser = prefs.getLoggedUser()
-        getBD()?.let { bd ->
-            idUser?.let {
-                returnList.addAll(bd.favoriteDao().getUserFavShows(idUser).map { it.showId.toInt() })
-            }
-        }
-        return returnList
-    }
+    override fun getPrefsShows() = favShows.map { it.toInt() }
 
-    override fun deletePrefShow(idShow: String) {
-        val idUser = prefs.getLoggedUser()
-        getBD()?.let { bd ->
-            idUser?.let {
-                bd.favoriteDao().delete(Favorites(idUser, idShow))
-            }
-        }
-    }
-
-    override fun setPrefShow(idShow: String) {
-        val idUser = prefs.getLoggedUser()
-        getBD()?.let { bd ->
-            idUser?.let {
-                bd.favoriteDao().insert(Favorites(idUser, idShow))
-            }
+    override fun updatePrefShow(show: DetailShow) {
+        val idUser = appContainer.repository.getLoggedUser()
+        uiScope.launch {
+            val result = appContainer.repository.updateFavUser(idUser.toString(), show)
+            Log.i("CONTROL_MESSAGES", "delete show from fav result: $result")
         }
     }
 
@@ -135,38 +134,11 @@ class DetailShowActivity : AppCompatActivity(), IActionsFragment {
         scope: CoroutineScope,
         onShowRetrieved: (DetailShow) -> Unit
     ) {
-        val api = Retrofit.Builder()
-            .baseUrl(RetrofitResource.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-
-
-        scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                showProgressBar()
-            }
-
-            getBD()?.let {
-                val bdShow = it.VODetailShow().getShowByID(id)
-
-                if (bdShow != null) {
-                    collectedShow = bdShow.toDetailShow()
-                } else {
-                    collectedShow = api.getDetailedShow(id).await().toDetailShow()
-                    it.VODetailShow().insert(collectedShow.toDetailedShowVO())
-                }
-            }
-
-            withContext(Dispatchers.Main) {
-                collectedShow?.let {
-                    onShowRetrieved(it)
-                }
-                hideProgressBar()
-            }
-
-        }
+        onShowRetrieved(collectedShow)
     }
 
-    override fun getBD() = TiviClonDatabase.getInstance(applicationContext)
+    override fun onDestroy() {
+        super.onDestroy()
+        uiScope.cancel()
+    }
 }

@@ -9,7 +9,7 @@ import com.example.tiviclon.databinding.ShowSearchViewholderBinding
 import com.example.tiviclon.model.application.Show
 
 class SearchAdapter(
-    private val shows: List<Show>,
+    private val shows: MutableList<Show>,
     private val onClick: (show: Show) -> Unit,
     private val onLongClick: (show: Show) -> Unit,
     private val context: Context?
@@ -50,4 +50,10 @@ class SearchAdapter(
     }
 
     override fun getItemCount() = shows.size
+
+    fun swapList(list: List<Show>) {
+        shows.clear()
+        shows.addAll(list)
+        notifyDataSetChanged()
+    }
 }

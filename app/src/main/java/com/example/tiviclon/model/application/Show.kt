@@ -6,5 +6,6 @@ data class Show(
     val id: Int,
     val title: String,
     val status: String,
-    val image: String
+    val image: String,
+    val favorite: Boolean
 ) : Serializable

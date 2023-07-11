@@ -6,21 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.tiviclon.TiviClon.Companion.appContainer
 import com.example.tiviclon.databinding.FragmentLibraryBinding
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
 import com.example.tiviclon.views.homeFragments.library.adapter.LibraryAdapter
-import okhttp3.internal.notifyAll
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
-class LibraryFragment : HomeBaseFragment() {
+class LibraryFragment(val userId: String) : HomeBaseFragment() {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: LibraryAdapter
-    private val libraryShows = mutableListOf<Show>()
-    private val allShows = mutableListOf<Show>()
+    private val showList = mutableListOf<Show>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,10 +42,11 @@ class LibraryFragment : HomeBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpUI()
         setUpListeners()
-        getShows()
+        setUpRecyclerView(showList)
+        setUpLivedata()
     }
 
-    fun setUpUI() {
+    private fun setUpUI() {
         val activity = getFragmentContext() as FragmentCommonComunication
         activity.updateAppBarText("Biblioteca")
         if (activity.isUserLogged()) {
@@ -58,11 +62,17 @@ class LibraryFragment : HomeBaseFragment() {
         }
     }
 
-    private fun setUpRecyclerView(shows: List<Show>) {
+    private fun setUpLivedata() {
+        appContainer.repository.getFavShows(userId).observe(viewLifecycleOwner) {
+            adapter.swapList(it)
+        }
+    }
+
+    private fun setUpRecyclerView(shows: MutableList<Show>) {
         adapter = LibraryAdapter(
-            shows = libraryShows, onClick = {
+            shows = shows, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
-                activity.goShowDetail(it.id)
+                activity.goShowDetail(it.id, userId)
             },
             onLongClick = {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -73,40 +83,15 @@ class LibraryFragment : HomeBaseFragment() {
             rvShowList.layoutManager = LinearLayoutManager(getFragmentContext())
             rvShowList.adapter = adapter
         }
-    }
-
-    private fun getShows() {
-        val activity = getFragmentContext() as IActionsFragment
-        activity.getShows {
-            allShows.addAll(it)
-            libraryShows.addAll(it.filter { activity.getPrefsShows().contains(it.id) })
-            setUpRecyclerView(libraryShows)
-        }
+        adapter.notifyDataSetChanged()
     }
 
     private fun setUpListeners() {
-        with(binding) {
-            fabReload.setOnClickListener {
-                val activity = getFragmentContext() as IActionsFragment
-                val newShowsIds = activity.getPrefsShows()
-                libraryShows.clear()
-                libraryShows.addAll(allShows.filter {show ->
-                    newShowsIds.contains(show.id)
-                })
-                adapter.notifyDataSetChanged()
-            }
-        }
+        //nothing to do
     }
 
     override fun onResume() {
         super.onResume()
-        val activity = getFragmentContext() as IActionsFragment
-        val newShowsIds = activity.getPrefsShows()
-        libraryShows.clear()
-        libraryShows.addAll(allShows.filter {show ->
-            newShowsIds.contains(show.id)
-        })
-        adapter.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {

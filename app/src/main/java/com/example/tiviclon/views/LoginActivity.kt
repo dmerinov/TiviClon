@@ -6,11 +6,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import com.example.tiviclon.R
-import com.example.tiviclon.data.database.TiviClonDatabase
+import com.example.tiviclon.TiviClon
+import com.example.tiviclon.container.AppContainer
+import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.databinding.ActivityLoginBinding
 import com.example.tiviclon.model.application.AppUser
-import kotlinx.coroutines.*
 
 
 class LoginActivity : AppCompatActivity() {
@@ -29,29 +31,38 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityLoginBinding
-
-    private val scope =
-        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
-            throwable.printStackTrace()
-        })
+    private lateinit var appContainer: AppContainer
+    private val userList = mutableListOf<User>()
+    val username = MutableLiveData<String>("-1")
+    val password = MutableLiveData<String>("-1")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        appContainer = TiviClon.appContainer
         setUpUI()
         setUpListeners()
+        setUpLivedata()
     }
 
     private fun setUpUI() {
         //get attributes from xml using binding
     }
 
+    private fun setUpLivedata() {
+        appContainer.repository.getAllUsers().observe(this) {
+            userList.clear()
+            userList.addAll(it)
+        }
+    }
+
     private fun setUpListeners() {
         with(binding) {
             btLogin.setOnClickListener {
-                checkCredentials(etUsername.text.toString(), etPassword.text.toString())
+                username.value = etUsername.text.toString()
+                password.value = etPassword.text.toString()
+                checkCredentials(username.value.toString(), password.value.toString())
             }
         }
     }
@@ -60,31 +71,13 @@ class LoginActivity : AppCompatActivity() {
         if (username.length > 6 && username.isNotBlank()) {
             if (password.length > 6 && password.isNotBlank()) {
                 val loggedAppUser = AppUser(username, password)
-
-                scope.launch(Dispatchers.IO) {
-                    getBD()?.let {
-                        val users = it.userDao().getAllUsers()
-                        if (!users.none { user ->
-                                user.name == username
-                            }) {
-                            withContext(Dispatchers.Main) {
-                                navigateToHomeActivity(loggedAppUser)
-                            }
-                        } else {
-                            withContext(Dispatchers.Main) {
-                                notifyUserNotFound()
-                            }
-                        }
-                    }
-                }
+                if (userList.map { it.name }.contains(username))
+                    navigateToHomeActivity(loggedAppUser)
             } else {
                 notifyInvalidCredentials()
             }
         }
     }
-
-
-    private fun getBD() = TiviClonDatabase.getInstance(applicationContext)
 
     private fun navigateToHomeActivity(loggedAppUser: AppUser) {
         Toast.makeText(this, getString(R.string.valid_user_msg), Toast.LENGTH_SHORT).show()

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.tiviclon.TiviClon
 import com.example.tiviclon.databinding.FragmentSearchBinding
 import com.example.tiviclon.model.application.Show
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
@@ -18,13 +19,13 @@ import com.example.tiviclon.views.homeFragments.search.adapter.SearchAdapter
 import kotlinx.coroutines.*
 import androidx.appcompat.widget.SearchView as androidSearchView
 
-class SearchFragment : HomeBaseFragment() {
+class SearchFragment(val userId: String) : HomeBaseFragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
     private lateinit var adapter: SearchAdapter
     private var showList: MutableList<Show> = mutableListOf()
-    private var initialList: MutableList<Show> = mutableListOf()
+    private var initialShowList: MutableList<Show> = mutableListOf()
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.Main + job)
 
@@ -51,22 +52,10 @@ class SearchFragment : HomeBaseFragment() {
         setUpUI()
         setUpListeners()
         setUpRecyclerView()
-        if (showList.isEmpty()) {
-            uiScope.launch(Dispatchers.IO) {
-                withContext(Dispatchers.Main) {
-                }
-                //asyncOperation
-                async {
-                    getShows()
-                }.await()
-                withContext(Dispatchers.Main) {
-                    adapter.notifyDataSetChanged()
-                }
-            }
-        }
+        setUpLivedata()
     }
 
-    fun setUpListeners() {
+    private fun setUpListeners() {
         with(binding) {
             svShowSearch.setOnQueryTextListener(object :
                 androidSearchView.OnQueryTextListener {
@@ -85,13 +74,25 @@ class SearchFragment : HomeBaseFragment() {
         }
     }
 
+    private fun setUpLivedata() {
+        TiviClon.appContainer.repository.getShows().observe(viewLifecycleOwner) {
+            adapter.swapList(it)
+            initialShowList.addAll(it)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+    }
+
     fun filterList(filter: String) {
-        val allShows = initialList
+        val allShows = initialShowList
         var filteredShows = allShows.filter {
             it.title.contains(filter)
         }
         if (filteredShows.isEmpty()) {
-            filteredShows = allShows
+            filteredShows
         }
         updateList(filteredShows)
     }
@@ -100,7 +101,7 @@ class SearchFragment : HomeBaseFragment() {
         adapter = SearchAdapter(
             showList, onClick = {
                 val activity = getFragmentContext() as IActionsFragment
-                activity.goShowDetail(it.id)
+                activity.goShowDetail(it.id, userId)
             },
             onLongClick = {
                 Toast.makeText(context, it.title, Toast.LENGTH_SHORT).show()
@@ -125,15 +126,6 @@ class SearchFragment : HomeBaseFragment() {
             val activity = getFragmentContext() as FragmentCommonComunication
             activity.updateAppBarText("Buscar")
             svShowSearch.queryHint = "titulo de la serie"
-        }
-    }
-
-    private fun getShows() {
-        val activity = getFragmentContext() as IActionsFragment
-        activity.getShows {
-            showList.clear()
-            showList.addAll(it)
-            initialList.addAll(showList)
         }
     }
 

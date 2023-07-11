@@ -9,7 +9,7 @@ import com.example.tiviclon.databinding.ShowViewholderBinding
 import com.example.tiviclon.model.application.Show
 
 class DiscoverAdapter(
-    private val shows: List<Show>,
+    private val shows: MutableList<Show>,
     private val onClick: (show: Show) -> Unit,
     private val context: Context?
 ) :
@@ -44,6 +44,12 @@ class DiscoverAdapter(
 
     override fun onBindViewHolder(holder: ShowHolder, position: Int) {
         holder.bind(shows[position], shows.size)
+    }
+
+    fun swapList(list: List<Show>) {
+        shows.clear()
+        shows.addAll(list)
+        notifyDataSetChanged()
     }
 
 }

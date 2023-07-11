@@ -21,15 +21,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.tiviclon.R
-import com.example.tiviclon.data.database.TiviClonDatabase
-import com.example.tiviclon.data.retrofit.ApiService
-import com.example.tiviclon.data.retrofit.RetrofitResource.Companion.BASE_URL
+import com.example.tiviclon.TiviClon
+import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.databinding.ActivityHomeBinding
-import com.example.tiviclon.mappers.toShow
-import com.example.tiviclon.mappers.toVOShows
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.model.application.Show
-import com.example.tiviclon.sharedPrefs.TiviClon.Companion.prefs
 import com.example.tiviclon.views.detailShow.DetailShowActivity
 import com.example.tiviclon.views.homeFragments.FragmentCommonComunication
 import com.example.tiviclon.views.homeFragments.IActionsFragment
@@ -44,9 +40,6 @@ import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.fondesa.kpermissions.request.PermissionRequest
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.*
-import retrofit2.Retrofit
-import retrofit2.await
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
 
@@ -54,16 +47,15 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     IActionsFragment {
 
     private lateinit var binding: ActivityHomeBinding
+    private lateinit var appContainer: AppContainer
     private var logged = false
     private var loggedUser = ""
-    private var currentCityName = "none"
-    private val shows: MutableList<Show> = mutableListOf()
-    private var db: TiviClonDatabase? = null
+    private var currentCityName = "please, enable your gps"
     private val scope =
         CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
             loadShowsFromBD()
-            loadFragment(LibraryFragment())
+            loadFragment(DiscoveryFragment(loggedUser))
             hideProgressBar()
         })
 
@@ -78,9 +70,15 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        appContainer = TiviClon.appContainer
 
-        db = getBD()
+        setUpState()
+        setUpUI()
+        setUpListeners()
+        requestPermissions()
+    }
 
+    private fun requestPermissions() {
         request.addListener(this)
         request.addListener {
             if (it.anyPermanentlyDenied()) {
@@ -98,50 +96,11 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 requestLocation()
             }
         }
-        setUpState()
-        setUpUI()
-        setUpListeners()
-
-        val api = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-
-        scope.launch(Dispatchers.IO) {
-            showProgressBar()
-            val api_shows = api.getShows(1).await()
-            api_shows.tv_shows.forEach {
-                Log.d("RESPONSE_COR", it.toString())
-            }
-            val appShows = api_shows.tv_shows.map {
-                it.toShow()
-            }
-            getBD()?.let { bd ->
-                appShows.forEach {
-                    bd.showDao().insert(it.toVOShows())
-                }
-                val dbShows = bd.showDao().getAllShows()
-                Log.i("DATABASE_SHOWS", dbShows.toString())
-            }
-            shows.clear()
-            shows.addAll(appShows)
-            loadFragment(LibraryFragment())
-            hideProgressBar()
-        }
+        request.send()
     }
 
-    override fun getBD() = TiviClonDatabase.getInstance(applicationContext)
-
     private fun loadShowsFromBD() {
-        shows.clear()
-        scope.launch(Dispatchers.IO) {
-            getBD()?.let {
-                val bdShows = it.showDao().getAllShows().map { it.toShow() }
-                shows.clear()
-                shows.addAll(bdShows)
-            }
-        }
+        //nothing to do
     }
 
     override fun hideProgressBar() {
@@ -202,7 +161,12 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                 } else {
                     builder.setPositiveButton(getString(R.string.dialog_disconect)) { _, _ ->
                         setLoggedState(false, "")
-                        loadFragment(LibraryFragment())
+                        loggedUser = ""
+                        loadFragment(DiscoveryFragment(loggedUser))
+                        with(binding) {
+                            bottomNavBar.selectedItemId = R.id.action_discover
+                        }
+
 
                     }
                 }
@@ -228,8 +192,8 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
     }
 
     private fun setUpState() {
-        logged = prefs.getLoginState()
-        prefs.getLoggedUser()?.let {
+        logged = appContainer.repository.getLoginState()
+        appContainer.repository.getLoggedUser()?.let {
             loggedUser = it
         }
     }
@@ -245,15 +209,15 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             bottomNavBar.setOnItemSelectedListener { item ->
                 when (item.itemId) {
                     R.id.action_discover -> {
-                        loadFragment(DiscoveryFragment())
+                        loadFragment(DiscoveryFragment(loggedUser))
                         true
                     }
                     R.id.action_library -> {
-                        loadFragment(LibraryFragment())
+                        loadFragment(LibraryFragment(loggedUser))
                         true
                     }
                     R.id.action_search -> {
-                        loadFragment(SearchFragment())
+                        loadFragment(SearchFragment(loggedUser))
                         true
                     }
                     else -> {
@@ -292,7 +256,10 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
         currentCityName = countryName
     }
 
-    override fun getLocation() = currentCityName
+    override fun getLocation(): String {
+        requestLocation()
+        return currentCityName
+    }
 
     override fun onPermissionsResult(result: List<PermissionStatus>) {
         requestLocation()
@@ -302,13 +269,16 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
             }
             result.anyDenied() -> {
                 currentCityName = getString(R.string.any_permissions_denied)
-                loadFragment(LibraryFragment())
+                loadFragment(DiscoveryFragment(loggedUser))
+                with(binding) {
+                    bottomNavBar.selectedItemId = R.id.action_discover
+                }
             }
             result.allGranted() -> {
                 //TODO
-                loadFragment(LibraryFragment())
+                loadFragment(DiscoveryFragment(loggedUser))
                 with(binding) {
-                    bottomNavBar.selectedItemId = R.id.action_library
+                    bottomNavBar.selectedItemId = R.id.action_discover
                 }
             }
         }
@@ -329,7 +299,12 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         Toast.LENGTH_SHORT
                     ).show()
                     setLoggedState(true, name)
-                    loadFragment(LibraryFragment())
+                    appContainer.repository.saveLoggedUser(name)
+                    loggedUser = name
+                    loadFragment(DiscoveryFragment(name))
+                    with(binding) {
+                        bottomNavBar.selectedItemId = R.id.action_discover
+                    }
                 }
                 RegisterActivity.RESULT_OK_REGISTER -> {
                     Toast.makeText(
@@ -337,21 +312,6 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
                         getString(R.string.register_ok),
                         Toast.LENGTH_SHORT
                     ).show()
-                    getBD()?.let {
-                        scope.launch {
-                            withContext(Dispatchers.IO) {
-                                it.userDao().getAllUsers().forEach {
-                                    Log.i("BD_USERS", it.toString())
-                                }
-                            }
-                        }
-                    } ?: kotlin.run {
-                        Toast.makeText(
-                            this,
-                            getString(R.string.bd_fail),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                 }
                 else -> {
                     Toast.makeText(this, getString(R.string.login_fail), Toast.LENGTH_SHORT).show()
@@ -361,40 +321,22 @@ class HomeActivity : AppCompatActivity(), PermissionRequest.Listener, FragmentCo
 
     override fun isUserLogged() = logged
     private fun setLoggedState(isLogged: Boolean, name: String) {
-        prefs.saveLoginState(isLogged)
-        prefs.saveLoggedUser(name)
+        appContainer.repository.saveLoginState(isLogged)
+        appContainer.repository.saveLoggedUser(name)
         logged = isLogged
     }
 
-    override fun goShowDetail(id: Int) {
-        DetailShowActivity.navigateToShowDetailActivity(this, id)
+    override fun goShowDetail(id: Int, userId: String) {
+        DetailShowActivity.navigateToShowDetailActivity(this, id, userId)
     }
 
-    override fun getShows(onShowsRetrieved: (List<Show>) -> Unit) {
-        onShowsRetrieved(shows)
+    override fun getShows(): List<Show> = emptyList()
+
+    override fun updatePrefShow(show: DetailShow) {
+        //nothingtodo
     }
 
-    override fun setPrefShow(idShow: String) {
-        // nothing to do
-    }
-
-    override fun deletePrefShow(idShow: String) {
-        //nothing to do
-    }
-
-    override fun getPrefsShows(): List<Int> {
-        val showIds = mutableListOf<Int>()
-        prefs.getLoggedUser()?.let {
-            Log.i("USERNAME", it)
-            Log.i("USERNAME", loggedUser)
-            getBD()?.let { db ->
-                showIds.addAll(db.favoriteDao().getUserFavShows(it).map { fav ->
-                    fav.showId.toInt()
-                })
-            }
-        }
-        return showIds
-    }
+    override fun getPrefsShows() = emptyList<Int>()
 
     override fun getDetailShows(
         id: Int,

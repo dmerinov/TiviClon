@@ -6,11 +6,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
-import androidx.room.Room
-import com.example.tiviclon.data.database.TiviClonDatabase
+import androidx.lifecycle.MutableLiveData
+import com.example.tiviclon.TiviClon
+import com.example.tiviclon.container.AppContainer
 import com.example.tiviclon.data.database.entities.User
 import com.example.tiviclon.databinding.ActivityRegisterBinding
-import com.example.tiviclon.mappers.toAppUser
 import kotlinx.coroutines.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -29,20 +29,27 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
-        throwable.printStackTrace()
-    })
-
     private lateinit var binding: ActivityRegisterBinding
-    private var db: TiviClonDatabase? = null
+    private lateinit var appContainer: AppContainer
+    private val userList = mutableListOf<User>()
+    val username = MutableLiveData<String>("-1")
+    val password = MutableLiveData<String>("-1")
+    val passwordVerification = MutableLiveData<String>("-1")
+    private val scope =
+        CoroutineScope(Dispatchers.Main + SupervisorJob() + CoroutineExceptionHandler { _, throwable ->
+            throwable.printStackTrace()
+        })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        appContainer = TiviClon.appContainer
+
         setUpUI()
         setUpListeners()
+        setUpLivedata()
     }
 
     private fun checkRegistry(password: String, repeatedPassword: String, username: String) {
@@ -56,49 +63,49 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 //OK
                 //lets check the database and if theres anybody named that way it will be invalid
-                getBD()?.let {
-                    scope.launch(Dispatchers.IO) {
-                        val bdUsers = it.userDao().getAllUsers().map { it.toAppUser() }
-                        if (bdUsers.none { it.name == username }){
-                            onValidCredentials(username, password)
-                        }else{
-                            onInvalidCredentials(RegisterError.ExistingUserError)
-                        }
-                    }
+                if (userList.none { it.name == username } && username.length > 6) {
+                    onValidCredentials(username, password)
+                } else {
+                    onInvalidCredentials(RegisterError.ExistingUserError)
                 }
             }
         }
     }
 
-    private fun getBD() = TiviClonDatabase.getInstance(applicationContext)
-
     private fun setUpUI() {
         //Nothing to do
+    }
+
+    private fun setUpLivedata() {
+        appContainer.repository.getAllUsers().observe(this) {
+            userList.clear()
+            userList.addAll(it)
+        }
     }
 
     private fun setUpListeners() {
         with(binding) {
             btRegister.setOnClickListener {
+                username.value = etUsername.text.toString()
+                password.value = etPassword.text.toString()
+                passwordVerification.value = etRepeatPassword.text.toString()
                 checkRegistry(
-                    etPassword.text.toString(),
-                    etRepeatPassword.text.toString(),
-                    etUsername.text.toString()
+                    password.value.toString(),
+                    passwordVerification.value.toString(),
+                    username.value.toString()
                 )
             }
         }
     }
 
     private fun onValidCredentials(name: String, password: String) {
-        getBD()?.let {
-            scope.launch(Dispatchers.IO) {
-                it.userDao().insert(User(name, password))
-                val intent = Intent()
-                intent.apply {
-                }
-                setResult(RESULT_OK_REGISTER, intent)
-                withContext(Dispatchers.Main){
-                    finish()
-                }
+
+        scope.launch(Dispatchers.IO) {
+            appContainer.repository.addUserDB(name, password)
+            val intent = Intent()
+            setResult(RESULT_OK_REGISTER, intent)
+            withContext(Dispatchers.Main) {
+                finish()
             }
         }
 
@@ -106,7 +113,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun onInvalidCredentials(error: RegisterError) {
         scope.launch {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 when (error) {
                     RegisterError.PasswordError -> Toast.makeText(
                         this@RegisterActivity,
@@ -130,5 +137,5 @@ class RegisterActivity : AppCompatActivity() {
 }
 
 enum class RegisterError {
-    PasswordError, UserError,ExistingUserError
+    PasswordError, UserError, ExistingUserError
 }

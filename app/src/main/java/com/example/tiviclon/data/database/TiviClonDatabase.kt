@@ -30,17 +30,21 @@ abstract class TiviClonDatabase : RoomDatabase() {
     companion object {
         private var INSTANCE: TiviClonDatabase? = null
 
-        fun getInstance(context: Context): TiviClonDatabase? {
-            if (INSTANCE == null) {
-                synchronized(TiviClonDatabase::class) {
-                    INSTANCE = Room.databaseBuilder(
-                        context.applicationContext,
-                        TiviClonDatabase::class.java, "user.db"
-                    ).allowMainThreadQueries()
-                        .build()
-                }
+        fun getInstance(context: Context): TiviClonDatabase {
+            val tempInstance = INSTANCE
+            if (tempInstance != null) {
+                return tempInstance
             }
-            return INSTANCE
+
+            synchronized(TiviClonDatabase::class) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    TiviClonDatabase::class.java, "user.db"
+                ).allowMainThreadQueries()
+                    .build()
+                INSTANCE = instance
+                return instance
+            }
         }
 
         fun destroyInstance() {

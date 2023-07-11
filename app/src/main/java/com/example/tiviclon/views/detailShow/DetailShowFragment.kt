@@ -9,16 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.example.tiviclon.R
+import com.example.tiviclon.TiviClon.Companion.appContainer
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
+import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
 import com.example.tiviclon.views.homeFragments.IActionsFragment
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 
-class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
+class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragment() {
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
 
@@ -29,14 +28,12 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
             activity.hideProgressBar()
         })
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentShowDetailBinding.inflate(inflater, container, false)
@@ -45,9 +42,32 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val activity = getFragmentContext() as IActionsFragment
-        activity.getDetailShows(showId, uiScope) { setUpUI(it) }
-        setUpListeners()
+        setUpLivedata()
+    }
+
+    private fun setUpLivedata() {
+
+        showId?.let { showId ->
+            appContainer.repository.getDetailShow(showID = showId, userId = userId)
+                .observe(viewLifecycleOwner) {
+
+                    val collectedShow = it// show detail
+                    if (collectedShow != null) {
+                        val favourite = collectedShow.favorite // Favorite
+                        favourite?.let {
+                            val detailshow = collectedShow.toDetailShow(true)
+                            setUpUI(detailshow)
+                            setUpListeners(detailshow, userId)
+                        }
+                    } else {
+                        val detailshow =
+                            appContainer.repository.getDetailShow(showId).toDetailShow(false)
+                        setUpUI(detailshow)
+                        setUpListeners(detailshow, userId)
+                    }
+
+                }
+        }
     }
 
     private fun setUpUI(showVm: DetailShow) {
@@ -79,11 +99,11 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
                 append(" ")
                 append(genres)
             }
-            btFavToggle
             context?.let {
                 Glide.with(it).load(showVm.coverImage).into(ivStockImage)
             }
-            if (isShowFav()) {
+
+            if (showVm.favorite) {
                 btFavToggle.setImageResource(R.drawable.star_fav)
             } else {
                 btFavToggle.setImageResource(R.drawable.star_not_fav)
@@ -91,26 +111,17 @@ class DetailShowFragment(val showId: Int) : HomeBaseFragment() {
         }
     }
 
-    private fun setUpListeners() {
-        with(binding) {
-            btFavToggle.setOnClickListener {
-                val activity = getFragmentContext() as IActionsFragment
-                if (isShowFav()) {
-                    activity.deletePrefShow(showId.toString())
-                    btFavToggle.setImageResource(R.drawable.star_not_fav)
-                } else {
-                    activity.setPrefShow(showId.toString())
-                    btFavToggle.setImageResource(R.drawable.star_fav)
-
+    private fun setUpListeners(collectedShow: DetailShow, username: String) {
+        if (username.isNotBlank()) {
+            with(binding) {
+                btFavToggle.setOnClickListener {
+                    //obtener usuario y show
+                    uiScope.launch {
+                        appContainer.repository.updateFavUser(userId, collectedShow)
+                    }
                 }
             }
         }
-    }
-
-
-    private fun isShowFav(): Boolean {
-        val activity = getFragmentContext() as IActionsFragment
-        return activity.getPrefsShows().contains(showId)
     }
 
     override fun onDestroyView() {

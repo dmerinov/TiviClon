@@ -11,5 +11,6 @@ data class DetailShow(
     val coverImage: String = "",
     val genres: List<String> = emptyList(),
     val status: String = "",
-    val country: String = ""
+    val country: String = "",
+    val favorite: Boolean = false
 ) : Serializable

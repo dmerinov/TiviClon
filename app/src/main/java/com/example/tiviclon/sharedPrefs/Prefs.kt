@@ -1,28 +1,15 @@
 package com.example.tiviclon.sharedPrefs
 
-import android.content.Context
+interface Prefs {
+    fun saveLoginState(state: Boolean)
 
-class Prefs(val context: Context) {
+    fun getLoginState(): Boolean
 
-    private val SHARED_NAME = "tividb"
-    private val SHARED_LOGGING_STATE = "login_state"
-    private val SHARED_USER_STATE = "user_id_state"
+    fun saveLoggedUser(username: String)
 
-    private val storage = context.getSharedPreferences(SHARED_NAME, 0)
+    fun getLoggedUser(): String?
 
-    fun saveLoginState(state: Boolean) {
-        storage.edit().putBoolean(SHARED_LOGGING_STATE, state).apply()
-    }
+    fun saveUserTimestamp(tmp: Long)
 
-    fun getLoginState(): Boolean {
-        return storage.getBoolean(SHARED_LOGGING_STATE, false)
-    }
-
-    fun saveLoggedUser(username: String) {
-        storage.edit().putString(SHARED_USER_STATE, username).apply()
-    }
-
-    fun getLoggedUser(): String? {
-        return storage.getString(SHARED_USER_STATE, null)
-    }
+    fun getUserTimestamp(): Long
 }
