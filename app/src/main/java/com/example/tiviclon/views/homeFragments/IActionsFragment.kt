@@ -7,15 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 
 interface IActionsFragment {
     fun goShowDetail(id: Int, userId: String)
-    fun getShows(): List<Show>
-
-    fun getPrefsShows() : List<Int>
-
-    fun updatePrefShow(show: DetailShow)
-
-    fun getDetailShows(id: Int, scope: CoroutineScope, onShowRetrieved: (DetailShow) -> Unit)
-
     fun hideProgressBar()
-
     fun showProgressBar()
 }

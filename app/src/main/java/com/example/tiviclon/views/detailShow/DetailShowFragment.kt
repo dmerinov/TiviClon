@@ -3,30 +3,23 @@ package com.example.tiviclon.views.detailShow
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.example.tiviclon.R
-import com.example.tiviclon.TiviClon.Companion.appContainer
 import com.example.tiviclon.databinding.FragmentShowDetailBinding
 import com.example.tiviclon.mappers.toDetailShow
 import com.example.tiviclon.model.application.DetailShow
+import com.example.tiviclon.views.detailShow.viewmodel.DetailShowFragmentViewModel
 import com.example.tiviclon.views.homeFragments.HomeBaseFragment
-import com.example.tiviclon.views.homeFragments.IActionsFragment
-import kotlinx.coroutines.*
 
 class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragment() {
     private var _binding: FragmentShowDetailBinding? = null
     private val binding get() = _binding!! //this is the one that you've to use
-
-    val job = Job()
-    private val uiScope =
-        CoroutineScope(Dispatchers.Main + job + CoroutineExceptionHandler { _, throwable ->
-            val activity = getFragmentContext() as IActionsFragment
-            activity.hideProgressBar()
-        })
+    private val showDetailViewModel:
+            DetailShowFragmentViewModel by viewModels { DetailShowFragmentViewModel.Factory(showId, userId) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,27 +39,20 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
     }
 
     private fun setUpLivedata() {
-
-        showId?.let { showId ->
-            appContainer.repository.getDetailShow(showID = showId, userId = userId)
-                .observe(viewLifecycleOwner) {
-
-                    val collectedShow = it// show detail
-                    if (collectedShow != null) {
-                        val favourite = collectedShow.favorite // Favorite
-                        favourite?.let {
-                            val detailshow = collectedShow.toDetailShow(true)
-                            setUpUI(detailshow)
-                            setUpListeners(detailshow, userId)
-                        }
-                    } else {
-                        val detailshow =
-                            appContainer.repository.getDetailShow(showId).toDetailShow(false)
-                        setUpUI(detailshow)
-                        setUpListeners(detailshow, userId)
-                    }
-
+        showDetailViewModel.getDetailShow().observe(viewLifecycleOwner) {
+            val collectedShow = it// show detail
+            if (collectedShow != null) {
+                val favourite = collectedShow.favorite // Favorite
+                favourite?.let {
+                    val detailshow = collectedShow.toDetailShow(true)
+                    setUpUI(detailshow)
+                    setUpListeners(detailshow, userId)
                 }
+            } else {
+                val detailShow = showDetailViewModel.requestDetailShow(showId)
+                setUpUI(detailShow)
+                setUpListeners(detailShow, userId)
+            }
         }
     }
 
@@ -116,9 +102,7 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
             with(binding) {
                 btFavToggle.setOnClickListener {
                     //obtener usuario y show
-                    uiScope.launch {
-                        appContainer.repository.updateFavUser(userId, collectedShow)
-                    }
+                    showDetailViewModel.updateFavState(userId, collectedShow)
                 }
             }
         }
@@ -126,9 +110,6 @@ class DetailShowFragment(val showId: String, val userId: String) : HomeBaseFragm
 
     override fun onDestroyView() {
         super.onDestroyView()
-        //detach binding
-        job.cancel()
-        Log.i("JOBS_COR", "detail job is cancelled")
         _binding = null
     }
 }
