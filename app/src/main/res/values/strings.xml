@@ -17,7 +17,7 @@
     <string name="additional_listener_msg">Revisa los permisos en los ajustes</string>
     <string name="discover">Descubre</string>
     <string name="my_account">Mi Cuenta</string>
-    <string name="login_alert_subtitle">What would you like to do</string>
+    <string name="login_alert_subtitle"></string>
     <string name="dialog_login">Entrar</string>
     <string name="dialog_neutral">Registrarse</string>
     <string name="dialog_disconect">Desconectar</string>
